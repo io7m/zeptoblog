@@ -29,6 +29,7 @@ import com.rometools.rome.feed.synd.SyndFeedImpl;
 import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedOutput;
 import javaslang.Tuple2;
+import javaslang.collection.Iterator;
 import javaslang.collection.Seq;
 import javaslang.collection.SortedMap;
 import javaslang.collection.Vector;
@@ -80,6 +81,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 /**
  * The default blog writer provider.
@@ -440,7 +442,14 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
     private void generatePermalinkPages(
       final ZBlog blog)
     {
-      for (final Tuple2<ZonedDateTime, ZBlogPost> pair : blog.postsByDate()) {
+      final SortedMap<ZonedDateTime, ZBlogPost> by_date = blog.postsByDate();
+
+      final Iterator<Tuple2<ZonedDateTime, ZBlogPost>> iterator =
+        by_date.map(Function.identity()).reverseIterator();
+
+      while (iterator.hasNext()) {
+        final Tuple2<ZonedDateTime, ZBlogPost> pair = iterator.next();
+
         final ZBlogPost post = pair._2;
         final Path out_xhtml =
           post.outputPermalinkFileAbsolute(this.config).toAbsolutePath();
@@ -646,11 +655,16 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
       final String extension = FilenameUtils.getExtension(file.toString());
       if (extension != null && !Objects.equals(extension, "zbp")) {
         final Path relative =
-          this.config.sourceRoot().toAbsolutePath().relativize(file.toAbsolutePath());
+          this.config.sourceRoot().relativize(file.toAbsolutePath());
         final Path output =
           this.config.outputRoot().resolve(relative);
-        LOG.debug("copying {} -> {}", file, output);
-        Files.copy(file, output, StandardCopyOption.REPLACE_EXISTING);
+
+        if (Files.isSymbolicLink(file)) {
+          Files.createSymbolicLink(output, Files.readSymbolicLink(file));
+        } else {
+          LOG.debug("copying {} -> {}", file, output);
+          Files.copy(file, output, StandardCopyOption.REPLACE_EXISTING);
+        }
       }
       return FileVisitResult.CONTINUE;
     }

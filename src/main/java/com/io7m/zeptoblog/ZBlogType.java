@@ -17,6 +17,7 @@
 package com.io7m.zeptoblog;
 
 import javaslang.Tuple2;
+import javaslang.collection.Iterator;
 import javaslang.collection.Seq;
 import javaslang.collection.SortedMap;
 import javaslang.collection.TreeMap;
@@ -77,7 +78,12 @@ public interface ZBlogType
 
     int page_number = 0;
     Vector<ZBlogPost> page = Vector.empty();
-    for (final Tuple2<ZonedDateTime, ZBlogPost> pair : this.postsByDate()) {
+
+    final Iterator<Tuple2<ZonedDateTime, ZBlogPost>> iterator =
+      this.postsByDate().map(Function.identity()).reverseIterator();
+
+    while (iterator.hasNext()) {
+      final Tuple2<ZonedDateTime, ZBlogPost> pair = iterator.next();
       final int page_size = page.size();
       if (page_size == count) {
         result = result.put(Integer.valueOf(page_number), page);
