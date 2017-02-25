@@ -194,6 +194,10 @@ public final class ZBlogPostParserProvider implements
           this.parseHeaderCommandTags(tokens);
           break;
         }
+        default: {
+          this.fail("Unrecognized command", Optional.empty());
+          break;
+        }
       }
     }
 
