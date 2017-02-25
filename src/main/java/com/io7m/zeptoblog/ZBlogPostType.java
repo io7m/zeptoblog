@@ -120,9 +120,17 @@ public interface ZBlogPostType extends Comparable<ZBlogPostType>
     final ZBlogConfiguration config)
   {
     final Path source_zbp = this.path();
-    final Path source_xhtml =
-      source_zbp.getParent().resolve(
+
+    final Path source_xhtml;
+    final Path parent = source_zbp.getParent();
+    if (parent != null) {
+      source_xhtml = parent.resolve(
         source_zbp.getFileName().toString().replaceAll("\\.zbp", ".xhtml"));
+    } else {
+      source_xhtml = source_zbp.resolveSibling(
+        source_zbp.getFileName().toString().replaceAll("\\.zbp", ".xhtml"));
+    }
+
     return config.outputRoot().resolve(source_xhtml).toAbsolutePath();
   }
 
@@ -135,8 +143,8 @@ public interface ZBlogPostType extends Comparable<ZBlogPostType>
   default Path outputPermalinkFileLink(
     final ZBlogConfiguration config)
   {
-    return config.outputRoot().relativize(this.outputPermalinkFileAbsolute(
-      config));
+    return config.outputRoot().relativize(
+      this.outputPermalinkFileAbsolute(config));
   }
 
   /**
