@@ -49,7 +49,7 @@ output directory.
 Compile the blog:
 
 ```
-$ java -jar com.io7m.zeptoblog-0.1.0-main.jar compile -config blog.conf
+$ java -jar com.io7m.zeptoblog-0.2.0-main.jar compile -config blog.conf
 ```
 
 Use [rsync](https://rsync.samba.org/) to copy `/tmp/blog-out` to a site.
