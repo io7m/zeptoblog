@@ -7,7 +7,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.io7m.zeptoblog</groupId>
   <artifactId>com.io7m.zeptoblog</artifactId>
-  <version>0.1.0</version>
+  <version>0.2.0</version>
 
   <packaging>bundle</packaging>
   <name>com.io7m.zeptoblog</name>
