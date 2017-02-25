@@ -153,7 +153,7 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
       this.format_time = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
     }
 
-    private Element meta()
+    private Element metaType()
     {
       final Element e = new Element("meta", XHTML_URI_TEXT);
       e.addAttribute(
@@ -163,11 +163,30 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
       return e;
     }
 
+    private Element metaGenerator()
+    {
+      final Element e = new Element("meta", XHTML_URI_TEXT);
+      e.addAttribute(
+        new Attribute("name", null, "generator"));
+      e.addAttribute(
+        new Attribute(
+          "content",
+          null,
+          "https://github.com/io7m/zeptoblog; version=" + version()));
+      return e;
+    }
+
+    private static String version()
+    {
+      return Writer.class.getPackage().getImplementationVersion();
+    }
+
     private Element head(
       final String title)
     {
       final Element e = new Element("head", XHTML_URI_TEXT);
-      e.appendChild(this.meta());
+      e.appendChild(this.metaType());
+      e.appendChild(this.metaGenerator());
 
       final Element e_title = new Element("title", XHTML_URI_TEXT);
       e_title.appendChild(title);
@@ -375,7 +394,9 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
           feed_entry.setPublishedDate(date);
           feed_entry.setContents(content);
           feed_entry.setAuthor(this.config.author());
-          feed_entry.setLink(post.outputPermalinkLink(this.config));
+          final String link = post.outputPermalinkLink(this.config);
+          LOG.debug("feed link: {}", link);
+          feed_entry.setLink(link);
           entries.add(feed_entry);
         }
 
@@ -575,8 +596,9 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
 
       final Element e_permalink = new Element("a", XHTML_URI_TEXT);
       e_permalink.appendChild("Permalink");
-      e_permalink.addAttribute(
-        new Attribute("href", null, post.outputPermalinkLink(this.config)));
+      final String link = post.outputPermalinkLink(this.config);
+      LOG.debug("permalink: {}", link);
+      e_permalink.addAttribute(new Attribute("href", null, link));
 
       final Element e_foot = new Element("div", XHTML_URI_TEXT);
       e_foot.addAttribute(new Attribute("class", "zb_post_foot"));

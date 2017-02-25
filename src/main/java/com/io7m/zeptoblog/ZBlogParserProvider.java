@@ -104,7 +104,13 @@ public final class ZBlogParserProvider implements ZBlogParserProviderType
     final ZBlogConfiguration config)
   {
     NullCheck.notNull(config, "config");
-    return new Parser(this.post_provider.get(), config);
+
+    final ZBlogPostParserProviderType provider = this.post_provider.get();
+    if (provider != null) {
+      return new Parser(provider, config);
+    }
+
+    throw new IllegalStateException("No parser provider available");
   }
 
   private static final class Parser implements ZBlogParserType,
@@ -184,7 +190,7 @@ public final class ZBlogParserProvider implements ZBlogParserProviderType
             this.provider.createParser(stream, relative);
           final Validation<Seq<ZError>, ZBlogPost> r = parser.parse();
           if (r.isInvalid()) {
-            this.errors.appendAll(r.getError());
+            this.errors = this.errors.appendAll(r.getError());
           } else {
             final ZBlogPost post = r.get();
 

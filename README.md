@@ -43,13 +43,13 @@ efficitur sed nisi ac volutpat.
 ![Ladybug](/2017/02/24/ladybug.jpg)
 ```
 
-Any files with names not ending in `.zpb` will be copied unmodified to the
+Any files with names not ending in `.zbp` will be copied unmodified to the
 output directory.
 
 Compile the blog:
 
 ```
-$ java -jar com.io7m.zeptoblog-0.1.0-main.jar compile -config blog.conf
+$ java -jar com.io7m.zeptoblog-0.2.0-main.jar compile -config blog.conf
 ```
 
 Use [rsync](https://rsync.samba.org/) to copy `/tmp/blog-out` to a site.
