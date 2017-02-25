@@ -19,6 +19,7 @@ package com.io7m.zeptoblog;
 import org.immutables.javaslang.encodings.JavaslangEncodingEnabled;
 import org.immutables.value.Value;
 
+import java.net.URI;
 import java.nio.file.Path;
 
 /**
@@ -36,6 +37,13 @@ public interface ZBlogConfigurationType
 
   @Value.Parameter
   String title();
+
+  /**
+   * @return The blog author
+   */
+
+  @Value.Parameter
+  String author();
 
   /**
    * @return The directory containing source files for the blog
@@ -64,4 +72,11 @@ public interface ZBlogConfigurationType
 
   @Value.Parameter
   int idLength();
+
+  /**
+   * @return The site URI
+   */
+
+  @Value.Parameter
+  URI siteURI();
 }

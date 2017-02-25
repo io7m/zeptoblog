@@ -25,6 +25,7 @@ import javaslang.collection.Vector;
 import javaslang.control.Validation;
 
 import java.math.BigInteger;
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
@@ -78,6 +79,20 @@ public final class ZBlogConfigurations
     try {
       builder.setOutputRoot(
         Paths.get(JProperties.getString(p, "com.io7m.zeptoblog.output_root")));
+    } catch (final Exception e) {
+      errors = errors.append(ofException(path, e));
+    }
+
+    try {
+      builder.setSiteURI(
+        new URI(JProperties.getString(p, "com.io7m.zeptoblog.site_uri")));
+    } catch (final Exception e) {
+      errors = errors.append(ofException(path, e));
+    }
+
+    try {
+      builder.setAuthor(
+        JProperties.getString(p, "com.io7m.zeptoblog.author"));
     } catch (final Exception e) {
       errors = errors.append(ofException(path, e));
     }

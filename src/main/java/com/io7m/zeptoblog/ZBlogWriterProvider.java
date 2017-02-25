@@ -19,6 +19,15 @@ package com.io7m.zeptoblog;
 import com.io7m.jfunctional.Unit;
 import com.io7m.jlexing.core.LexicalPosition;
 import com.io7m.jnull.NullCheck;
+import com.rometools.rome.feed.atom.Content;
+import com.rometools.rome.feed.synd.SyndContent;
+import com.rometools.rome.feed.synd.SyndContentImpl;
+import com.rometools.rome.feed.synd.SyndEntry;
+import com.rometools.rome.feed.synd.SyndEntryImpl;
+import com.rometools.rome.feed.synd.SyndFeed;
+import com.rometools.rome.feed.synd.SyndFeedImpl;
+import com.rometools.rome.io.FeedException;
+import com.rometools.rome.io.SyndFeedOutput;
 import javaslang.Tuple2;
 import javaslang.collection.Seq;
 import javaslang.collection.SortedMap;
@@ -45,6 +54,7 @@ import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
@@ -54,9 +64,13 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The default blog writer provider.
@@ -164,6 +178,14 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
         e.appendChild(e_link);
       }
 
+      {
+        final Element e_link = new Element("link", XHTML_URI_TEXT);
+        e_link.addAttribute(new Attribute("rel", null, "alternate"));
+        e_link.addAttribute(new Attribute("type", null, "application/atom+xml"));
+        e_link.addAttribute(new Attribute("href", null, "/blog.atom"));
+        e.appendChild(e_link);
+      }
+
       return e;
     }
 
@@ -268,6 +290,88 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
     {
       NullCheck.notNull(blog, "Blog");
 
+      this.generateSegmentPages(blog);
+      this.generatePermalinkPages(blog);
+      this.generateAtomFeed(blog);
+      this.copyFiles();
+      this.copyResource("reset.css");
+      this.copyResource("style.css");
+
+      if (this.errors.isEmpty()) {
+        return Validation.valid(Unit.unit());
+      }
+
+      return Validation.invalid(this.errors);
+    }
+
+    private static String ellipsize(
+      final String input,
+      final int max) {
+      if (input.length() < max) {
+        return input;
+      }
+      return input.substring(0, max) + "...";
+    }
+
+    private void generateAtomFeed(
+      final ZBlog blog)
+    {
+      final Path out_atom =
+        this.config.outputRoot().resolve("blog.atom").toAbsolutePath();
+
+      LOG.debug("atom: {}", out_atom);
+
+      try (final OutputStream output = Files.newOutputStream(out_atom)) {
+        final SyndFeed feed = new SyndFeedImpl();
+        feed.setFeedType("atom_0.3");
+        feed.setTitle(blog.title());
+        feed.setDescription("Atom feed");
+        feed.setLink(this.config.siteURI().toString());
+        feed.setAuthor(this.config.author());
+
+        final SortedMap<ZonedDateTime, ZBlogPost> by_date = blog.postsByDate();
+        final Tuple2<ZonedDateTime, ZBlogPost> last = by_date.last();
+        feed.setPublishedDate(dateToTime(last._1));
+
+        final List<SyndEntry> entries = new ArrayList<>(by_date.size());
+        for (final Tuple2<ZonedDateTime, ZBlogPost> entry : by_date) {
+          final ZBlogPost post = entry._2;
+
+          final List<SyndContent> content = new ArrayList<>();
+          final SyndContentImpl cc = new SyndContentImpl();
+          cc.setType(Content.TEXT);
+          cc.setValue(ellipsize(post.body(), 72));
+          cc.setMode(Content.ESCAPED);
+          content.add(cc);
+
+          final SyndEntry feed_entry = new SyndEntryImpl();
+          final Date date = dateToTime(post.date());
+          feed_entry.setTitle(post.title());
+          feed_entry.setUpdatedDate(date);
+          feed_entry.setPublishedDate(date);
+          feed_entry.setContents(content);
+          feed_entry.setAuthor(this.config.author());
+          feed_entry.setLink(post.outputPermalinkLink(this.config));
+          entries.add(feed_entry);
+        }
+
+        feed.setEntries(entries);
+        output.write(new SyndFeedOutput().outputString(feed)
+                       .getBytes(StandardCharsets.UTF_8));
+        output.flush();
+      } catch (final IOException | FeedException e) {
+        this.failException(out_atom, e);
+      }
+    }
+
+    private static Date dateToTime(final ZonedDateTime time)
+    {
+      return new Date(TimeUnit.MILLISECONDS.convert(time.toEpochSecond(), TimeUnit.SECONDS));
+    }
+
+    private void generateSegmentPages(
+      final ZBlog blog)
+    {
       final SortedMap<Integer, Seq<ZBlogPost>> pages =
         blog.postsByPage(this.config.postsPerPage());
 
@@ -310,10 +414,14 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
               Optional.of(e)));
           }
         } catch (final IOException e) {
-          this.logIOError(out_xhtml, e);
+          this.failException(out_xhtml, e);
         }
       }
+    }
 
+    private void generatePermalinkPages(
+      final ZBlog blog)
+    {
       for (final Tuple2<ZonedDateTime, ZBlogPost> pair : blog.postsByDate()) {
         final ZBlogPost post = pair._2;
         final Path out_xhtml =
@@ -345,10 +453,13 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
               Optional.of(e)));
           }
         } catch (final IOException e) {
-          this.logIOError(out_xhtml, e);
+          this.failException(out_xhtml, e);
         }
       }
+    }
 
+    private void copyFiles()
+    {
       try {
         Files.walkFileTree(
           this.config.sourceRoot(),
@@ -356,17 +467,8 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
           Integer.MAX_VALUE,
           this);
       } catch (final IOException e) {
-        this.logIOError(this.config.sourceRoot(), e);
+        this.failException(this.config.sourceRoot(), e);
       }
-
-      this.copyResource("reset.css");
-      this.copyResource("style.css");
-
-      if (this.errors.isEmpty()) {
-        return Validation.valid(Unit.unit());
-      }
-
-      return Validation.invalid(this.errors);
     }
 
     private Element footerPageLinks(
@@ -404,24 +506,23 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
         LOG.debug("write {} -> {}", name, out_path);
 
         try (final OutputStream out = Files.newOutputStream(out_path)) {
+          final Class<ZBlogWriterProvider> c = ZBlogWriterProvider.class;
           try (final InputStream in =
-                 ZBlogWriterProvider.class.getResourceAsStream(
-                   "/com/io7m/zeptoblog/" + name)) {
+                 c.getResourceAsStream("/com/io7m/zeptoblog/" + name)) {
             IOUtils.copy(in, out);
             out.flush();
           }
         }
       } catch (final IOException e) {
-        this.logIOError(out_path, e);
+        this.failException(out_path, e);
       }
     }
 
-    private void logIOError(
+    private void failException(
       final Path out,
-      final IOException e)
+      final Exception e)
     {
-      this.errors = this.errors.append(ZError.of(
-        "I/O error: " + e.getMessage(),
+      this.errors = this.errors.append(ZError.of(e.getMessage(),
         LexicalPosition.of(0, 0, Optional.of(out.toAbsolutePath())),
         Optional.of(e)));
     }
@@ -536,7 +637,7 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
       final IOException exc)
       throws IOException
     {
-      this.logIOError(file, exc);
+      this.failException(file, exc);
       return FileVisitResult.CONTINUE;
     }
 
