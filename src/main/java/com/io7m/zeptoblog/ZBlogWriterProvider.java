@@ -153,7 +153,7 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
       this.format_time = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
     }
 
-    private Element meta()
+    private Element metaType()
     {
       final Element e = new Element("meta", XHTML_URI_TEXT);
       e.addAttribute(
@@ -163,11 +163,30 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
       return e;
     }
 
+    private Element metaGenerator()
+    {
+      final Element e = new Element("meta", XHTML_URI_TEXT);
+      e.addAttribute(
+        new Attribute("name", null, "generator"));
+      e.addAttribute(
+        new Attribute(
+          "content",
+          null,
+          "https://github.com/io7m/zeptoblog; version=" + version()));
+      return e;
+    }
+
+    private static String version()
+    {
+      return Writer.class.getPackage().getImplementationVersion();
+    }
+
     private Element head(
       final String title)
     {
       final Element e = new Element("head", XHTML_URI_TEXT);
-      e.appendChild(this.meta());
+      e.appendChild(this.metaType());
+      e.appendChild(this.metaGenerator());
 
       final Element e_title = new Element("title", XHTML_URI_TEXT);
       e_title.appendChild(title);
