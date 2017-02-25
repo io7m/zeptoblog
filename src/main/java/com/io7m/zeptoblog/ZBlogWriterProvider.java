@@ -294,9 +294,9 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
       this.generateSegmentPages(blog);
       this.generatePermalinkPages(blog);
       this.generateAtomFeed(blog);
-      this.copyFiles();
       this.copyResource("reset.css");
       this.copyResource("style.css");
+      this.copyFiles();
 
       if (this.errors.isEmpty()) {
         return Validation.valid(Unit.unit());
