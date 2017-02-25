@@ -1,18 +1,23 @@
 body
 {
-  padding: 1em;
+  max-width: 40em;
+  padding:   1em;
 }
 
 p
 {
-  max-width:   40em;
-  width:       40em;
   text-align:  justify;
+}
+
+code
+{
+  font-family: monospace;
 }
 
 pre
 {
   margin-left: 1em;
+  font-family: monospace;
 }
 
 th
@@ -29,8 +34,6 @@ td
 .zb_post
 {
   margin-bottom: 2em;
-  max-width:     40em;
-  width:         40em;
 }
 
 .zb_post_date
