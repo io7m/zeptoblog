@@ -10,6 +10,11 @@ p
   text-align:  justify;
 }
 
+pre
+{
+  margin-left: 1em;
+}
+
 th
 {
   text-align: left;
@@ -24,6 +29,8 @@ td
 .zb_post
 {
   margin-bottom: 2em;
+  max-width:     40em;
+  width:         40em;
 }
 
 .zb_post_date
@@ -34,6 +41,11 @@ td
 .zb_post_title
 {
   margin-left: 1em;
+}
+
+.zb_post_foot
+{
+  text-align: right;
 }
 
 #zb_footer
