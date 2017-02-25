@@ -32,6 +32,7 @@ import javaslang.Tuple2;
 import javaslang.collection.Seq;
 import javaslang.collection.SortedMap;
 import javaslang.collection.Vector;
+import javaslang.control.Option;
 import javaslang.control.Validation;
 import nu.xom.Attribute;
 import nu.xom.Builder;
@@ -231,7 +232,7 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
         final Path absolute =
           current_file.getFileSystem().getPath(replaced).toAbsolutePath();
         final Path relative =
-          this.config.outputRoot().relativize(absolute);
+          this.config.outputRoot().toAbsolutePath().relativize(absolute);
 
         final String sig_name = relative.getFileName().toString();
         final Element e_a = new Element("a", XHTML_URI_TEXT);
@@ -330,8 +331,12 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
         feed.setAuthor(this.config.author());
 
         final SortedMap<ZonedDateTime, ZBlogPost> by_date = blog.postsByDate();
-        final Tuple2<ZonedDateTime, ZBlogPost> last = by_date.last();
-        feed.setPublishedDate(dateToTime(last._1));
+        final Option<Tuple2<ZonedDateTime, ZBlogPost>> last_opt = by_date.lastOption();
+
+        if (last_opt.isDefined()) {
+          final Tuple2<ZonedDateTime, ZBlogPost> last = last_opt.get();
+          feed.setPublishedDate(dateToTime(last._1));
+        }
 
         final List<SyndEntry> entries = new ArrayList<>(by_date.size());
         for (final Tuple2<ZonedDateTime, ZBlogPost> entry : by_date) {

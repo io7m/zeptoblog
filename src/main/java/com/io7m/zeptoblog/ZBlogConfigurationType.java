@@ -16,6 +16,7 @@
 
 package com.io7m.zeptoblog;
 
+import com.io7m.jaffirm.core.Preconditions;
 import org.immutables.javaslang.encodings.JavaslangEncodingEnabled;
 import org.immutables.value.Value;
 
@@ -79,4 +80,22 @@ public interface ZBlogConfigurationType
 
   @Value.Parameter
   URI siteURI();
+
+  /**
+   * Check preconditions for the type.
+   */
+
+  @Value.Check
+  default void checkPreconditions()
+  {
+    Preconditions.checkPrecondition(
+      this.sourceRoot(),
+      this.sourceRoot().isAbsolute(),
+      p -> "Source root path " + p + " must be absolute");
+
+    Preconditions.checkPrecondition(
+      this.outputRoot(),
+      this.outputRoot().isAbsolute(),
+      p -> "Output root path " + p + " must be absolute");
+  }
 }
