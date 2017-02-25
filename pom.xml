@@ -561,6 +561,12 @@
                     <include>**</include>
                   </includes>
                 </filter>
+                <filter>
+                  <artifact>com.rometools:*</artifact>
+                  <includes>
+                    <include>**</include>
+                  </includes>
+                </filter>
               </filters>
             </configuration>
           </execution>

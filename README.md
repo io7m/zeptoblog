@@ -43,6 +43,9 @@ efficitur sed nisi ac volutpat.
 ![Ladybug](/2017/02/24/ladybug.jpg)
 ```
 
+Any files with names not ending in `.zpb` will be copied unmodified to the
+output directory.
+
 Compile the blog:
 
 ```
