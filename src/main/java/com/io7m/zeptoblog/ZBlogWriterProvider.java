@@ -431,7 +431,7 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
       throws ParsingException, IOException
     {
       final Element e = new Element("div", XHTML_URI_TEXT);
-      e.addAttribute(new Attribute("id", null, post.idShort(this.config)));
+      e.addAttribute(new Attribute("id", null, "zb_post_" + post.idShort(this.config)));
       e.addAttribute(new Attribute("class", "zb_post"));
 
       final Element e_head = new Element("div", XHTML_URI_TEXT);
@@ -457,7 +457,7 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
 
         final Element e_a = new Element("a", XHTML_URI_TEXT);
         e_a.addAttribute(
-          new Attribute("href", null, "#" + post.idShort(this.config)));
+          new Attribute("href", null, "#zb_post_" + post.idShort(this.config)));
         e_a.appendChild(post.title());
 
         e_title.appendChild(e_a);
