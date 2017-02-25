@@ -10,7 +10,7 @@
   <version>0.1.0</version>
 
   <packaging>bundle</packaging>
-  <name>io7m-zeptoblog</name>
+  <name>com.io7m.zeptoblog</name>
   <description>Git mirroring tool</description>
   <url>http://github.com/io7m/zeptoblog</url>
 
