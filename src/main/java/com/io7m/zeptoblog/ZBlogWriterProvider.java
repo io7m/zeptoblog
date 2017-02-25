@@ -43,8 +43,14 @@ import nu.xom.ParsingException;
 import nu.xom.Serializer;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.commonmark.node.FencedCodeBlock;
+import org.commonmark.node.IndentedCodeBlock;
+import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
+import org.commonmark.renderer.NodeRenderer;
+import org.commonmark.renderer.html.HtmlNodeRendererContext;
 import org.commonmark.renderer.html.HtmlRenderer;
+import org.commonmark.renderer.html.HtmlWriter;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,9 +74,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -182,7 +190,10 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
       {
         final Element e_link = new Element("link", XHTML_URI_TEXT);
         e_link.addAttribute(new Attribute("rel", null, "alternate"));
-        e_link.addAttribute(new Attribute("type", null, "application/atom+xml"));
+        e_link.addAttribute(new Attribute(
+          "type",
+          null,
+          "application/atom+xml"));
         e_link.addAttribute(new Attribute("href", null, "/blog.atom"));
         e.appendChild(e_link);
       }
@@ -307,7 +318,8 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
 
     private static String ellipsize(
       final String input,
-      final int max) {
+      final int max)
+    {
       if (input.length() < max) {
         return input;
       }
@@ -371,7 +383,9 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
 
     private static Date dateToTime(final ZonedDateTime time)
     {
-      return new Date(TimeUnit.MILLISECONDS.convert(time.toEpochSecond(), TimeUnit.SECONDS));
+      return new Date(TimeUnit.MILLISECONDS.convert(
+        time.toEpochSecond(),
+        TimeUnit.SECONDS));
     }
 
     private void generateSegmentPages(
@@ -406,7 +420,6 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
             page.footer.insertChild(this.footerPageLinks(pair, pages), 0);
 
             final Serializer serial = new Serializer(output, "UTF-8");
-            serial.setIndent(2);
             serial.write(page.document);
             serial.flush();
           } catch (final ParsingException e) {
@@ -445,7 +458,6 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
             page.content.appendChild(this.writePost(post));
 
             final Serializer serial = new Serializer(output, "UTF-8");
-            serial.setIndent(2);
             serial.write(page.document);
             serial.flush();
           } catch (final ParsingException e) {
@@ -527,7 +539,8 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
       final Path out,
       final Exception e)
     {
-      this.errors = this.errors.append(ZError.of(e.getMessage(),
+      this.errors = this.errors.append(ZError.of(
+        e.getMessage(),
         LexicalPosition.of(0, 0, Optional.of(out.toAbsolutePath())),
         Optional.of(e)));
     }
@@ -537,7 +550,10 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
       throws ParsingException, IOException
     {
       final Element e = new Element("div", XHTML_URI_TEXT);
-      e.addAttribute(new Attribute("id", null, "zb_post_" + post.idShort(this.config)));
+      e.addAttribute(new Attribute(
+        "id",
+        null,
+        "zb_post_" + post.idShort(this.config)));
       e.addAttribute(new Attribute("class", "zb_post"));
 
       final Element e_head = new Element("div", XHTML_URI_TEXT);
@@ -590,7 +606,10 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
     {
       final Parser parser = Parser.builder().build();
       final org.commonmark.node.Node document = parser.parse(body);
-      final HtmlRenderer renderer = HtmlRenderer.builder().build();
+      final HtmlRenderer renderer =
+        HtmlRenderer.builder()
+          .nodeRendererFactory(IndentedCodeBlockNodeRenderer::new)
+          .build();
 
       try (final StringWriter writer = new StringWriter(1024)) {
         writer.append("<div xmlns=\"http://www.w3.org/1999/xhtml\">");
@@ -653,6 +672,47 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
       throws IOException
     {
       return FileVisitResult.CONTINUE;
+    }
+  }
+
+  private static final class IndentedCodeBlockNodeRenderer
+    implements NodeRenderer
+  {
+    private final HtmlWriter html;
+
+    IndentedCodeBlockNodeRenderer(
+      final HtmlNodeRendererContext context)
+    {
+      this.html = context.getWriter();
+    }
+
+    @Override
+    public Set<Class<? extends Node>> getNodeTypes()
+    {
+      final Set<Class<? extends Node>> s = new HashSet<>(2);
+      s.add(IndentedCodeBlock.class);
+      s.add(FencedCodeBlock.class);
+      return s;
+    }
+
+    @Override
+    public void render(final Node node)
+    {
+      if (node instanceof IndentedCodeBlock) {
+        this.html.line();
+        this.html.tag("pre");
+        this.html.text(((IndentedCodeBlock) node).getLiteral());
+        this.html.tag("/pre");
+        this.html.line();
+      }
+
+      if (node instanceof FencedCodeBlock) {
+        this.html.line();
+        this.html.tag("pre");
+        this.html.text(((FencedCodeBlock) node).getLiteral());
+        this.html.tag("/pre");
+        this.html.line();
+      }
     }
   }
 }
