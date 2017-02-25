@@ -352,11 +352,16 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
           feed.setPublishedDate(dateToTime(last._1));
         }
 
-        final List<SyndEntry> entries = new ArrayList<>(by_date.size());
-        for (final Tuple2<ZonedDateTime, ZBlogPost> entry : by_date) {
+        final List<SyndEntry> entries =
+          new ArrayList<>(by_date.size());
+        final Iterator<Tuple2<ZonedDateTime, ZBlogPost>> iterator =
+          by_date.map(Function.identity()).reverseIterator();
+
+        while (iterator.hasNext()) {
+          final Tuple2<ZonedDateTime, ZBlogPost> entry = iterator.next();
           final ZBlogPost post = entry._2;
 
-          final List<SyndContent> content = new ArrayList<>();
+          final List<SyndContent> content = new ArrayList<>(1);
           final SyndContentImpl cc = new SyndContentImpl();
           cc.setType(Content.TEXT);
           cc.setValue(ellipsize(post.body(), 72));
