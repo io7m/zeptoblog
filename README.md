@@ -43,8 +43,11 @@ efficitur sed nisi ac volutpat.
 ![Ladybug](/2017/02/24/ladybug.jpg)
 ```
 
-Any files with names not ending in `.zbp` will be copied unmodified to the
-output directory.
+Files can appear anywhere in `com.io7m.zeptoblog.source_root`
+including any subdirectory, and directory names do not carry any
+specific meaning. Organizing posts by `year/month/day` is merely a
+useful convention. Any files with names not ending in `.zbp` will
+be copied unmodified to the output directory.
 
 Compile the blog:
 
