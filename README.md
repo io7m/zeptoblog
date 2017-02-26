@@ -68,3 +68,6 @@ $ find /tmp/blog-out -name '*.xhtml' -type f -exec gpg -a --detach-sign -u 'my k
 
 Use [rsync](https://rsync.samba.org/) to copy `/tmp/blog-out` to a site.
 
+## Real-world Examples
+
+http://blog.io7m.com
