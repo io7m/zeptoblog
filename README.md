@@ -55,5 +55,11 @@ Compile the blog:
 $ java -jar com.io7m.zeptoblog-0.2.0-main.jar compile -config blog.conf
 ```
 
+Sign pages with `gpg`:
+
+```
+$ find /tmp/blog-out -name '*.xhtml' -type f -exec gpg -a --detach-sign -u 'my key id' {} \;
+```
+
 Use [rsync](https://rsync.samba.org/) to copy `/tmp/blog-out` to a site.
 
