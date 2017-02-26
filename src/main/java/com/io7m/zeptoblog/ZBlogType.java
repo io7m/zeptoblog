@@ -71,7 +71,7 @@ public interface ZBlogType
    * @return A list of pages containing posts
    */
 
-  default SortedMap<Integer, Seq<ZBlogPost>> postsByPage(
+  default SortedMap<Integer, Seq<ZBlogPost>> postsGroupedByPage(
     final int count)
   {
     SortedMap<Integer, Seq<ZBlogPost>> result = TreeMap.empty();
@@ -95,6 +95,39 @@ public interface ZBlogType
 
     if (!page.isEmpty()) {
       result = result.put(Integer.valueOf(page_number), page);
+    }
+
+    return result;
+  }
+
+  /**
+   * Group the blog posts by year.
+   *
+   * @return A list of pages containing posts
+   */
+
+  @Value.Lazy
+  default SortedMap<Integer, Seq<ZBlogPost>> postsGroupedByYear()
+  {
+    SortedMap<Integer, Seq<ZBlogPost>> result = TreeMap.empty();
+
+    final Iterator<Tuple2<ZonedDateTime, ZBlogPost>> iterator =
+      this.postsByDate().map(Function.identity()).reverseIterator();
+
+    while (iterator.hasNext()) {
+      final Tuple2<ZonedDateTime, ZBlogPost> pair = iterator.next();
+      final ZonedDateTime date = pair._1;
+
+      Seq<ZBlogPost> year_seq;
+      final Integer year = Integer.valueOf(date.getYear());
+      if (result.containsKey(year)) {
+        year_seq = result.get(year).get();
+      } else {
+        year_seq = Vector.empty();
+      }
+
+      year_seq = year_seq.append(pair._2);
+      result = result.put(year, year_seq);
     }
 
     return result;

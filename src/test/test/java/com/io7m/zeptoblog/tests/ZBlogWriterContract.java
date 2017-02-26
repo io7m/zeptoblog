@@ -115,6 +115,15 @@ public abstract class ZBlogWriterContract
       final Validation<Seq<ZError>, Unit> w_result = writer.write(blog);
       dumpResult(w_result);
       Assert.assertTrue(w_result.isValid());
+
+      Assert.assertTrue(
+        Files.isRegularFile(config.outputRoot().resolve("one.xhtml")));
+      Assert.assertTrue(
+        Files.isRegularFile(config.outputRoot().resolve("1.xhtml")));
+      Assert.assertTrue(
+        Files.isRegularFile(config.outputRoot().resolve("yearly.xhtml")));
+      Assert.assertTrue(
+        Files.isRegularFile(config.outputRoot().resolve("blog.atom")));
     }
   }
 

@@ -228,9 +228,15 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
       final Element e = new Element("body", XHTML_URI_TEXT);
       final Element e_head = new Element("div", XHTML_URI_TEXT);
 
-      final Element e_title = new Element("h2", XHTML_URI_TEXT);
-      e_title.appendChild(this.config.title());
-      e_head.appendChild(e_title);
+      {
+        final Element e_a = new Element("a", XHTML_URI_TEXT);
+        e_a.addAttribute(new Attribute("href", null, "/"));
+        final Element e_title = new Element("h2", XHTML_URI_TEXT);
+        e_title.appendChild(this.config.title());
+        e_a.appendChild(e_title);
+        e_head.appendChild(e_a);
+      }
+
       e_head.addAttribute(new Attribute("class", "zb_header"));
       e_head.addAttribute(new Attribute("id", "zb_header"));
 
@@ -325,6 +331,7 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
 
       this.generateSegmentPages(blog);
       this.generatePermalinkPages(blog);
+      this.generateYearlyPages(blog);
       this.generateAtomFeed(blog);
       this.copyResource("reset.css");
       this.copyResource("style.css");
@@ -335,6 +342,78 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
       }
 
       return Validation.invalid(this.errors);
+    }
+
+    private void generateYearlyPages(
+      final ZBlog blog)
+    {
+      final SortedMap<Integer, Seq<ZBlogPost>> posts =
+        blog.postsGroupedByYear();
+
+      final Path out_xhtml =
+        this.config.outputRoot().resolve("yearly.xhtml").toAbsolutePath();
+
+      final StringBuilder sb = new StringBuilder(128);
+      sb.append(this.config.title());
+      sb.append(": Posts by year");
+      LOG.debug("out: yearly {}", out_xhtml);
+
+      try {
+        Files.createDirectories(out_xhtml.getParent());
+
+        try (final OutputStream output = Files.newOutputStream(out_xhtml)) {
+          final Page page = this.page(out_xhtml, sb.toString());
+
+          for (final Tuple2<Integer, Seq<ZBlogPost>> pair : posts) {
+            page.content.appendChild(
+              this.generateYearlyIndex(pair._1, pair._2));
+          }
+
+          final Serializer serial = new Serializer(output, "UTF-8");
+          serial.write(page.document);
+          serial.flush();
+        }
+      } catch (final IOException e) {
+        this.failException(out_xhtml, e);
+      }
+    }
+
+    private Element generateYearlyIndex(
+      final Integer year,
+      final Seq<ZBlogPost> posts)
+    {
+      final Element e = new Element("div", XHTML_URI_TEXT);
+
+      final Element e_title = new Element("h3", XHTML_URI_TEXT);
+      e.appendChild(e_title);
+      e_title.appendChild(year.toString());
+
+      final Element e_table = new Element("table", XHTML_URI_TEXT);
+      e.appendChild(e_table);
+
+      for (final ZBlogPost p : posts) {
+        final Element e_tr = new Element("tr", XHTML_URI_TEXT);
+        e_table.appendChild(e_tr);
+
+        final Element e_td_date = new Element("td", XHTML_URI_TEXT);
+        e_tr.appendChild(e_td_date);
+        e_td_date.appendChild(p.date().format(this.format_date));
+        e_td_date.addAttribute(new Attribute("class", null, "zb_post_date"));
+
+        final Element e_td_title = new Element("td", XHTML_URI_TEXT);
+        e_tr.appendChild(e_td_title);
+
+        final Element e_a = new Element("a", XHTML_URI_TEXT);
+        e_a.addAttribute(new Attribute(
+          "href",
+          null,
+          p.outputPermalinkLink(this.config)));
+        e_a.appendChild(p.title());
+
+        e_td_title.appendChild(e_a);
+      }
+
+      return e;
     }
 
     private static String ellipsize(
@@ -420,7 +499,7 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
       final ZBlog blog)
     {
       final SortedMap<Integer, Seq<ZBlogPost>> pages =
-        blog.postsByPage(this.config.postsPerPage());
+        blog.postsGroupedByPage(this.config.postsPerPage());
 
       for (final Tuple2<Integer, Seq<ZBlogPost>> pair : pages) {
         final int page_human = pair._1.intValue() + 1;
@@ -492,6 +571,12 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
             final Page page = this.page(out_xhtml, sb.toString());
             page.content.appendChild(this.writePost(post));
 
+            {
+              final Element e = this.footerPageLinkElement();
+              e.appendChild(this.footerPageLinksByYear());
+              page.footer.insertChild(e, 0);
+            }
+
             final Serializer serial = new Serializer(output, "UTF-8");
             serial.write(page.document);
             serial.flush();
@@ -527,14 +612,43 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
       final Tuple2<Integer, Seq<ZBlogPost>> page_current,
       final SortedMap<Integer, Seq<ZBlogPost>> pages)
     {
+      final Element e = this.footerPageLinkElement();
+      e.appendChild(this.footerPageLinksByYear());
+      e.appendChild(this.footerPageLinksByPage(page_current, pages));
+      return e;
+    }
+
+    private Element footerPageLinkElement()
+    {
       final Element e = new Element("div", XHTML_URI_TEXT);
       e.addAttribute(new Attribute("id", null, "zb_footer_links"));
+      return e;
+    }
 
+    private Element footerPageLinksByYear()
+    {
+      final Element e_yearly = new Element("div", XHTML_URI_TEXT);
+      final Element e_a = new Element("a", XHTML_URI_TEXT);
+      e_a.addAttribute(new Attribute(
+        "href",
+        null,
+        "/yearly.xhtml"));
+      e_a.appendChild("Posts by year");
+      e_yearly.appendChild(e_a);
+      return e_yearly;
+    }
+
+    private Element footerPageLinksByPage(
+      final Tuple2<Integer, Seq<ZBlogPost>> page_current,
+      final SortedMap<Integer, Seq<ZBlogPost>> pages)
+    {
+      final Element e_pages = new Element("div", XHTML_URI_TEXT);
+      e_pages.appendChild("Posts by page: ");
       for (final Tuple2<Integer, Seq<ZBlogPost>> pair : pages) {
         final int page_human = pair._1.intValue() + 1;
 
         if (Objects.equals(page_current._1, pair._1)) {
-          e.appendChild(Integer.toString(page_human));
+          e_pages.appendChild(Integer.toString(page_human));
         } else {
           final Element e_a = new Element("a", XHTML_URI_TEXT);
           e_a.addAttribute(new Attribute(
@@ -542,12 +656,12 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
             null,
             "/" + page_human + ".xhtml"));
           e_a.appendChild(Integer.toString(page_human));
-          e.appendChild(e_a);
+          e_pages.appendChild(e_a);
         }
-        e.appendChild(" ");
+        e_pages.appendChild(" ");
       }
 
-      return e;
+      return e_pages;
     }
 
     private void copyResource(

@@ -49,7 +49,7 @@ public final class ZBlogTest
     Assert.assertEquals("title", blog.title());
     Assert.assertTrue(blog.posts().isEmpty());
     Assert.assertTrue(blog.postsByDate().isEmpty());
-    Assert.assertTrue(blog.postsByPage(10).isEmpty());
+    Assert.assertTrue(blog.postsGroupedByPage(10).isEmpty());
   }
 
   @Test
@@ -90,7 +90,7 @@ public final class ZBlogTest
     }
 
     Vector<ZBlogPost> all = Vector.empty();
-    for (final Tuple2<Integer, Seq<ZBlogPost>> pair : blog.postsByPage(10)) {
+    for (final Tuple2<Integer, Seq<ZBlogPost>> pair : blog.postsGroupedByPage(10)) {
       final Seq<ZBlogPost> page = pair._2;
       LOG.debug("page[{}] {}", pair._1, Integer.valueOf(page.size()));
 
