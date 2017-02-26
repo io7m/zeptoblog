@@ -32,7 +32,7 @@ com.io7m.zeptoblog.author = blog@io7m.com
 
 Create posts by creating files in `com.io7m.zeptoblog.source_root` with names ending in `.zbp`.
 
-Posts must start with a series of commands that specify the date
+Posts must consist of a series of commands that specify the date
 (in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format) and
 title of the post, followed by an empty line, followed by the body
 of the post in [CommonMark](http://commonmark.org/) format.
