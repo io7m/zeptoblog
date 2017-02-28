@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -57,7 +58,7 @@ public final class ZBlogTest
   {
     final Random random = new Random();
 
-    TreeMap<String, ZBlogPost> posts = TreeMap.empty();
+    TreeMap<Path, ZBlogPost> posts = TreeMap.empty();
     for (int index = 0; index < 100; ++index) {
       final byte[] data = new byte[32];
       random.nextBytes(data);
@@ -76,8 +77,8 @@ public final class ZBlogTest
           ZoneId.of("UTC"));
 
       final ZBlogPost post =
-        ZBlogPost.of(title, date, TreeSet.empty(), body, Paths.get("/"));
-      posts = posts.put(post.id(), post);
+        ZBlogPost.of(title, date, TreeSet.empty(), body, Paths.get("/", Integer.toString(index)));
+      posts = posts.put(post.path(), post);
     }
 
     final ZBlog blog = ZBlog.of("title", posts);
@@ -85,7 +86,7 @@ public final class ZBlogTest
     Assert.assertEquals(posts, blog.posts());
     Assert.assertEquals(100L, (long) blog.posts().size());
 
-    for (final Tuple2<String, ZBlogPost> pair : blog.posts()) {
+    for (final Tuple2<Path, ZBlogPost> pair : blog.posts()) {
       Assert.assertEquals(pair._2, blog.postsByDate().get(pair._2.date()).get());
     }
 
@@ -98,7 +99,7 @@ public final class ZBlogTest
       all = all.appendAll(page);
     }
 
-    for (final Tuple2<String, ZBlogPost> pair : blog.posts()) {
+    for (final Tuple2<Path, ZBlogPost> pair : blog.posts()) {
       Assert.assertTrue(all.contains(pair._2));
     }
   }

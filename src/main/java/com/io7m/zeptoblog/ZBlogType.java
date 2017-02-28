@@ -25,6 +25,7 @@ import javaslang.collection.Vector;
 import org.immutables.javaslang.encodings.JavaslangEncodingEnabled;
 import org.immutables.value.Value;
 
+import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.time.chrono.ChronoZonedDateTime;
 import java.util.function.Function;
@@ -46,11 +47,11 @@ public interface ZBlogType
   String title();
 
   /**
-   * @return The blog posts by ID
+   * @return The blog posts by path
    */
 
   @Value.Parameter
-  SortedMap<String, ZBlogPost> posts();
+  SortedMap<Path, ZBlogPost> posts();
 
   /**
    * @return The blog posts by date

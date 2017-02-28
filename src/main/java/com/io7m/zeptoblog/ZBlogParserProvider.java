@@ -113,14 +113,14 @@ public final class ZBlogParserProvider implements ZBlogParserProviderType
     throw new IllegalStateException("No parser provider available");
   }
 
-  private static final class Parser implements ZBlogParserType,
-    FileVisitor<Path>
+  private static final class Parser
+    implements ZBlogParserType, FileVisitor<Path>
   {
     private final ZBlogConfiguration config;
     private final ZBlog.Builder builder;
     private final ZBlogPostParserProviderType provider;
     private final DateTimeFormatter formatter;
-    private TreeMap<String, ZBlogPost> posts;
+    private TreeMap<Path, ZBlogPost> posts;
     private Vector<ZError> errors;
 
     Parser(
@@ -194,9 +194,9 @@ public final class ZBlogParserProvider implements ZBlogParserProviderType
           } else {
             final ZBlogPost post = r.get();
 
-            if (this.posts.containsKey(post.id())) {
+            if (this.posts.containsKey(post.path())) {
               final StringBuilder sb = new StringBuilder(128);
-              sb.append("Duplicate blog post ID.");
+              sb.append("Duplicate blog post.");
               sb.append(System.lineSeparator());
               sb.append("  Post title: ");
               sb.append(post.title());
@@ -204,15 +204,15 @@ public final class ZBlogParserProvider implements ZBlogParserProviderType
               sb.append("  Post date:  ");
               sb.append(post.date().format(this.formatter));
               sb.append(System.lineSeparator());
-              sb.append("  Post ID:    ");
-              sb.append(post.id());
+              sb.append("  Post path:    ");
+              sb.append(post.path());
               sb.append(System.lineSeparator());
               this.errors.append(ZError.of(
                 sb.toString(),
                 LexicalPosition.of(0, 0, Optional.of(file)),
                 Optional.empty()));
             } else {
-              this.posts = this.posts.put(post.id(), post);
+              this.posts = this.posts.put(post.path(), post);
             }
           }
         }

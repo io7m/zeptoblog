@@ -153,6 +153,28 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
       this.format_time = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
     }
 
+    private static String version()
+    {
+      return Writer.class.getPackage().getImplementationVersion();
+    }
+
+    private static String ellipsize(
+      final String input,
+      final int max)
+    {
+      if (input.length() < max) {
+        return input;
+      }
+      return input.substring(0, max) + "...";
+    }
+
+    private static Date dateToTime(final ZonedDateTime time)
+    {
+      return new Date(TimeUnit.MILLISECONDS.convert(
+        time.toEpochSecond(),
+        TimeUnit.SECONDS));
+    }
+
     private Element metaType()
     {
       final Element e = new Element("meta", XHTML_URI_TEXT);
@@ -174,11 +196,6 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
           null,
           "https://github.com/io7m/zeptoblog; version=" + version()));
       return e;
-    }
-
-    private static String version()
-    {
-      return Writer.class.getPackage().getImplementationVersion();
     }
 
     private Element head(
@@ -416,16 +433,6 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
       return e;
     }
 
-    private static String ellipsize(
-      final String input,
-      final int max)
-    {
-      if (input.length() < max) {
-        return input;
-      }
-      return input.substring(0, max) + "...";
-    }
-
     private void generateAtomFeed(
       final ZBlog blog)
     {
@@ -486,13 +493,6 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
       } catch (final IOException | FeedException e) {
         this.failException(out_atom, e);
       }
-    }
-
-    private static Date dateToTime(final ZonedDateTime time)
-    {
-      return new Date(TimeUnit.MILLISECONDS.convert(
-        time.toEpochSecond(),
-        TimeUnit.SECONDS));
     }
 
     private void generateSegmentPages(
@@ -699,24 +699,13 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
       throws ParsingException, IOException
     {
       final Element e = new Element("div", XHTML_URI_TEXT);
-      e.addAttribute(new Attribute(
-        "id",
-        null,
-        "zb_post_" + post.idShort(this.config)));
       e.addAttribute(new Attribute("class", "zb_post"));
 
       final Element e_head = new Element("div", XHTML_URI_TEXT);
       e_head.addAttribute(new Attribute("class", "zb_post_head"));
 
-      final Element e_permalink = new Element("a", XHTML_URI_TEXT);
-      e_permalink.appendChild("Permalink");
-      final String link = post.outputPermalinkLink(this.config);
-      LOG.debug("permalink: {}", link);
-      e_permalink.addAttribute(new Attribute("href", null, link));
-
       final Element e_foot = new Element("div", XHTML_URI_TEXT);
       e_foot.addAttribute(new Attribute("class", "zb_post_foot"));
-      e_foot.appendChild(e_permalink);
 
       final Element e_date = new Element("span", XHTML_URI_TEXT);
       e_date.addAttribute(new Attribute("class", "zb_post_date"));
@@ -729,7 +718,7 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
 
         final Element e_a = new Element("a", XHTML_URI_TEXT);
         e_a.addAttribute(
-          new Attribute("href", null, "#zb_post_" + post.idShort(this.config)));
+          new Attribute("href", null, post.outputPermalinkLink(this.config)));
         e_a.appendChild(post.title());
 
         e_title.appendChild(e_a);

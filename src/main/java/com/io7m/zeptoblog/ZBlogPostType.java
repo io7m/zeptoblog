@@ -17,19 +17,12 @@
 package com.io7m.zeptoblog;
 
 import com.io7m.jnull.NullCheck;
-import com.io7m.junreachable.UnreachableCodeException;
 import javaslang.collection.SortedSet;
-import org.apache.commons.codec.binary.Hex;
 import org.immutables.javaslang.encodings.JavaslangEncodingEnabled;
 import org.immutables.value.Value;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 
 /**
  * The type of blog posts.
@@ -40,41 +33,6 @@ import java.time.format.DateTimeFormatter;
 @Value.Immutable
 public interface ZBlogPostType extends Comparable<ZBlogPostType>
 {
-  /**
-   * @return The unique ID for the blog, based on the publication date and title
-   */
-
-  @Value.Lazy
-  default String id()
-  {
-    try {
-      final DateTimeFormatter formatter =
-        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
-
-      final MessageDigest digest = MessageDigest.getInstance("SHA-256");
-      final Charset cs = StandardCharsets.UTF_8;
-      digest.update(this.title().getBytes(cs));
-      digest.update(":".getBytes(cs));
-      digest.update(formatter.format(this.date()).getBytes(cs));
-      return Hex.encodeHexString(digest.digest());
-    } catch (final NoSuchAlgorithmException e) {
-      throw new UnreachableCodeException(e);
-    }
-  }
-
-  /**
-   * @param config The blog configuration
-   *
-   * @return A shortened ID based on the given config
-   */
-
-  default String idShort(
-    final ZBlogConfiguration config)
-  {
-    final String text = this.id();
-    return text.substring(0, Math.min(text.length(), config.idLength()));
-  }
-
   /**
    * @return The blog post title
    */

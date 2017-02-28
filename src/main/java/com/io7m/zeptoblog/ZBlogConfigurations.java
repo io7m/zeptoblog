@@ -71,14 +71,18 @@ public final class ZBlogConfigurations
 
     try {
       builder.setSourceRoot(
-        Paths.get(JProperties.getString(p, "com.io7m.zeptoblog.source_root")).toAbsolutePath());
+        Paths.get(JProperties.getString(
+          p,
+          "com.io7m.zeptoblog.source_root")).toAbsolutePath());
     } catch (final Exception e) {
       errors = errors.append(ofException(path, e));
     }
 
     try {
       builder.setOutputRoot(
-        Paths.get(JProperties.getString(p, "com.io7m.zeptoblog.output_root")).toAbsolutePath());
+        Paths.get(JProperties.getString(
+          p,
+          "com.io7m.zeptoblog.output_root")).toAbsolutePath());
     } catch (final Exception e) {
       errors = errors.append(ofException(path, e));
     }
