@@ -68,13 +68,6 @@ public interface ZBlogConfigurationType
   int postsPerPage();
 
   /**
-   * @return The maximum length of post IDs
-   */
-
-  @Value.Parameter
-  int idLength();
-
-  /**
    * @return The site URI
    */
 

@@ -165,7 +165,6 @@ public abstract class ZBlogParserContract
       .setSourceRoot(fs.getPath("source").toAbsolutePath())
       .setTitle("title")
       .setPostsPerPage(10)
-      .setIdLength(8)
       .setAuthor("author")
       .setSiteURI(URI.create("http://example.com"))
       .build();

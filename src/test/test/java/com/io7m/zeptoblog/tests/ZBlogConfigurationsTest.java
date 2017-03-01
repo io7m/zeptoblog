@@ -93,7 +93,6 @@ public final class ZBlogConfigurationsTest
     Assert.assertEquals(URI.create("http://example.com"), c.siteURI());
     Assert.assertEquals("author", c.author());
     Assert.assertEquals(23L, (long) c.postsPerPage());
-    Assert.assertEquals(100L, (long) c.idLength());
   }
 
   private Properties baseProperties()
@@ -105,7 +104,6 @@ public final class ZBlogConfigurationsTest
     p.put("com.io7m.zeptoblog.site_uri", "http://example.com");
     p.put("com.io7m.zeptoblog.author", "author");
     p.put("com.io7m.zeptoblog.posts_per_page", "23");
-    p.put("com.io7m.zeptoblog.id_length", "100");
     return p;
   }
 }

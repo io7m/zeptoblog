@@ -111,16 +111,6 @@ public final class ZBlogConfigurations
       errors = errors.append(ofException(path, e));
     }
 
-    try {
-      builder.setIdLength(
-        JProperties.getBigIntegerOptional(
-          p,
-          "com.io7m.zeptoblog.id_length",
-          new BigInteger("32")).intValueExact());
-    } catch (final Exception e) {
-      errors = errors.append(ofException(path, e));
-    }
-
     if (errors.isEmpty()) {
       return Validation.valid(builder.build());
     }
