@@ -20,6 +20,11 @@
       <artifactId>com.io7m.zeptoblog.core</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.zeptoblog.commonmark</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>ch.qos.logback</groupId>
@@ -60,11 +65,17 @@
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <manifestEntries>
-                    <Main-Class>com.io7m.zeptoblog.ZBlogMain</Main-Class>
+                    <Main-Class>com.io7m.zeptoblog.cmdline.ZBlogMain</Main-Class>
                   </manifestEntries>
                 </transformer>
               </transformers>
               <filters>
+                <filter>
+                  <artifact>com.io7m.zeptoblog:*</artifact>
+                  <includes>
+                    <include>**</include>
+                  </includes>
+                </filter>
                 <filter>
                   <artifact>com.io7m.jtensors:*</artifact>
                   <includes>
@@ -97,6 +108,12 @@
                 </filter>
                 <filter>
                   <artifact>com.rometools:*</artifact>
+                  <includes>
+                    <include>**</include>
+                  </includes>
+                </filter>
+                <filter>
+                  <artifact>com.atlassian.commonmark:*</artifact>
                   <includes>
                     <include>**</include>
                   </includes>

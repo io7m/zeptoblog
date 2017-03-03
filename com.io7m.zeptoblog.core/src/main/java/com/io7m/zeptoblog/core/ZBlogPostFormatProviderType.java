@@ -16,30 +16,42 @@
 
 package com.io7m.zeptoblog.core;
 
+import javaslang.collection.Seq;
+import javaslang.control.Validation;
+import nu.xom.Element;
 import org.osgi.annotation.versioning.ProviderType;
 
-import java.io.InputStream;
 import java.nio.file.Path;
 
 /**
- * The type of providers for blog post parsers.
+ * The type of format providers for post bodies.
  */
 
 @ProviderType
-public interface ZBlogPostParserProviderType
+public interface ZBlogPostFormatProviderType
 {
   /**
-   * Create a new blog post parser.
-   *
-   * @param config The blog configuration
-   * @param stream A stream referencing a blog post file
-   * @param path   The path to the file, for error messages
-   *
-   * @return A new parser
+   * @return The name of the format provider
    */
 
-  ZBlogPostParserType createParser(
-    ZBlogConfiguration config,
-    InputStream stream,
-    Path path);
+  String name();
+
+  /**
+   * @return A description of the format provider
+   */
+
+  String description();
+
+  /**
+   * Produce XHTML for the given body text.
+   *
+   * @param path The path of the original file, for error reporting
+   * @param text The input body text
+   *
+   * @return XHTML, or a list of reasons why XHTML could not be produced
+   */
+
+  Validation<Seq<ZError>, Element> produceXHTML(
+    Path path,
+    String text);
 }

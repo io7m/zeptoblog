@@ -16,6 +16,8 @@
 
 package com.io7m.zeptoblog.tests;
 
+import com.io7m.zeptoblog.core.ZBlogConfiguration;
+import com.io7m.zeptoblog.core.ZBlogConfigurations;
 import com.io7m.zeptoblog.core.ZBlogPost;
 import com.io7m.zeptoblog.core.ZBlogPostParserProviderType;
 import com.io7m.zeptoblog.core.ZBlogPostParserType;
@@ -69,6 +71,8 @@ public abstract class ZBlogPostParserContract
   public final void testUnexpectedEOF()
     throws Exception
   {
+    final ZBlogConfiguration config = this.config();
+
     final ZBlogPostParserProviderType p_prov = this.createParserProvider();
 
     try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
@@ -79,7 +83,7 @@ public abstract class ZBlogPostParserContract
 
       try (final ByteArrayInputStream is = byteStream(os)) {
         final ZBlogPostParserType p =
-          p_prov.createParser(is, Paths.get("/x/y/z"));
+          p_prov.createParser(config, is, Paths.get("/x/y/z"));
 
         final Validation<Seq<ZError>, ZBlogPost> r = p.parse();
         dumpResult(r);
@@ -90,10 +94,18 @@ public abstract class ZBlogPostParserContract
     }
   }
 
+  private ZBlogConfiguration config()
+  {
+    return ZBlogConfigurations.fromProperties(Paths.get(
+      "/config.properties"), ZBlogConfigurationsTest.baseProperties()).get();
+  }
+
   @Test
   public final void testBadDate0()
     throws Exception
   {
+    final ZBlogConfiguration config = this.config();
+
     final ZBlogPostParserProviderType p_prov = this.createParserProvider();
 
     try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
@@ -105,7 +117,7 @@ public abstract class ZBlogPostParserContract
 
       try (final ByteArrayInputStream is = byteStream(os)) {
         final ZBlogPostParserType p =
-          p_prov.createParser(is, Paths.get("/x/y/z"));
+          p_prov.createParser(config, is, Paths.get("/x/y/z"));
 
         final Validation<Seq<ZError>, ZBlogPost> r = p.parse();
         dumpResult(r);
@@ -119,6 +131,8 @@ public abstract class ZBlogPostParserContract
   public final void testBadDate1()
     throws Exception
   {
+    final ZBlogConfiguration config = this.config();
+
     final ZBlogPostParserProviderType p_prov = this.createParserProvider();
 
     try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
@@ -130,7 +144,7 @@ public abstract class ZBlogPostParserContract
 
       try (final ByteArrayInputStream is = byteStream(os)) {
         final ZBlogPostParserType p =
-          p_prov.createParser(is, Paths.get("/x/y/z"));
+          p_prov.createParser(config, is, Paths.get("/x/y/z"));
 
         final Validation<Seq<ZError>, ZBlogPost> r = p.parse();
         dumpResult(r);
@@ -144,6 +158,8 @@ public abstract class ZBlogPostParserContract
   public final void testBadTitle0()
     throws Exception
   {
+    final ZBlogConfiguration config = this.config();
+
     final ZBlogPostParserProviderType p_prov = this.createParserProvider();
 
     try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
@@ -155,7 +171,7 @@ public abstract class ZBlogPostParserContract
 
       try (final ByteArrayInputStream is = byteStream(os)) {
         final ZBlogPostParserType p =
-          p_prov.createParser(is, Paths.get("/x/y/z"));
+          p_prov.createParser(config, is, Paths.get("/x/y/z"));
 
         final Validation<Seq<ZError>, ZBlogPost> r = p.parse();
         dumpResult(r);

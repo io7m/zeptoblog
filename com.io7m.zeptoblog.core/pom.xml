@@ -41,14 +41,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.atlassian.commonmark</groupId>
-      <artifactId>commonmark</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.atlassian.commonmark</groupId>
-      <artifactId>commonmark-ext-heading-anchor</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.io7m.xom</groupId>
       <artifactId>xom</artifactId>
     </dependency>

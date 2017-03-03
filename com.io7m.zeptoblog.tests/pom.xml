@@ -20,6 +20,11 @@
       <artifactId>com.io7m.zeptoblog.core</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.zeptoblog.commonmark</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>com.github.marschall</groupId>

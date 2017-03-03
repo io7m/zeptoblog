@@ -102,6 +102,13 @@ public final class ZBlogConfigurations
     }
 
     try {
+      builder.setFormatDefault(
+        JProperties.getString(p, "com.io7m.zeptoblog.format_default"));
+    } catch (final Exception e) {
+      errors = errors.append(ofException(path, e));
+    }
+
+    try {
       builder.setPostsPerPage(
         JProperties.getBigIntegerOptional(
           p,

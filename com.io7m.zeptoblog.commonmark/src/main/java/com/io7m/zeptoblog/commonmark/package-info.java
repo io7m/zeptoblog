@@ -14,32 +14,9 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.zeptoblog.core;
-
-import org.osgi.annotation.versioning.ProviderType;
-
-import java.io.InputStream;
-import java.nio.file.Path;
-
 /**
- * The type of providers for blog post parsers.
+ * CommonMark format provider.
  */
 
-@ProviderType
-public interface ZBlogPostParserProviderType
-{
-  /**
-   * Create a new blog post parser.
-   *
-   * @param config The blog configuration
-   * @param stream A stream referencing a blog post file
-   * @param path   The path to the file, for error messages
-   *
-   * @return A new parser
-   */
-
-  ZBlogPostParserType createParser(
-    ZBlogConfiguration config,
-    InputStream stream,
-    Path path);
-}
+@com.io7m.jnull.NonNullByDefault
+package com.io7m.zeptoblog.commonmark;

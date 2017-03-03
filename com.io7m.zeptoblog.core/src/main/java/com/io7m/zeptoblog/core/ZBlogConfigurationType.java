@@ -75,6 +75,13 @@ public interface ZBlogConfigurationType
   URI siteURI();
 
   /**
+   * @return The default format to use for blog posts
+   */
+
+  @Value.Parameter
+  String formatDefault();
+
+  /**
    * Check preconditions for the type.
    */
 

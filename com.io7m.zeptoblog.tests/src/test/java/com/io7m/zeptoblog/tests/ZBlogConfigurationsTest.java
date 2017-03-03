@@ -17,6 +17,7 @@
 package com.io7m.zeptoblog.tests;
 
 import com.io7m.jproperties.JPropertyIncorrectType;
+import com.io7m.zeptoblog.commonmark.ZBlogPostFormatCommonMark;
 import com.io7m.zeptoblog.core.ZBlogConfiguration;
 import com.io7m.zeptoblog.core.ZBlogConfigurations;
 import com.io7m.zeptoblog.core.ZError;
@@ -44,7 +45,7 @@ public final class ZBlogConfigurationsTest
   @Test
   public void testBadURI()
   {
-    final Properties p = this.baseProperties();
+    final Properties p = baseProperties();
     p.put("com.io7m.zeptoblog.site_uri", " ");
 
     final Validation<Seq<ZError>, ZBlogConfiguration> r =
@@ -56,7 +57,7 @@ public final class ZBlogConfigurationsTest
   @Test
   public void testBadPostsPerPage()
   {
-    final Properties p = this.baseProperties();
+    final Properties p = baseProperties();
     p.put("com.io7m.zeptoblog.posts_per_page", "x");
 
     final Validation<Seq<ZError>, ZBlogConfiguration> r =
@@ -68,7 +69,7 @@ public final class ZBlogConfigurationsTest
   @Test
   public void testComplete()
   {
-    final Properties p = this.baseProperties();
+    final Properties p = baseProperties();
 
     final Validation<Seq<ZError>, ZBlogConfiguration> r =
       ZBlogConfigurations.fromProperties(Paths.get("/x/y/z"), p);
@@ -83,7 +84,7 @@ public final class ZBlogConfigurationsTest
     Assert.assertEquals(23L, (long) c.postsPerPage());
   }
 
-  private Properties baseProperties()
+  public static Properties baseProperties()
   {
     final Properties p = new Properties();
     p.put("com.io7m.zeptoblog.title", "title");
@@ -92,6 +93,7 @@ public final class ZBlogConfigurationsTest
     p.put("com.io7m.zeptoblog.site_uri", "http://example.com");
     p.put("com.io7m.zeptoblog.author", "author");
     p.put("com.io7m.zeptoblog.posts_per_page", "23");
+    p.put("com.io7m.zeptoblog.format_default", ZBlogPostFormatCommonMark.NAME);
     return p;
   }
 }

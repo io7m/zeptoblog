@@ -16,6 +16,7 @@
 
 package com.io7m.zeptoblog.tests;
 
+import com.io7m.zeptoblog.commonmark.ZBlogPostFormatCommonMark;
 import com.io7m.zeptoblog.core.ZBlog;
 import com.io7m.zeptoblog.core.ZBlogConfiguration;
 import com.io7m.zeptoblog.core.ZBlogParserProviderType;
@@ -54,6 +55,7 @@ public abstract class ZBlogParserContract
       .setTitle("title")
       .setPostsPerPage(10)
       .setAuthor("author")
+      .setFormatDefault(ZBlogPostFormatCommonMark.NAME)
       .setSiteURI(URI.create("http://example.com"))
       .build();
   }

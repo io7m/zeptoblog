@@ -48,13 +48,6 @@ public interface ZBlogPostType extends Comparable<ZBlogPostType>
   Optional<ZonedDateTime> date();
 
   /**
-   * @return The blog post body text
-   */
-
-  @Value.Parameter
-  String body();
-
-  /**
    * @return The path to the blog post
    */
 
@@ -62,15 +55,11 @@ public interface ZBlogPostType extends Comparable<ZBlogPostType>
   Path path();
 
   /**
-   * @return The format of the body text
+   * @return The body of the post
    */
 
   @Value.Parameter
-  @Value.Default
-  default ZBlogBodyFormat format()
-  {
-    return ZBlogBodyFormat.FORMAT_COMMONMARK;
-  }
+  ZBlogPostBody body();
 
   /**
    * @param config The blog configuration

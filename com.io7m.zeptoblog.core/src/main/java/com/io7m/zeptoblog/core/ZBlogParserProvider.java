@@ -204,7 +204,7 @@ public final class ZBlogParserProvider implements ZBlogParserProviderType
         final Path relative = this.config.sourceRoot().relativize(file);
 
         final ZBlogPostParserType parser =
-          this.post_provider.createParser(stream, relative);
+          this.post_provider.createParser(this.config, stream, relative);
         final Validation<Seq<ZError>, ZBlogPost> r = parser.parse();
         if (r.isInvalid()) {
           this.errors = this.errors.appendAll(r.getError());

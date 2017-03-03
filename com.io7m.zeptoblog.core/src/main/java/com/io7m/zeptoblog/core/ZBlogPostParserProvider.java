@@ -23,6 +23,10 @@ import javaslang.collection.Vector;
 import javaslang.control.Validation;
 import org.apache.commons.io.input.CloseShieldInputStream;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +40,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static javaslang.control.Validation.invalid;
@@ -55,21 +60,40 @@ public final class ZBlogPostParserProvider implements
     LOG = LoggerFactory.getLogger(ZBlogPostParserProvider.class);
   }
 
+  private final AtomicReference<ZBlogPostFormatResolverType> resolver;
+
   /**
    * Construct a blog post parser provider.
    */
 
   public ZBlogPostParserProvider()
   {
+    this.resolver = new AtomicReference<>(new ZBlogPostFormatResolverSL());
+  }
 
+  /**
+   * Set the format resolver.
+   *
+   * @param in_resolver The post format resolver
+   */
+
+  @Reference(
+    policyOption = ReferencePolicyOption.RELUCTANT,
+    policy = ReferencePolicy.STATIC,
+    cardinality = ReferenceCardinality.MANDATORY)
+  public void resolverRegister(
+    final ZBlogPostFormatResolverType in_resolver)
+  {
+    this.resolver.compareAndSet(null, in_resolver);
   }
 
   @Override
   public ZBlogPostParserType createParser(
+    final ZBlogConfiguration config,
     final InputStream stream,
     final Path path)
   {
-    return new Parser(stream, path);
+    return new Parser(config, stream, path);
   }
 
   private static final class Parser implements ZBlogPostParserType
@@ -78,21 +102,24 @@ public final class ZBlogPostParserProvider implements
     private final LexicalPositionMutable<Path> position;
     private final DateTimeFormatter formatter;
     private final Path path;
+    private final ZBlogConfiguration config;
     private Vector<ZError> errors;
     private String title;
     private Optional<ZonedDateTime> date;
-    private ZBlogBodyFormat format;
+    private String format_name;
 
     Parser(
+      final ZBlogConfiguration in_config,
       final InputStream in_stream,
       final Path in_path)
     {
+      this.config = NullCheck.notNull(in_config, "config");
       this.stream = NullCheck.notNull(in_stream, "stream");
       this.path = NullCheck.notNull(in_path, "path");
+
       this.position = LexicalPositionMutable.create(0, 0, Optional.of(in_path));
       this.formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
       this.errors = Vector.empty();
-      this.format = ZBlogBodyFormat.FORMAT_COMMONMARK;
       this.date = Optional.empty();
     }
 
@@ -111,7 +138,7 @@ public final class ZBlogPostParserProvider implements
           return invalid(this.errors);
         }
 
-        final String body = this.parseBody(reader);
+        final String body_text = this.parseBody(reader);
 
         if (LOG.isDebugEnabled()) {
           LOG.debug("file:  {}", this.path);
@@ -121,12 +148,15 @@ public final class ZBlogPostParserProvider implements
           LOG.debug("title: {}", this.title);
         }
 
+        if (this.format_name == null) {
+          this.format_name = this.config.formatDefault();
+        }
+
         return valid(ZBlogPost.of(
           this.title,
           this.date,
-          body,
           this.path,
-          this.format));
+          ZBlogPostBody.of(this.format_name, body_text)));
       } catch (final IOException e) {
         return this.fail("I/O error: " + e.getMessage(), Optional.of(e));
       }
@@ -232,7 +262,7 @@ public final class ZBlogPostParserProvider implements
     {
       if (tokens.size() == 2) {
         try {
-          this.format = ZBlogBodyFormat.of(tokens.get(1));
+          this.format_name = tokens.get(1);
         } catch (final IllegalArgumentException e) {
           this.fail(e.getMessage(), Optional.of(e));
         }

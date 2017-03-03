@@ -16,30 +16,29 @@
 
 package com.io7m.zeptoblog.core;
 
-import org.osgi.annotation.versioning.ProviderType;
-
-import java.io.InputStream;
-import java.nio.file.Path;
+import org.immutables.javaslang.encodings.JavaslangEncodingEnabled;
+import org.immutables.value.Value;
 
 /**
- * The type of providers for blog post parsers.
+ * The body of a blog post.
  */
 
-@ProviderType
-public interface ZBlogPostParserProviderType
+@ZImmutableStyleType
+@JavaslangEncodingEnabled
+@Value.Immutable
+public interface ZBlogPostBodyType
 {
   /**
-   * Create a new blog post parser.
-   *
-   * @param config The blog configuration
-   * @param stream A stream referencing a blog post file
-   * @param path   The path to the file, for error messages
-   *
-   * @return A new parser
+   * @return The name of the format provider
    */
 
-  ZBlogPostParserType createParser(
-    ZBlogConfiguration config,
-    InputStream stream,
-    Path path);
+  @Value.Parameter
+  String format();
+
+  /**
+   * @return The body text
+   */
+
+  @Value.Parameter
+  String text();
 }

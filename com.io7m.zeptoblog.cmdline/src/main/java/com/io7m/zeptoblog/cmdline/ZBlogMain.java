@@ -28,6 +28,7 @@ import com.io7m.zeptoblog.core.ZBlogConfiguration;
 import com.io7m.zeptoblog.core.ZBlogConfigurations;
 import com.io7m.zeptoblog.core.ZBlogParserProvider;
 import com.io7m.zeptoblog.core.ZBlogParserType;
+import com.io7m.zeptoblog.core.ZBlogPostFormatResolverSL;
 import com.io7m.zeptoblog.core.ZBlogWriterProvider;
 import com.io7m.zeptoblog.core.ZBlogWriterType;
 import com.io7m.zeptoblog.core.ZError;
@@ -68,13 +69,16 @@ public final class ZBlogMain implements Runnable
 
     final CommandRoot r = new CommandRoot();
     final CommandCompile compile = new CommandCompile();
+    final CommandFormats formats = new CommandFormats();
 
     this.commands = new HashMap<>(8);
     this.commands.put("compile", compile);
+    this.commands.put("formats", formats);
 
     this.commander = new JCommander(r);
     this.commander.setProgramName("zeptoblog");
     this.commander.addCommand("compile", compile);
+    this.commander.addCommand("formats", formats);
   }
 
   /**
@@ -160,6 +164,28 @@ public final class ZBlogMain implements Runnable
         (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(
           Logger.ROOT_LOGGER_NAME);
       root.setLevel(this.verbose.toLevel());
+      return unit();
+    }
+  }
+
+  @Parameters(commandDescription = "List supported post formats")
+  private final class CommandFormats extends CommandRoot
+  {
+    CommandFormats()
+    {
+
+    }
+
+    @Override
+    public Unit call()
+      throws Exception
+    {
+      super.call();
+
+      final ZBlogPostFormatResolverSL r = new ZBlogPostFormatResolverSL();
+
+      r.formats().forEach(
+        p -> System.out.printf("%-32s : %s\n", p.name(), p.description()));
       return unit();
     }
   }

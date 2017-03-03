@@ -16,30 +16,29 @@
 
 package com.io7m.zeptoblog.core;
 
+import javaslang.collection.Set;
 import org.osgi.annotation.versioning.ProviderType;
 
-import java.io.InputStream;
-import java.nio.file.Path;
+import java.util.Optional;
 
 /**
- * The type of providers for blog post parsers.
+ * The type of resolvers that can return format providers given a provider name.
  */
 
 @ProviderType
-public interface ZBlogPostParserProviderType
+public interface ZBlogPostFormatResolverType
 {
   /**
-   * Create a new blog post parser.
+   * @param name The format name
    *
-   * @param config The blog configuration
-   * @param stream A stream referencing a blog post file
-   * @param path   The path to the file, for error messages
-   *
-   * @return A new parser
+   * @return A format provider, or nothing if none exists with the given name
    */
 
-  ZBlogPostParserType createParser(
-    ZBlogConfiguration config,
-    InputStream stream,
-    Path path);
+  Optional<ZBlogPostFormatProviderType> resolve(String name);
+
+  /**
+   * @return The currently registered providers
+   */
+
+  Set<ZBlogPostFormatProviderType> formats();
 }

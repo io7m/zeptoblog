@@ -17,8 +17,8 @@
 package com.io7m.zeptoblog.tests;
 
 import com.io7m.zeptoblog.core.ZBlog;
-import com.io7m.zeptoblog.core.ZBlogBodyFormat;
 import com.io7m.zeptoblog.core.ZBlogPost;
+import com.io7m.zeptoblog.core.ZBlogPostBody;
 import javaslang.Tuple2;
 import javaslang.collection.Seq;
 import javaslang.collection.TreeMap;
@@ -81,9 +81,8 @@ public final class ZBlogTest
         ZBlogPost.of(
           title,
           Optional.of(date),
-          body,
           Paths.get("/", Integer.toString(index)),
-          ZBlogBodyFormat.FORMAT_COMMONMARK);
+          ZBlogPostBody.of("unknown", body));
       posts = posts.put(post.path(), post);
     }
 
