@@ -29,8 +29,8 @@ import com.io7m.zeptoblog.core.ZBlogConfigurations;
 import com.io7m.zeptoblog.core.ZBlogParserProvider;
 import com.io7m.zeptoblog.core.ZBlogParserType;
 import com.io7m.zeptoblog.core.ZBlogPostFormatResolverSL;
-import com.io7m.zeptoblog.core.ZBlogWriterProvider;
-import com.io7m.zeptoblog.core.ZBlogWriterType;
+import com.io7m.zeptoblog.core.ZBlogRendererProvider;
+import com.io7m.zeptoblog.core.ZBlogRendererType;
 import com.io7m.zeptoblog.core.ZError;
 import javaslang.collection.Seq;
 import javaslang.control.Validation;
@@ -224,12 +224,12 @@ public final class ZBlogMain implements Runnable
         final Validation<Seq<ZError>, ZBlog> br = blog_parser.parse();
         if (br.isValid()) {
           final ZBlog blog = br.get();
-          final ZBlogWriterProvider blog_writer_provider =
-            new ZBlogWriterProvider();
-          final ZBlogWriterType blog_writer =
-            blog_writer_provider.createWriter(config);
+          final ZBlogRendererProvider blog_writer_provider =
+            new ZBlogRendererProvider();
+          final ZBlogRendererType blog_writer =
+            blog_writer_provider.createRenderer(config);
 
-          final Validation<Seq<ZError>, Unit> wr = blog_writer.write(blog);
+          final Validation<Seq<ZError>, Unit> wr = blog_writer.render(blog);
           if (wr.isValid()) {
             LOG.debug("done");
           } else {

@@ -19,12 +19,12 @@ package com.io7m.zeptoblog.tests;
 import com.io7m.zeptoblog.core.ZBlogParserProvider;
 import com.io7m.zeptoblog.core.ZBlogParserProviderType;
 import com.io7m.zeptoblog.core.ZBlogPostParserProvider;
-import com.io7m.zeptoblog.core.ZBlogWriterProvider;
-import com.io7m.zeptoblog.core.ZBlogWriterProviderType;
+import com.io7m.zeptoblog.core.ZBlogRendererProvider;
+import com.io7m.zeptoblog.core.ZBlogRendererProviderType;
 
 import java.nio.file.FileSystem;
 
-public final class ZBlogWriterUNIXTest extends ZBlogWriterContract
+public final class ZBlogRendererUNIXTest extends ZBlogRendererContract
 {
   @Override
   protected FileSystem createFilesystem()
@@ -41,8 +41,8 @@ public final class ZBlogWriterUNIXTest extends ZBlogWriterContract
   }
 
   @Override
-  protected ZBlogWriterProviderType createWriterProvider()
+  protected ZBlogRendererProviderType createWriterProvider()
   {
-    return new ZBlogWriterProvider();
+    return new ZBlogRendererProvider();
   }
 }

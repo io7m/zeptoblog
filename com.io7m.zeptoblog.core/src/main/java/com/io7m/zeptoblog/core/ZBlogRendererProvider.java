@@ -80,15 +80,15 @@ import java.util.function.Function;
  * The default blog writer provider.
  */
 
-@Component(service = ZBlogWriterProviderType.class)
-public final class ZBlogWriterProvider implements ZBlogWriterProviderType
+@Component(service = ZBlogRendererProviderType.class)
+public final class ZBlogRendererProvider implements ZBlogRendererProviderType
 {
   private static final Logger LOG;
   private static final URI XHTML_URI;
   private static final String XHTML_URI_TEXT;
 
   static {
-    LOG = LoggerFactory.getLogger(ZBlogWriterProvider.class);
+    LOG = LoggerFactory.getLogger(ZBlogRendererProvider.class);
     XHTML_URI = URI.create("http://www.w3.org/1999/xhtml");
     XHTML_URI_TEXT = XHTML_URI.toString();
   }
@@ -96,10 +96,10 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
   private final AtomicReference<ZBlogPostFormatResolverType> resolver;
 
   /**
-   * Construct a blog post writer provider.
+   * Construct a blog post renderer provider.
    */
 
-  public ZBlogWriterProvider()
+  public ZBlogRendererProvider()
   {
     this.resolver = new AtomicReference<>(new ZBlogPostFormatResolverSL());
   }
@@ -121,7 +121,7 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
   }
 
   @Override
-  public ZBlogWriterType createWriter(
+  public ZBlogRendererType createRenderer(
     final ZBlogConfiguration config)
   {
     return new Writer(this.resolver.get(), config);
@@ -147,7 +147,7 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
     }
   }
 
-  private static final class Writer implements ZBlogWriterType,
+  private static final class Writer implements ZBlogRendererType,
     FileVisitor<Path>
   {
     private final ZBlogConfiguration config;
@@ -425,7 +425,7 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
     }
 
     @Override
-    public Validation<Seq<ZError>, Unit> write(
+    public Validation<Seq<ZError>, Unit> render(
       final ZBlog blog)
     {
       NullCheck.notNull(blog, "Blog");
@@ -694,7 +694,7 @@ public final class ZBlogWriterProvider implements ZBlogWriterProviderType
         LOG.debug("write {} -> {}", name, out_path);
 
         try (final OutputStream out = Files.newOutputStream(out_path)) {
-          final Class<ZBlogWriterProvider> c = ZBlogWriterProvider.class;
+          final Class<ZBlogRendererProvider> c = ZBlogRendererProvider.class;
           try (final InputStream in =
                  c.getResourceAsStream("/com/io7m/zeptoblog/core/" + name)) {
             IOUtils.copy(in, out);

@@ -16,21 +16,24 @@
 
 package com.io7m.zeptoblog.core;
 
-import org.osgi.annotation.versioning.ProviderType;
+import com.io7m.jfunctional.Unit;
+import javaslang.collection.Seq;
+import javaslang.control.Validation;
 
 /**
- * The type of blog writer providers.
+ * The type of blog renderers.
  */
 
-@ProviderType
-public interface ZBlogWriterProviderType
+public interface ZBlogRendererType
 {
   /**
-   * @param config A blog configuration
+   * Render a blog.
    *
-   * @return A new blog writer
+   * @param blog The blog
+   *
+   * @return Nothing, or a list of rendering errors
    */
 
-  ZBlogWriterType createWriter(
-    ZBlogConfiguration config);
+  Validation<Seq<ZError>, Unit> render(
+    ZBlog blog);
 }

@@ -22,8 +22,8 @@ import com.io7m.zeptoblog.core.ZBlog;
 import com.io7m.zeptoblog.core.ZBlogConfiguration;
 import com.io7m.zeptoblog.core.ZBlogParserProviderType;
 import com.io7m.zeptoblog.core.ZBlogParserType;
-import com.io7m.zeptoblog.core.ZBlogWriterProviderType;
-import com.io7m.zeptoblog.core.ZBlogWriterType;
+import com.io7m.zeptoblog.core.ZBlogRendererProviderType;
+import com.io7m.zeptoblog.core.ZBlogRendererType;
 import com.io7m.zeptoblog.core.ZError;
 import javaslang.collection.Seq;
 import javaslang.control.Validation;
@@ -39,12 +39,12 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public abstract class ZBlogWriterContract
+public abstract class ZBlogRendererContract
 {
   private static final Logger LOG;
 
   static {
-    LOG = LoggerFactory.getLogger(ZBlogWriterContract.class);
+    LOG = LoggerFactory.getLogger(ZBlogRendererContract.class);
   }
 
   private static ZBlogConfiguration baseConfig(
@@ -72,14 +72,14 @@ public abstract class ZBlogWriterContract
 
   protected abstract ZBlogParserProviderType createParserProvider();
 
-  protected abstract ZBlogWriterProviderType createWriterProvider();
+  protected abstract ZBlogRendererProviderType createWriterProvider();
 
   @Test
   public final void testEmpty()
     throws Exception
   {
     final ZBlogParserProviderType p_prov = this.createParserProvider();
-    final ZBlogWriterProviderType w_prov = this.createWriterProvider();
+    final ZBlogRendererProviderType w_prov = this.createWriterProvider();
 
     try (final FileSystem fs = this.createFilesystem()) {
       final ZBlogConfiguration config = baseConfig(fs);
@@ -92,8 +92,8 @@ public abstract class ZBlogWriterContract
       Assert.assertTrue(p_result.isValid());
       final ZBlog blog = p_result.get();
 
-      final ZBlogWriterType writer = w_prov.createWriter(config);
-      final Validation<Seq<ZError>, Unit> w_result = writer.write(blog);
+      final ZBlogRendererType writer = w_prov.createRenderer(config);
+      final Validation<Seq<ZError>, Unit> w_result = writer.render(blog);
       dumpResult(w_result);
       Assert.assertTrue(w_result.isValid());
     }
@@ -104,7 +104,7 @@ public abstract class ZBlogWriterContract
     throws Exception
   {
     final ZBlogParserProviderType p_prov = this.createParserProvider();
-    final ZBlogWriterProviderType w_prov = this.createWriterProvider();
+    final ZBlogRendererProviderType w_prov = this.createWriterProvider();
 
     try (final FileSystem fs = this.createFilesystem()) {
       final ZBlogConfiguration config = baseConfig(fs);
@@ -131,8 +131,8 @@ public abstract class ZBlogWriterContract
       Assert.assertTrue(result.isValid());
       final ZBlog blog = result.get();
 
-      final ZBlogWriterType writer = w_prov.createWriter(config);
-      final Validation<Seq<ZError>, Unit> w_result = writer.write(blog);
+      final ZBlogRendererType writer = w_prov.createRenderer(config);
+      final Validation<Seq<ZError>, Unit> w_result = writer.render(blog);
       dumpResult(w_result);
       Assert.assertTrue(w_result.isValid());
 
