@@ -22,6 +22,7 @@ import org.immutables.value.Value;
 
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * The type of blog configurations.
@@ -80,6 +81,42 @@ public interface ZBlogConfigurationType
 
   @Value.Parameter
   String formatDefault();
+
+  /**
+   * @return An optional file containing an XHTML element that will be used to
+   * replace the blog header
+   */
+
+  @Value.Parameter
+  Optional<Path> headerReplace();
+
+  /**
+   * @return An optional file containing an XHTML element that will be prepended to the blog header
+   */
+
+  @Value.Parameter
+  Optional<Path> headerPre();
+
+  /**
+   * @return An optional file containing an XHTML element that will be appended to the blog header
+   */
+
+  @Value.Parameter
+  Optional<Path> headerPost();
+
+  /**
+   * @return An optional file containing an XHTML element that will be prepended to the blog footer
+   */
+
+  @Value.Parameter
+  Optional<Path> footerPre();
+
+  /**
+   * @return An optional file containing an XHTML element that will be appended to the blog footer
+   */
+
+  @Value.Parameter
+  Optional<Path> footerPost();
 
   /**
    * Check preconditions for the type.

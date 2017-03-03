@@ -19,6 +19,7 @@ package com.io7m.zeptoblog.core;
 import com.io7m.jlexing.core.LexicalPosition;
 import com.io7m.jnull.NullCheck;
 import com.io7m.jproperties.JProperties;
+import com.io7m.jproperties.JPropertyNonexistent;
 import com.io7m.junreachable.UnreachableCodeException;
 import javaslang.collection.Seq;
 import javaslang.collection.Vector;
@@ -116,6 +117,41 @@ public final class ZBlogConfigurations
           BigInteger.TEN).intValueExact());
     } catch (final Exception e) {
       errors = errors.append(ofException(path, e));
+    }
+
+    try {
+      builder.setFooterPre(Paths.get(
+        JProperties.getString(p, "com.io7m.zeptoblog.footer_pre")));
+    } catch (final JPropertyNonexistent e) {
+      // Ignore
+    }
+
+    try {
+      builder.setFooterPost(Paths.get(
+        JProperties.getString(p, "com.io7m.zeptoblog.footer_post")));
+    } catch (final JPropertyNonexistent e) {
+      // Ignore
+    }
+
+    try {
+      builder.setHeaderReplace(Paths.get(
+        JProperties.getString(p, "com.io7m.zeptoblog.header_replace")));
+    } catch (final JPropertyNonexistent e) {
+      // Ignore
+    }
+
+    try {
+      builder.setHeaderPre(Paths.get(
+        JProperties.getString(p, "com.io7m.zeptoblog.header_pre")));
+    } catch (final JPropertyNonexistent e) {
+      // Ignore
+    }
+
+    try {
+      builder.setHeaderPost(Paths.get(
+        JProperties.getString(p, "com.io7m.zeptoblog.header_post")));
+    } catch (final JPropertyNonexistent e) {
+      // Ignore
     }
 
     if (errors.isEmpty()) {
