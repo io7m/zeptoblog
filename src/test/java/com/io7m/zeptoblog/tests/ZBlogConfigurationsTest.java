@@ -66,18 +66,6 @@ public final class ZBlogConfigurationsTest
   }
 
   @Test
-  public void testBadIDLength()
-  {
-    final Properties p = this.baseProperties();
-    p.put("com.io7m.zeptoblog.id_length", "x");
-
-    final Validation<Seq<ZError>, ZBlogConfiguration> r =
-      ZBlogConfigurations.fromProperties(Paths.get("/x/y/z"), p);
-    Assert.assertTrue(r.isInvalid());
-    Assert.assertTrue(r.getError().get(0).error().get() instanceof JPropertyIncorrectType);
-  }
-
-  @Test
   public void testComplete()
   {
     final Properties p = this.baseProperties();

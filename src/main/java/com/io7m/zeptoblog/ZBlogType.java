@@ -27,7 +27,6 @@ import org.immutables.value.Value;
 
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
-import java.time.chrono.ChronoZonedDateTime;
 import java.util.function.Function;
 
 /**
@@ -60,8 +59,14 @@ public interface ZBlogType
   @Value.Lazy
   default SortedMap<ZonedDateTime, ZBlogPost> postsByDate()
   {
-    return this.posts().values().toSortedMap(
-      ChronoZonedDateTime::compareTo, ZBlogPost::date, Function.identity());
+    SortedMap<ZonedDateTime, ZBlogPost> results = TreeMap.empty();
+    for (ZBlogPost post : this.posts().values()) {
+      if (post.date().isPresent()) {
+        results = results.put(post.date().get(), post);
+      }
+    }
+
+    return results;
   }
 
   /**

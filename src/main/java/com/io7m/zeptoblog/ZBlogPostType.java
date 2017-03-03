@@ -17,12 +17,12 @@
 package com.io7m.zeptoblog;
 
 import com.io7m.jnull.NullCheck;
-import javaslang.collection.SortedSet;
 import org.immutables.javaslang.encodings.JavaslangEncodingEnabled;
 import org.immutables.value.Value;
 
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
+import java.util.Optional;
 
 /**
  * The type of blog posts.
@@ -45,14 +45,7 @@ public interface ZBlogPostType extends Comparable<ZBlogPostType>
    */
 
   @Value.Parameter
-  ZonedDateTime date();
-
-  /**
-   * @return The blog post tags
-   */
-
-  @Value.Parameter
-  SortedSet<String> tags();
+  Optional<ZonedDateTime> date();
 
   /**
    * @return The blog post body text
@@ -67,6 +60,17 @@ public interface ZBlogPostType extends Comparable<ZBlogPostType>
 
   @Value.Parameter
   Path path();
+
+  /**
+   * @return The format of the body text
+   */
+
+  @Value.Parameter
+  @Value.Default
+  default ZBlogBodyFormat format()
+  {
+    return ZBlogBodyFormat.FORMAT_COMMONMARK;
+  }
 
   /**
    * @param config The blog configuration
@@ -118,8 +122,25 @@ public interface ZBlogPostType extends Comparable<ZBlogPostType>
   }
 
   @Override
-  default int compareTo(final ZBlogPostType o)
+  default int compareTo(final ZBlogPostType other)
   {
-    return this.date().compareTo(NullCheck.notNull(o, "Date").date());
+    NullCheck.notNull(other, "other");
+
+    final Optional<ZonedDateTime> a_opt = this.date();
+    final Optional<ZonedDateTime> b_opt = other.date();
+    if (a_opt.isPresent()) {
+      if (b_opt.isPresent()) {
+        final ZonedDateTime a_date = a_opt.get();
+        final ZonedDateTime b_date = b_opt.get();
+        return a_date.compareTo(b_date);
+      }
+      return 1;
+    }
+
+    if (b_opt.isPresent()) {
+      return -1;
+    }
+
+    return 0;
   }
 }

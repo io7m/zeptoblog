@@ -39,11 +39,12 @@ td
 .zb_post_date
 {
   font-weight: bold;
+  margin-right: 1em;
 }
 
 .zb_post_title
 {
-  margin-left: 1em;
+
 }
 
 .zb_post_foot

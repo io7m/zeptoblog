@@ -55,7 +55,7 @@ public abstract class ZBlogWriterContract
   protected abstract ZBlogWriterProviderType createWriterProvider();
 
   @Test
-  public void testEmpty()
+  public final void testEmpty()
     throws Exception
   {
     final ZBlogParserProviderType p_prov = this.createParserProvider();
@@ -80,7 +80,7 @@ public abstract class ZBlogWriterContract
   }
 
   @Test
-  public void testOne()
+  public final void testOne()
     throws Exception
   {
     final ZBlogParserProviderType p_prov = this.createParserProvider();

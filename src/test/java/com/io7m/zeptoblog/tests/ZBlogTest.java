@@ -17,8 +17,10 @@
 package com.io7m.zeptoblog.tests;
 
 import com.io7m.zeptoblog.ZBlog;
+import com.io7m.zeptoblog.ZBlogBodyFormat;
 import com.io7m.zeptoblog.ZBlogPost;
 import javaslang.Tuple2;
+import javaslang.collection.HashMap;
 import javaslang.collection.Seq;
 import javaslang.collection.TreeMap;
 import javaslang.collection.TreeSet;
@@ -33,6 +35,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Optional;
 import java.util.Random;
 
 public final class ZBlogTest
@@ -77,7 +80,12 @@ public final class ZBlogTest
           ZoneId.of("UTC"));
 
       final ZBlogPost post =
-        ZBlogPost.of(title, date, TreeSet.empty(), body, Paths.get("/", Integer.toString(index)));
+        ZBlogPost.of(
+          title,
+          Optional.of(date),
+          body,
+          Paths.get("/", Integer.toString(index)),
+          ZBlogBodyFormat.FORMAT_COMMONMARK);
       posts = posts.put(post.path(), post);
     }
 
@@ -87,7 +95,9 @@ public final class ZBlogTest
     Assert.assertEquals(100L, (long) blog.posts().size());
 
     for (final Tuple2<Path, ZBlogPost> pair : blog.posts()) {
-      Assert.assertEquals(pair._2, blog.postsByDate().get(pair._2.date()).get());
+      Assert.assertEquals(
+        pair._2,
+        blog.postsByDate().get(pair._2.date().get()).get());
     }
 
     Vector<ZBlogPost> all = Vector.empty();

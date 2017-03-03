@@ -51,7 +51,7 @@ public abstract class ZBlogParserContract
   protected abstract ZBlogParserProviderType createParserProvider();
 
   @Test
-  public void testNoSourceDirectory()
+  public final void testNoSourceDirectory()
     throws Exception
   {
     final ZBlogParserProviderType prov = this.createParserProvider();
@@ -68,7 +68,7 @@ public abstract class ZBlogParserContract
   }
 
   @Test
-  public void testEmpty()
+  public final void testEmpty()
     throws Exception
   {
     final ZBlogParserProviderType prov = this.createParserProvider();
@@ -89,7 +89,7 @@ public abstract class ZBlogParserContract
   }
 
   @Test
-  public void testOne()
+  public final void testOne()
     throws Exception
   {
     final ZBlogParserProviderType prov = this.createParserProvider();
@@ -125,13 +125,13 @@ public abstract class ZBlogParserContract
       {
         final ZBlogPost p = blog.posts().last()._2;
         Assert.assertEquals("Title", p.title());
-        Assert.assertEquals(2020L, (long) p.date().getYear());
+        Assert.assertEquals(2020L, (long) p.date().get().getYear());
       }
     }
   }
 
   @Test
-  public void testBrokenPost()
+  public final void testBrokenPost()
     throws Exception
   {
     final ZBlogParserProviderType prov = this.createParserProvider();

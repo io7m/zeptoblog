@@ -47,7 +47,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * The default blog parser provider.
+ * The default blog parser post_provider.
  */
 
 @Component(service = ZBlogParserProviderType.class)
@@ -62,18 +62,19 @@ public final class ZBlogParserProvider implements ZBlogParserProviderType
   private final AtomicReference<ZBlogPostParserProviderType> post_provider;
 
   /**
-   * Construct a blog parser provider.
+   * Construct a blog parser post_provider.
    */
 
   public ZBlogParserProvider()
   {
-    this.post_provider = new AtomicReference<>();
+    this.post_provider =
+      new AtomicReference<>(new ZBlogPostParserProvider());
   }
 
   /**
    * Introduce a blog post parser provider.
    *
-   * @param provider The provider
+   * @param provider The post parser provider
    */
 
   @Reference(
@@ -84,13 +85,13 @@ public final class ZBlogParserProvider implements ZBlogParserProviderType
   public void setBlogPostParserProvider(
     final ZBlogPostParserProviderType provider)
   {
-    this.post_provider.set(NullCheck.notNull(provider, "provider"));
+    this.post_provider.set(NullCheck.notNull(provider, "Post provider"));
   }
 
   /**
-   * Remove a blog post parser provider.
+   * Remove a blog post parser post provider.
    *
-   * @param provider The provider
+   * @param provider The post parser provider
    */
 
   public void unsetBlogPostParserProvider(
@@ -105,12 +106,14 @@ public final class ZBlogParserProvider implements ZBlogParserProviderType
   {
     NullCheck.notNull(config, "config");
 
-    final ZBlogPostParserProviderType provider = this.post_provider.get();
-    if (provider != null) {
-      return new Parser(provider, config);
+    final ZBlogPostParserProviderType r_post_provider =
+      this.post_provider.get();
+
+    if (r_post_provider != null) {
+      return new Parser(r_post_provider, config);
     }
 
-    throw new IllegalStateException("No parser provider available");
+    throw new IllegalStateException("No parser providers available");
   }
 
   private static final class Parser
@@ -118,16 +121,18 @@ public final class ZBlogParserProvider implements ZBlogParserProviderType
   {
     private final ZBlogConfiguration config;
     private final ZBlog.Builder builder;
-    private final ZBlogPostParserProviderType provider;
+    private final ZBlogPostParserProviderType post_provider;
     private final DateTimeFormatter formatter;
     private TreeMap<Path, ZBlogPost> posts;
     private Vector<ZError> errors;
 
     Parser(
-      final ZBlogPostParserProviderType in_provider,
+      final ZBlogPostParserProviderType in_post_provider,
       final ZBlogConfiguration in_config)
     {
-      this.provider = NullCheck.notNull(in_provider, "Provider");
+      this.post_provider =
+        NullCheck.notNull(in_post_provider, "Post provider");
+
       this.config = NullCheck.notNull(in_config, "Config");
       this.errors = Vector.empty();
       this.builder = ZBlog.builder();
@@ -180,45 +185,56 @@ public final class ZBlogParserProvider implements ZBlogParserProviderType
       throws IOException
     {
       final String extension = FilenameUtils.getExtension(file.toString());
-      if (extension != null && Objects.equals(extension, "zbp")) {
-        LOG.debug("parsing {}", file);
-
-        try (final InputStream stream = Files.newInputStream(file)) {
-          final Path relative = this.config.sourceRoot().relativize(file);
-
-          final ZBlogPostParserType parser =
-            this.provider.createParser(stream, relative);
-          final Validation<Seq<ZError>, ZBlogPost> r = parser.parse();
-          if (r.isInvalid()) {
-            this.errors = this.errors.appendAll(r.getError());
-          } else {
-            final ZBlogPost post = r.get();
-
-            if (this.posts.containsKey(post.path())) {
-              final StringBuilder sb = new StringBuilder(128);
-              sb.append("Duplicate blog post.");
-              sb.append(System.lineSeparator());
-              sb.append("  Post title: ");
-              sb.append(post.title());
-              sb.append(System.lineSeparator());
-              sb.append("  Post date:  ");
-              sb.append(post.date().format(this.formatter));
-              sb.append(System.lineSeparator());
-              sb.append("  Post path:    ");
-              sb.append(post.path());
-              sb.append(System.lineSeparator());
-              this.errors.append(ZError.of(
-                sb.toString(),
-                LexicalPosition.of(0, 0, Optional.of(file)),
-                Optional.empty()));
-            } else {
-              this.posts = this.posts.put(post.path(), post);
-            }
-          }
+      if (extension != null) {
+        if (Objects.equals(extension, "zbp")) {
+          this.parsePost(file);
         }
       }
 
       return FileVisitResult.CONTINUE;
+    }
+
+    private void parsePost(
+      final Path file)
+      throws IOException
+    {
+      LOG.debug("parsing post {}", file);
+
+      try (final InputStream stream = Files.newInputStream(file)) {
+        final Path relative = this.config.sourceRoot().relativize(file);
+
+        final ZBlogPostParserType parser =
+          this.post_provider.createParser(stream, relative);
+        final Validation<Seq<ZError>, ZBlogPost> r = parser.parse();
+        if (r.isInvalid()) {
+          this.errors = this.errors.appendAll(r.getError());
+        } else {
+          final ZBlogPost post = r.get();
+
+          if (this.posts.containsKey(post.path())) {
+            final StringBuilder sb = new StringBuilder(128);
+            sb.append("Duplicate blog post.");
+            sb.append(System.lineSeparator());
+            sb.append("  Post title: ");
+            sb.append(post.title());
+            sb.append(System.lineSeparator());
+            post.date().ifPresent(date -> {
+              sb.append("  Post date:  ");
+              sb.append(date.format(this.formatter));
+              sb.append(System.lineSeparator());
+            });
+            sb.append("  Post path:    ");
+            sb.append(post.path());
+            sb.append(System.lineSeparator());
+            this.errors.append(ZError.of(
+              sb.toString(),
+              LexicalPosition.of(0, 0, Optional.of(file)),
+              Optional.empty()));
+          } else {
+            this.posts = this.posts.put(post.path(), post);
+          }
+        }
+      }
     }
 
     @Override

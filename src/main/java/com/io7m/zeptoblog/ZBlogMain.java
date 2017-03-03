@@ -65,7 +65,7 @@ public final class ZBlogMain implements Runnable
     this.commands.put("compile", compile);
 
     this.commander = new JCommander(r);
-    this.commander.setProgramName("smf");
+    this.commander.setProgramName("zeptoblog");
     this.commander.addCommand("compile", compile);
   }
 
@@ -85,7 +85,7 @@ public final class ZBlogMain implements Runnable
   private static void show(
     final ZError error)
   {
-    LOG.error(error.message());
+    LOG.error(error.show());
     error.error().ifPresent(ex -> LOG.error("exception: ", ex));
   }
 
@@ -186,7 +186,6 @@ public final class ZBlogMain implements Runnable
       if (cr.isValid()) {
         final ZBlogConfiguration config = cr.get();
         final ZBlogParserProvider blog_provider = new ZBlogParserProvider();
-        blog_provider.setBlogPostParserProvider(new ZBlogPostParserProvider());
         final ZBlogParserType blog_parser = blog_provider.createParser(config);
         final Validation<Seq<ZError>, ZBlog> br = blog_parser.parse();
         if (br.isValid()) {

@@ -52,4 +52,51 @@ public interface ZErrorType
 
   @Value.Parameter
   Optional<Exception> error();
+
+  /**
+   * @return A formatted error message
+   */
+
+  default String show()
+  {
+    final Optional<Exception> error_opt = this.error();
+    final Optional<Path> file_opt = this.position().file();
+    if (file_opt.isPresent()) {
+      if (error_opt.isPresent()) {
+        final Exception ex = error_opt.get();
+        return String.format(
+          "%s:%d:%d: %s (%s: %s)",
+          file_opt.get(),
+          Integer.valueOf(this.position().line()),
+          Integer.valueOf(this.position().column()),
+          this.message(),
+          ex.getClass().getCanonicalName(),
+          ex.getMessage());
+      }
+      return String.format(
+        "%s:%d:%d: %s",
+        file_opt.get(),
+        Integer.valueOf(this.position().line()),
+        Integer.valueOf(this.position().column()),
+        this.message());
+    }
+
+    if (error_opt.isPresent()) {
+      final Exception ex = error_opt.get();
+      return String.format(
+        "%s:%d:%d: %s (%s: %s)",
+        file_opt.get(),
+        Integer.valueOf(this.position().line()),
+        Integer.valueOf(this.position().column()),
+        this.message(),
+        ex.getClass().getCanonicalName(),
+        ex.getMessage());
+    }
+
+    return String.format(
+      "%d:%d: %s",
+      Integer.valueOf(this.position().line()),
+      Integer.valueOf(this.position().column()),
+      this.message());
+  }
 }

@@ -19,8 +19,6 @@ package com.io7m.zeptoblog;
 import com.io7m.jlexing.core.LexicalPositionMutable;
 import com.io7m.jnull.NullCheck;
 import javaslang.collection.Seq;
-import javaslang.collection.SortedSet;
-import javaslang.collection.TreeSet;
 import javaslang.collection.Vector;
 import javaslang.control.Validation;
 import org.apache.commons.io.input.CloseShieldInputStream;
@@ -82,8 +80,8 @@ public final class ZBlogPostParserProvider implements
     private final Path path;
     private Vector<ZError> errors;
     private String title;
-    private ZonedDateTime date;
-    private SortedSet<String> tags;
+    private Optional<ZonedDateTime> date;
+    private ZBlogBodyFormat format;
 
     Parser(
       final InputStream in_stream,
@@ -94,7 +92,8 @@ public final class ZBlogPostParserProvider implements
       this.position = LexicalPositionMutable.create(0, 0, Optional.of(in_path));
       this.formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
       this.errors = Vector.empty();
-      this.tags = TreeSet.empty();
+      this.format = ZBlogBodyFormat.FORMAT_COMMONMARK;
+      this.date = Optional.empty();
     }
 
     @Override
@@ -116,16 +115,18 @@ public final class ZBlogPostParserProvider implements
 
         if (LOG.isDebugEnabled()) {
           LOG.debug("file:  {}", this.path);
-          LOG.debug("date:  {}", this.date.format(this.formatter));
+          this.date.ifPresent(post_date -> LOG.debug(
+            "date:  {}",
+            post_date.format(this.formatter)));
           LOG.debug("title: {}", this.title);
         }
 
         return valid(ZBlogPost.of(
           this.title,
           this.date,
-          this.tags,
           body,
-          this.path));
+          this.path,
+          this.format));
       } catch (final IOException e) {
         return this.fail("I/O error: " + e.getMessage(), Optional.of(e));
       }
@@ -190,8 +191,8 @@ public final class ZBlogPostParserProvider implements
           this.parseHeaderCommandDate(line, tokens);
           break;
         }
-        case "tags": {
-          this.parseHeaderCommandTags(tokens);
+        case "format": {
+          this.parseHeaderCommandFormat(line, tokens);
           break;
         }
         default: {
@@ -201,19 +202,14 @@ public final class ZBlogPostParserProvider implements
       }
     }
 
-    private void parseHeaderCommandTags(
-      final Vector<String> tokens)
-    {
-      this.tags = TreeSet.ofAll(tokens.tail());
-    }
-
     private void parseHeaderCommandDate(
       final String line,
       final Vector<String> tokens)
     {
       if (tokens.size() == 2) {
         try {
-          this.date = ZonedDateTime.parse(tokens.get(1), this.formatter);
+          this.date =
+            Optional.of(ZonedDateTime.parse(tokens.get(1), this.formatter));
         } catch (final Exception e) {
           this.fail(e.getMessage(), Optional.of(e));
         }
@@ -222,6 +218,29 @@ public final class ZBlogPostParserProvider implements
         sb.append("Syntax error.");
         sb.append(System.lineSeparator());
         sb.append("  Expected: date <date>");
+        sb.append(System.lineSeparator());
+        sb.append("  Received: ");
+        sb.append(line);
+        sb.append(System.lineSeparator());
+        this.fail(sb.toString(), Optional.empty());
+      }
+    }
+
+    private void parseHeaderCommandFormat(
+      final String line,
+      final Vector<String> tokens)
+    {
+      if (tokens.size() == 2) {
+        try {
+          this.format = ZBlogBodyFormat.of(tokens.get(1));
+        } catch (final IllegalArgumentException e) {
+          this.fail(e.getMessage(), Optional.of(e));
+        }
+      } else {
+        final StringBuilder sb = new StringBuilder(128);
+        sb.append("Syntax error.");
+        sb.append(System.lineSeparator());
+        sb.append("  Expected: format <format-name>");
         sb.append(System.lineSeparator());
         sb.append("  Received: ");
         sb.append(line);
