@@ -28,6 +28,9 @@ com.io7m.zeptoblog.site_uri = http://blog.io7m.com/
 
 # The author information that will appear in Atom feeds
 com.io7m.zeptoblog.author = blog@io7m.com
+
+# The default format of blog posts (CommonMark, here)
+com.io7m.zeptoblog.format_default = com.io7m.zeptoblog.commonmark
 ```
 
 Create posts by creating files in `com.io7m.zeptoblog.source_root` with names ending in `.zbp`.
