@@ -16,56 +16,20 @@
 
 package com.io7m.zeptoblog.core;
 
-
-import com.io7m.jnull.NullCheck;
-import javaslang.collection.HashSet;
-import javaslang.collection.Set;
-import org.osgi.service.component.annotations.Component;
-
-import java.util.Iterator;
-import java.util.Optional;
-import java.util.ServiceLoader;
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
- * A {@link ServiceLoader} resolver implementation.
+ * A ServiceLoader resolver for blog post formats.
  */
 
-@Component(service = ZBlogPostFormatResolverType.class)
-public final class ZBlogPostFormatResolverSL implements
-  ZBlogPostFormatResolverType
+public final class ZBlogPostFormatResolverSL extends
+  ZServiceResolverAbstractSL<ZBlogPostFormatType>
+  implements ZBlogPostFormatResolverType
 {
-  private final ConcurrentHashMap<String, ZBlogPostFormatProviderType> formats;
-
   /**
-   * Construct a format provider resolver.
+   * Construct a service resolver.
    */
 
   public ZBlogPostFormatResolverSL()
   {
-    this.formats = new ConcurrentHashMap<>();
-
-    final ServiceLoader<ZBlogPostFormatProviderType> loader =
-      ServiceLoader.load(ZBlogPostFormatProviderType.class);
-
-    final Iterator<ZBlogPostFormatProviderType> iter = loader.iterator();
-    while (iter.hasNext()) {
-      final ZBlogPostFormatProviderType provider = iter.next();
-      this.formats.put(provider.name(), provider);
-    }
-  }
-
-  @Override
-  public Optional<ZBlogPostFormatProviderType> resolve(
-    final String name)
-  {
-    NullCheck.notNull(name, "name");
-    return Optional.ofNullable(this.formats.get(name));
-  }
-
-  @Override
-  public Set<ZBlogPostFormatProviderType> formats()
-  {
-    return HashSet.ofAll(this.formats.values());
+    super(ZBlogPostFormatType.class);
   }
 }

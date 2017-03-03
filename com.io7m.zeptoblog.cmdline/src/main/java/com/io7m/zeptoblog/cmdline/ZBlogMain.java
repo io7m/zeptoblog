@@ -27,9 +27,11 @@ import com.io7m.zeptoblog.core.ZBlog;
 import com.io7m.zeptoblog.core.ZBlogConfiguration;
 import com.io7m.zeptoblog.core.ZBlogConfigurations;
 import com.io7m.zeptoblog.core.ZBlogParserProvider;
+import com.io7m.zeptoblog.core.ZBlogParserProviderType;
 import com.io7m.zeptoblog.core.ZBlogParserType;
 import com.io7m.zeptoblog.core.ZBlogPostFormatResolverSL;
 import com.io7m.zeptoblog.core.ZBlogRendererProvider;
+import com.io7m.zeptoblog.core.ZBlogRendererProviderType;
 import com.io7m.zeptoblog.core.ZBlogRendererType;
 import com.io7m.zeptoblog.core.ZError;
 import javaslang.collection.Seq;
@@ -182,9 +184,7 @@ public final class ZBlogMain implements Runnable
     {
       super.call();
 
-      final ZBlogPostFormatResolverSL r = new ZBlogPostFormatResolverSL();
-
-      r.formats().forEach(
+      new ZBlogPostFormatResolverSL().available().forEach(
         p -> System.out.printf("%-32s : %s\n", p.name(), p.description()));
       return unit();
     }
@@ -204,6 +204,7 @@ public final class ZBlogMain implements Runnable
 
     }
 
+
     @Override
     public Unit call()
       throws Exception
@@ -217,34 +218,35 @@ public final class ZBlogMain implements Runnable
       final Validation<Seq<ZError>, ZBlogConfiguration> cr =
         ZBlogConfigurations.fromProperties(config_file.toPath(), config_props);
 
-      if (cr.isValid()) {
-        final ZBlogConfiguration config = cr.get();
-        final ZBlogParserProvider blog_provider = new ZBlogParserProvider();
-        final ZBlogParserType blog_parser = blog_provider.createParser(config);
-        final Validation<Seq<ZError>, ZBlog> br = blog_parser.parse();
-        if (br.isValid()) {
-          final ZBlog blog = br.get();
-          final ZBlogRendererProvider blog_writer_provider =
-            new ZBlogRendererProvider();
-          final ZBlogRendererType blog_writer =
-            blog_writer_provider.createRenderer(config);
-
-          final Validation<Seq<ZError>, Unit> wr = blog_writer.render(blog);
-          if (wr.isValid()) {
-            LOG.debug("done");
-          } else {
-            ZBlogMain.this.exit_code = 1;
-            wr.getError().forEach(ZBlogMain::show);
-          }
-        } else {
-          ZBlogMain.this.exit_code = 1;
-          br.getError().forEach(ZBlogMain::show);
-        }
-      } else {
+      if (!cr.isValid()) {
         ZBlogMain.this.exit_code = 1;
         cr.getError().forEach(ZBlogMain::show);
       }
 
+      final ZBlogConfiguration config = cr.get();
+      final ZBlogParserProviderType blog_provider = new ZBlogParserProvider();
+      final ZBlogParserType blog_parser = blog_provider.createParser(config);
+      final Validation<Seq<ZError>, ZBlog> br = blog_parser.parse();
+      if (!br.isValid()) {
+        ZBlogMain.this.exit_code = 1;
+        br.getError().forEach(ZBlogMain::show);
+        return unit();
+      }
+
+      final ZBlogRendererProviderType blog_writer_provider =
+        new ZBlogRendererProvider();
+      final ZBlogRendererType blog_writer =
+        blog_writer_provider.createRenderer(config);
+
+      final ZBlog blog = br.get();
+      final Validation<Seq<ZError>, Unit> wr = blog_writer.render(blog);
+      if (!wr.isValid()) {
+        ZBlogMain.this.exit_code = 1;
+        wr.getError().forEach(ZBlogMain::show);
+        return unit();
+      }
+
+      LOG.debug("done");
       return unit();
     }
   }

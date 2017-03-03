@@ -84,8 +84,7 @@ public interface ZErrorType
     if (error_opt.isPresent()) {
       final Exception ex = error_opt.get();
       return String.format(
-        "%s:%d:%d: %s (%s: %s)",
-        file_opt.get(),
+        "%d:%d: %s (%s: %s)",
         Integer.valueOf(this.position().line()),
         Integer.valueOf(this.position().column()),
         this.message(),

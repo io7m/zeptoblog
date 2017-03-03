@@ -16,12 +16,31 @@
 
 package com.io7m.zeptoblog.core;
 
+import javaslang.collection.Set;
+import org.osgi.annotation.versioning.ProviderType;
+
+import java.util.Optional;
+
 /**
- * The type of resolvers for blog post formats.
+ * The type of service resolvers.
+ *
+ * @param <T> The precise type of services
  */
 
-public interface ZBlogPostFormatResolverType
-  extends ZServiceResolverType<ZBlogPostFormatType>
+@ProviderType
+public interface ZServiceResolverType<T extends ZServiceType>
 {
-  // No extra methods.
+  /**
+   * @param name The service name
+   *
+   * @return A service, or nothing if none exists with the given name
+   */
+
+  Optional<T> resolve(String name);
+
+  /**
+   * @return The currently registered services
+   */
+
+  Set<T> available();
 }

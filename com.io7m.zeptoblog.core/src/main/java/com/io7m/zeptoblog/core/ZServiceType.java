@@ -16,42 +16,21 @@
 
 package com.io7m.zeptoblog.core;
 
-import javaslang.collection.Seq;
-import javaslang.control.Validation;
-import nu.xom.Element;
-import org.osgi.annotation.versioning.ProviderType;
-
-import java.nio.file.Path;
-
 /**
- * The type of format providers for post bodies.
+ * The type of services.
  */
 
-@ProviderType
-public interface ZBlogPostFormatProviderType
+public interface ZServiceType
 {
   /**
-   * @return The name of the format provider
+   * @return The name of the service
    */
 
   String name();
 
   /**
-   * @return A description of the format provider
+   * @return A description of the service
    */
 
   String description();
-
-  /**
-   * Produce XHTML for the given body text.
-   *
-   * @param path The path of the original file, for error reporting
-   * @param text The input body text
-   *
-   * @return XHTML, or a list of reasons why XHTML could not be produced
-   */
-
-  Validation<Seq<ZError>, Element> produceXHTML(
-    Path path,
-    String text);
 }

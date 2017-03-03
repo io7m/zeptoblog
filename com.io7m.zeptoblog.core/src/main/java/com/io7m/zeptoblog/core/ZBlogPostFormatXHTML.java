@@ -41,15 +41,25 @@ import java.util.Optional;
 
 @Component
 public final class ZBlogPostFormatXHTML implements
-  ZBlogPostFormatProviderType
+  ZBlogPostFormatType
 {
   /**
    * The name of the format.
    */
 
   public static final String NAME = "com.io7m.zeptoblog.xhtml";
-  private static final URI XHTML_URI;
-  private static final String XHTML_URI_TEXT;
+
+  /**
+   * The XHTML namespace.
+   */
+
+  public static final URI XHTML_URI;
+
+  /**
+   * The XHTML namespace.
+   */
+
+  public static final String XHTML_URI_TEXT;
 
   static {
     XHTML_URI = URI.create("http://www.w3.org/1999/xhtml");

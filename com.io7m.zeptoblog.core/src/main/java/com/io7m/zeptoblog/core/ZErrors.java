@@ -16,12 +16,36 @@
 
 package com.io7m.zeptoblog.core;
 
+import com.io7m.jlexing.core.LexicalPosition;
+import com.io7m.junreachable.UnreachableCodeException;
+
+import java.util.Optional;
+
 /**
- * The type of resolvers for blog post formats.
+ * Convenience functions for constructing errors.
  */
 
-public interface ZBlogPostFormatResolverType
-  extends ZServiceResolverType<ZBlogPostFormatType>
+public final class ZErrors
 {
-  // No extra methods.
+  private ZErrors()
+  {
+    throw new UnreachableCodeException();
+  }
+
+  /**
+   * Construct an error from the given exception.
+   *
+   * @param e The exception
+   *
+   * @return An error
+   */
+
+  public static ZError ofException(
+    final Exception e)
+  {
+    return ZError.of(
+      e.getMessage(),
+      LexicalPosition.of(0, 0, Optional.empty()),
+      Optional.of(e));
+  }
 }

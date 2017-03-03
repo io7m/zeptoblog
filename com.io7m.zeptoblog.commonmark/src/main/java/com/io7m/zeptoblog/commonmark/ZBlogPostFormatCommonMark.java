@@ -18,7 +18,7 @@ package com.io7m.zeptoblog.commonmark;
 
 import com.io7m.jlexing.core.LexicalPosition;
 import com.io7m.junreachable.UnreachableCodeException;
-import com.io7m.zeptoblog.core.ZBlogPostFormatProviderType;
+import com.io7m.zeptoblog.core.ZBlogPostFormatType;
 import com.io7m.zeptoblog.core.ZError;
 import javaslang.collection.Seq;
 import javaslang.collection.Vector;
@@ -57,7 +57,7 @@ import java.util.Set;
 
 @Component
 public final class ZBlogPostFormatCommonMark implements
-  ZBlogPostFormatProviderType
+  ZBlogPostFormatType
 {
   /**
    * The name of the format.
