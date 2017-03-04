@@ -8,11 +8,12 @@
   <parent>
     <groupId>com.io7m.zeptoblog</groupId>
     <artifactId>com.io7m.zeptoblog</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>com.io7m.zeptoblog.tests</artifactId>
   <packaging>jar</packaging>
+  <description>Static blog generator (Test suite)</description>
 
   <dependencies>
     <dependency>
@@ -23,6 +24,11 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>com.io7m.zeptoblog.commonmark</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.zeptoblog.glossary</artifactId>
       <version>${project.version}</version>
     </dependency>
 

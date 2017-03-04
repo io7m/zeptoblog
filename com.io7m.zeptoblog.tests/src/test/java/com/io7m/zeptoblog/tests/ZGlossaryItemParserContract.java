@@ -19,11 +19,10 @@ package com.io7m.zeptoblog.tests;
 import com.io7m.zeptoblog.commonmark.ZBlogPostFormatCommonMark;
 import com.io7m.zeptoblog.core.ZBlogConfiguration;
 import com.io7m.zeptoblog.core.ZBlogConfigurations;
-import com.io7m.zeptoblog.core.ZBlogPost;
-import com.io7m.zeptoblog.core.ZBlogPostParserProviderType;
-import com.io7m.zeptoblog.core.ZBlogPostParserType;
 import com.io7m.zeptoblog.core.ZError;
 import com.io7m.zeptoblog.glossary.ZGlossaryItem;
+import com.io7m.zeptoblog.glossary.ZGlossaryItemParserProviderType;
+import com.io7m.zeptoblog.glossary.ZGlossaryItemParserType;
 import javaslang.collection.HashSet;
 import javaslang.collection.Seq;
 import javaslang.control.Validation;
@@ -40,12 +39,12 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 
-public abstract class ZBlogPostParserContract
+public abstract class ZGlossaryItemParserContract
 {
   private static final Logger LOG;
 
   static {
-    LOG = LoggerFactory.getLogger(ZBlogPostParserContract.class);
+    LOG = LoggerFactory.getLogger(ZGlossaryItemParserContract.class);
   }
 
   private static ByteArrayInputStream byteStream(
@@ -69,34 +68,7 @@ public abstract class ZBlogPostParserContract
     }
   }
 
-  protected abstract ZBlogPostParserProviderType createParserProvider();
-
-  @Test
-  public final void testUnexpectedEOF()
-    throws Exception
-  {
-    final ZBlogConfiguration config = this.config();
-
-    final ZBlogPostParserProviderType p_prov = this.createParserProvider();
-
-    try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-      try (final BufferedWriter w = writer(os)) {
-        w.write("");
-        w.flush();
-      }
-
-      try (final ByteArrayInputStream is = byteStream(os)) {
-        final ZBlogPostParserType p =
-          p_prov.createParser(config, is, Paths.get("/x/y/z"));
-
-        final Validation<Seq<ZError>, ZBlogPost> r = p.parse();
-        dumpResult(r);
-        Assert.assertTrue(r.isInvalid());
-        Assert.assertTrue(r.getError().get(0).message().contains(
-          "Unexpected EOF"));
-      }
-    }
-  }
+  protected abstract ZGlossaryItemParserProviderType createParserProvider();
 
   private ZBlogConfiguration config()
   {
@@ -105,79 +77,52 @@ public abstract class ZBlogPostParserContract
   }
 
   @Test
-  public final void testBadDate0()
+  public final void testUnexpectedEOF()
     throws Exception
   {
     final ZBlogConfiguration config = this.config();
 
-    final ZBlogPostParserProviderType p_prov = this.createParserProvider();
+    final ZGlossaryItemParserProviderType p_prov = this.createParserProvider();
 
     try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
       try (final BufferedWriter w = writer(os)) {
-        w.write("date");
-        w.newLine();
+        w.write("");
         w.flush();
       }
 
       try (final ByteArrayInputStream is = byteStream(os)) {
-        final ZBlogPostParserType p =
+        final ZGlossaryItemParserType p =
           p_prov.createParser(config, is, Paths.get("/x/y/z"));
 
-        final Validation<Seq<ZError>, ZBlogPost> r = p.parse();
+        final Validation<Seq<ZError>, ZGlossaryItem> r = p.parse();
         dumpResult(r);
         Assert.assertTrue(r.isInvalid());
-        Assert.assertTrue(r.getError().get(0).message().contains("Syntax error"));
+        Assert.assertTrue(r.getError().get(0).message().contains(
+          "Unexpected EOF"));
       }
     }
   }
 
   @Test
-  public final void testBadDate1()
+  public final void testBadTerm0()
     throws Exception
   {
     final ZBlogConfiguration config = this.config();
 
-    final ZBlogPostParserProviderType p_prov = this.createParserProvider();
+    final ZGlossaryItemParserProviderType p_prov = this.createParserProvider();
 
     try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
       try (final BufferedWriter w = writer(os)) {
-        w.write("date 2010");
+        w.write("term");
         w.newLine();
         w.flush();
       }
 
       try (final ByteArrayInputStream is = byteStream(os)) {
-        final ZBlogPostParserType p =
+        final ZGlossaryItemParserType p =
           p_prov.createParser(config, is, Paths.get("/x/y/z"));
 
-        final Validation<Seq<ZError>, ZBlogPost> r = p.parse();
-        dumpResult(r);
-        Assert.assertTrue(r.isInvalid());
-        Assert.assertTrue(r.getError().get(0).message().contains("2010"));
-      }
-    }
-  }
-
-  @Test
-  public final void testBadTitle0()
-    throws Exception
-  {
-    final ZBlogConfiguration config = this.config();
-
-    final ZBlogPostParserProviderType p_prov = this.createParserProvider();
-
-    try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-      try (final BufferedWriter w = writer(os)) {
-        w.write("title");
-        w.newLine();
-        w.flush();
-      }
-
-      try (final ByteArrayInputStream is = byteStream(os)) {
-        final ZBlogPostParserType p =
-          p_prov.createParser(config, is, Paths.get("/x/y/z"));
-
-        final Validation<Seq<ZError>, ZBlogPost> r = p.parse();
+        final Validation<Seq<ZError>, ZGlossaryItem> r = p.parse();
         dumpResult(r);
         Assert.assertTrue(r.isInvalid());
         Assert.assertTrue(r.getError().get(0).message().contains("Syntax error"));
@@ -191,7 +136,7 @@ public abstract class ZBlogPostParserContract
   {
     final ZBlogConfiguration config = this.config();
 
-    final ZBlogPostParserProviderType p_prov = this.createParserProvider();
+    final ZGlossaryItemParserProviderType p_prov = this.createParserProvider();
 
     try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
       try (final BufferedWriter w = writer(os)) {
@@ -201,10 +146,10 @@ public abstract class ZBlogPostParserContract
       }
 
       try (final ByteArrayInputStream is = byteStream(os)) {
-        final ZBlogPostParserType p =
+        final ZGlossaryItemParserType p =
           p_prov.createParser(config, is, Paths.get("/x/y/z"));
 
-        final Validation<Seq<ZError>, ZBlogPost> r = p.parse();
+        final Validation<Seq<ZError>, ZGlossaryItem> r = p.parse();
         dumpResult(r);
         Assert.assertTrue(r.isInvalid());
         Assert.assertTrue(r.getError().get(0).message().contains("Syntax error"));
@@ -213,28 +158,55 @@ public abstract class ZBlogPostParserContract
   }
 
   @Test
-  public final void testBadNoTitle0()
+  public final void testBadRelated0()
     throws Exception
   {
     final ZBlogConfiguration config = this.config();
 
-    final ZBlogPostParserProviderType p_prov = this.createParserProvider();
+    final ZGlossaryItemParserProviderType p_prov = this.createParserProvider();
 
     try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
       try (final BufferedWriter w = writer(os)) {
-        w.newLine();
+        w.write("related");
         w.newLine();
         w.flush();
       }
 
       try (final ByteArrayInputStream is = byteStream(os)) {
-        final ZBlogPostParserType p =
+        final ZGlossaryItemParserType p =
           p_prov.createParser(config, is, Paths.get("/x/y/z"));
 
-        final Validation<Seq<ZError>, ZBlogPost> r = p.parse();
+        final Validation<Seq<ZError>, ZGlossaryItem> r = p.parse();
         dumpResult(r);
         Assert.assertTrue(r.isInvalid());
-        Assert.assertTrue(r.getError().get(0).message().contains("Title not specified"));
+        Assert.assertTrue(r.getError().get(0).message().contains("Syntax error"));
+      }
+    }
+  }
+
+  @Test
+  public final void testUnrecognized()
+    throws Exception
+  {
+    final ZBlogConfiguration config = this.config();
+
+    final ZGlossaryItemParserProviderType p_prov = this.createParserProvider();
+
+    try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+      try (final BufferedWriter w = writer(os)) {
+        w.write("unknown");
+        w.newLine();
+        w.flush();
+      }
+
+      try (final ByteArrayInputStream is = byteStream(os)) {
+        final ZGlossaryItemParserType p =
+          p_prov.createParser(config, is, Paths.get("/x/y/z"));
+
+        final Validation<Seq<ZError>, ZGlossaryItem> r = p.parse();
+        dumpResult(r);
+        Assert.assertTrue(r.isInvalid());
+        Assert.assertTrue(r.getError().get(0).message().contains("Unrecognized"));
       }
     }
   }
@@ -245,13 +217,13 @@ public abstract class ZBlogPostParserContract
   {
     final ZBlogConfiguration config = this.config();
 
-    final ZBlogPostParserProviderType p_prov = this.createParserProvider();
+    final ZGlossaryItemParserProviderType p_prov = this.createParserProvider();
 
     try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
       try (final BufferedWriter w = writer(os)) {
-        w.write("title A");
+        w.write("term A");
         w.newLine();
-        w.write("date 2017-01-01T00:01:02+0000");
+        w.write("related X Y Z");
         w.newLine();
         w.write("format F");
         w.newLine();
@@ -262,15 +234,16 @@ public abstract class ZBlogPostParserContract
       }
 
       try (final ByteArrayInputStream is = byteStream(os)) {
-        final ZBlogPostParserType p =
+        final ZGlossaryItemParserType p =
           p_prov.createParser(config, is, Paths.get("/x/y/z"));
 
-        final Validation<Seq<ZError>, ZBlogPost> r = p.parse();
+        final Validation<Seq<ZError>, ZGlossaryItem> r = p.parse();
         dumpResult(r);
         Assert.assertTrue(r.isValid());
 
-        final ZBlogPost i = r.get();
-        Assert.assertEquals("A", i.title());
+        final ZGlossaryItem i = r.get();
+        Assert.assertEquals("A", i.term());
+        Assert.assertEquals(HashSet.of("X", "Y", "Z"), i.seeAlso());
         Assert.assertEquals("F", i.body().format());
         Assert.assertThat(i.body().text(), StringContains.containsString("Hello."));
       }
@@ -283,13 +256,13 @@ public abstract class ZBlogPostParserContract
   {
     final ZBlogConfiguration config = this.config();
 
-    final ZBlogPostParserProviderType p_prov = this.createParserProvider();
+    final ZGlossaryItemParserProviderType p_prov = this.createParserProvider();
 
     try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
       try (final BufferedWriter w = writer(os)) {
-        w.write("title A");
+        w.write("term A");
         w.newLine();
-        w.write("date 2017-01-01T00:01:02+0000");
+        w.write("related X Y Z");
         w.newLine();
         w.newLine();
         w.write("Hello.");
@@ -298,15 +271,16 @@ public abstract class ZBlogPostParserContract
       }
 
       try (final ByteArrayInputStream is = byteStream(os)) {
-        final ZBlogPostParserType p =
+        final ZGlossaryItemParserType p =
           p_prov.createParser(config, is, Paths.get("/x/y/z"));
 
-        final Validation<Seq<ZError>, ZBlogPost> r = p.parse();
+        final Validation<Seq<ZError>, ZGlossaryItem> r = p.parse();
         dumpResult(r);
         Assert.assertTrue(r.isValid());
 
-        final ZBlogPost i = r.get();
-        Assert.assertEquals("A", i.title());
+        final ZGlossaryItem i = r.get();
+        Assert.assertEquals("A", i.term());
+        Assert.assertEquals(HashSet.of("X", "Y", "Z"), i.seeAlso());
         Assert.assertEquals(ZBlogPostFormatCommonMark.NAME, i.body().format());
         Assert.assertThat(i.body().text(), StringContains.containsString("Hello."));
       }

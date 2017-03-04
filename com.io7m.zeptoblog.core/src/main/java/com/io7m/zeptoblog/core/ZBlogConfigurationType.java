@@ -17,6 +17,7 @@
 package com.io7m.zeptoblog.core;
 
 import com.io7m.jaffirm.core.Preconditions;
+import javaslang.collection.Map;
 import org.immutables.javaslang.encodings.JavaslangEncodingEnabled;
 import org.immutables.value.Value;
 
@@ -91,32 +92,43 @@ public interface ZBlogConfigurationType
   Optional<Path> headerReplace();
 
   /**
-   * @return An optional file containing an XHTML element that will be prepended to the blog header
+   * @return An optional file containing an XHTML element that will be prepended
+   * to the blog header
    */
 
   @Value.Parameter
   Optional<Path> headerPre();
 
   /**
-   * @return An optional file containing an XHTML element that will be appended to the blog header
+   * @return An optional file containing an XHTML element that will be appended
+   * to the blog header
    */
 
   @Value.Parameter
   Optional<Path> headerPost();
 
   /**
-   * @return An optional file containing an XHTML element that will be prepended to the blog footer
+   * @return An optional file containing an XHTML element that will be prepended
+   * to the blog footer
    */
 
   @Value.Parameter
   Optional<Path> footerPre();
 
   /**
-   * @return An optional file containing an XHTML element that will be appended to the blog footer
+   * @return An optional file containing an XHTML element that will be appended
+   * to the blog footer
    */
 
   @Value.Parameter
   Optional<Path> footerPost();
+
+  /**
+   * @return The set of requests to execute generators
+   */
+
+  @Value.Parameter
+  Map<String, ZBlogPostGeneratorRequest> generatorRequests();
 
   /**
    * Check preconditions for the type.

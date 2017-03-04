@@ -14,11 +14,17 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.zeptoblog.core;
+package com.io7m.zeptoblog.glossary;
 
 import com.io7m.jlexing.core.LexicalPositionMutable;
 import com.io7m.jnull.NullCheck;
+import com.io7m.zeptoblog.core.ZBlogConfiguration;
+import com.io7m.zeptoblog.core.ZBlogPostFormatResolverSL;
+import com.io7m.zeptoblog.core.ZBlogPostFormatResolverType;
+import com.io7m.zeptoblog.core.ZError;
+import javaslang.collection.HashSet;
 import javaslang.collection.Seq;
+import javaslang.collection.Set;
 import javaslang.collection.Vector;
 import javaslang.control.Validation;
 import org.apache.commons.io.input.CloseShieldInputStream;
@@ -36,8 +42,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -46,17 +50,17 @@ import static javaslang.control.Validation.invalid;
 import static javaslang.control.Validation.valid;
 
 /**
- * The default blog post parser provider.
+ * The default glossary item parser provider.
  */
 
-@Component(service = ZBlogPostParserProviderType.class)
-public final class ZBlogPostParserProvider implements
-  ZBlogPostParserProviderType
+@Component(service = ZGlossaryItemParserProviderType.class)
+public final class ZGlossaryItemParserProvider implements
+  ZGlossaryItemParserProviderType
 {
   private static final Logger LOG;
 
   static {
-    LOG = LoggerFactory.getLogger(ZBlogPostParserProvider.class);
+    LOG = LoggerFactory.getLogger(ZGlossaryItemParserProvider.class);
   }
 
   private volatile ZBlogPostFormatResolverType resolver;
@@ -65,7 +69,7 @@ public final class ZBlogPostParserProvider implements
    * Construct a blog post parser provider.
    */
 
-  public ZBlogPostParserProvider()
+  public ZGlossaryItemParserProvider()
   {
     this.resolver = new ZBlogPostFormatResolverSL();
   }
@@ -83,11 +87,11 @@ public final class ZBlogPostParserProvider implements
   public void resolverRegister(
     final ZBlogPostFormatResolverType in_resolver)
   {
-    this.resolver = NullCheck.notNull(in_resolver, "resolver");
+    this.resolver = NullCheck.notNull(in_resolver, "Resolver");
   }
 
   @Override
-  public ZBlogPostParserType createParser(
+  public ZGlossaryItemParserType createParser(
     final ZBlogConfiguration config,
     final InputStream stream,
     final Path path)
@@ -95,35 +99,33 @@ public final class ZBlogPostParserProvider implements
     return new Parser(config, stream, path);
   }
 
-  private static final class Parser implements ZBlogPostParserType
+  private static final class Parser implements ZGlossaryItemParserType
   {
     private final InputStream stream;
     private final LexicalPositionMutable<Path> position;
-    private final DateTimeFormatter formatter;
     private final Path path;
     private final ZBlogConfiguration config;
     private Vector<ZError> errors;
-    private String title;
-    private Optional<ZonedDateTime> date;
+    private String term;
     private String format_name;
+    private Set<String> related;
 
     Parser(
       final ZBlogConfiguration in_config,
       final InputStream in_stream,
       final Path in_path)
     {
-      this.config = NullCheck.notNull(in_config, "config");
+      this.config = NullCheck.notNull(in_config, "Config");
       this.stream = NullCheck.notNull(in_stream, "stream");
       this.path = NullCheck.notNull(in_path, "path");
 
       this.position = LexicalPositionMutable.create(0, 0, Optional.of(in_path));
-      this.formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
       this.errors = Vector.empty();
-      this.date = Optional.empty();
+      this.related = HashSet.empty();
     }
 
     @Override
-    public Validation<Seq<ZError>, ZBlogPost> parse()
+    public Validation<Seq<ZError>, ZGlossaryItem> parse()
     {
       try (final BufferedReader reader =
              new BufferedReader(
@@ -140,22 +142,19 @@ public final class ZBlogPostParserProvider implements
         final String body_text = this.parseBody(reader);
 
         if (LOG.isDebugEnabled()) {
-          LOG.debug("file:  {}", this.path);
-          this.date.ifPresent(post_date -> LOG.debug(
-            "date:  {}",
-            post_date.format(this.formatter)));
-          LOG.debug("title: {}", this.title);
+          LOG.debug("file: {}", this.path);
+          LOG.debug("term: {}", this.term);
         }
 
         if (this.format_name == null) {
           this.format_name = this.config.formatDefault();
         }
 
-        return valid(ZBlogPost.of(
-          this.title,
-          this.date,
-          this.path,
-          ZBlogPostBody.of(this.format_name, body_text)));
+        return valid(ZGlossaryItem.of(
+          this.term,
+          this.related,
+          ZGlossaryItemBody.of(this.format_name, body_text),
+          this.path));
       } catch (final IOException e) {
         return this.fail("I/O error: " + e.getMessage(), Optional.of(e));
       }
@@ -199,8 +198,8 @@ public final class ZBlogPostParserProvider implements
         this.parseHeaderCommand(line);
       }
 
-      if (this.title == null) {
-        this.fail("Title not specified", Optional.empty());
+      if (this.term == null) {
+        this.fail("Term not specified", Optional.empty());
       }
     }
 
@@ -209,16 +208,16 @@ public final class ZBlogPostParserProvider implements
     {
       final Vector<String> tokens = Vector.of(line.split("\\s+"));
       switch (tokens.get(0)) {
-        case "title": {
-          this.parseHeaderCommandTitle(line, tokens);
-          break;
-        }
-        case "date": {
-          this.parseHeaderCommandDate(line, tokens);
+        case "term": {
+          this.parseHeaderCommandTerm(line, tokens);
           break;
         }
         case "format": {
           this.parseHeaderCommandFormat(line, tokens);
+          break;
+        }
+        case "related": {
+          this.parseHeaderCommandRelated(line, tokens);
           break;
         }
         default: {
@@ -228,22 +227,17 @@ public final class ZBlogPostParserProvider implements
       }
     }
 
-    private void parseHeaderCommandDate(
+    private void parseHeaderCommandRelated(
       final String line,
       final Vector<String> tokens)
     {
-      if (tokens.size() == 2) {
-        try {
-          this.date =
-            Optional.of(ZonedDateTime.parse(tokens.get(1), this.formatter));
-        } catch (final Exception e) {
-          this.fail(e.getMessage(), Optional.of(e));
-        }
+      if (tokens.size() >= 2) {
+        this.related = HashSet.ofAll(tokens.tail());
       } else {
         final StringBuilder sb = new StringBuilder(128);
         sb.append("Syntax error.");
         sb.append(System.lineSeparator());
-        sb.append("  Expected: date <date>");
+        sb.append("  Expected: related <term> <term>*");
         sb.append(System.lineSeparator());
         sb.append("  Received: ");
         sb.append(line);
@@ -271,17 +265,17 @@ public final class ZBlogPostParserProvider implements
       }
     }
 
-    private void parseHeaderCommandTitle(
+    private void parseHeaderCommandTerm(
       final String line,
       final Vector<String> tokens)
     {
       if (tokens.size() >= 2) {
-        this.title = tokens.tail().collect(Collectors.joining(" "));
+        this.term = tokens.tail().collect(Collectors.joining(" "));
       } else {
         final StringBuilder sb = new StringBuilder(128);
         sb.append("Syntax error.");
         sb.append(System.lineSeparator());
-        sb.append("  Expected: title <text> <text>*");
+        sb.append("  Expected: term <text> <text>*");
         sb.append(System.lineSeparator());
         sb.append("  Received: ");
         sb.append(line);
@@ -290,7 +284,7 @@ public final class ZBlogPostParserProvider implements
       }
     }
 
-    private Validation<Seq<ZError>, ZBlogPost> fail(
+    private Validation<Seq<ZError>, ZGlossaryItem> fail(
       final String message,
       final Optional<Exception> exception)
     {

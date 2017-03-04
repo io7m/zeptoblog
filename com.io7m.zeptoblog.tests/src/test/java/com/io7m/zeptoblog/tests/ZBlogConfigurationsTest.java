@@ -20,9 +20,11 @@ import com.io7m.jproperties.JPropertyIncorrectType;
 import com.io7m.zeptoblog.commonmark.ZBlogPostFormatCommonMark;
 import com.io7m.zeptoblog.core.ZBlogConfiguration;
 import com.io7m.zeptoblog.core.ZBlogConfigurations;
+import com.io7m.zeptoblog.core.ZBlogPostGeneratorRequest;
 import com.io7m.zeptoblog.core.ZError;
 import javaslang.collection.Seq;
 import javaslang.control.Validation;
+import org.hamcrest.core.StringContains;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -70,6 +72,9 @@ public final class ZBlogConfigurationsTest
   public void testComplete()
   {
     final Properties p = baseProperties();
+    p.put("com.io7m.zeptoblog.generators", "x");
+    p.put("com.io7m.zeptoblog.generators.x.type", "y");
+    p.put("com.io7m.zeptoblog.generators.x.file", "z");
 
     final Validation<Seq<ZError>, ZBlogConfiguration> r =
       ZBlogConfigurations.fromProperties(Paths.get("/x/y/z"), p);
@@ -82,6 +87,49 @@ public final class ZBlogConfigurationsTest
     Assert.assertEquals(URI.create("http://example.com"), c.siteURI());
     Assert.assertEquals("author", c.author());
     Assert.assertEquals(23L, (long) c.postsPerPage());
+
+    final ZBlogPostGeneratorRequest g = c.generatorRequests().get("x").get();
+    Assert.assertEquals(g.name(), "x");
+    Assert.assertEquals(g.generatorName(), "y");
+    Assert.assertEquals(g.configFile().toString(), "z");
+  }
+
+  @Test
+  public void testBadGeneratorRequestMissing()
+  {
+    final Properties p = baseProperties();
+    p.put("com.io7m.zeptoblog.generators", "x");
+
+    final Validation<Seq<ZError>, ZBlogConfiguration> r =
+      ZBlogConfigurations.fromProperties(Paths.get("/x/y/z"), p);
+    Assert.assertTrue(r.isInvalid());
+    Assert.assertThat(r.getError().get(0).message(), StringContains.containsString("x"));
+  }
+
+  @Test
+  public void testBadGeneratorRequestMissingFile()
+  {
+    final Properties p = baseProperties();
+    p.put("com.io7m.zeptoblog.generators", "x");
+    p.put("com.io7m.zeptoblog.generators.x.type", "y");
+
+    final Validation<Seq<ZError>, ZBlogConfiguration> r =
+      ZBlogConfigurations.fromProperties(Paths.get("/x/y/z"), p);
+    Assert.assertTrue(r.isInvalid());
+    Assert.assertThat(r.getError().get(0).message(), StringContains.containsString("file"));
+  }
+
+  @Test
+  public void testBadGeneratorRequestMissingType()
+  {
+    final Properties p = baseProperties();
+    p.put("com.io7m.zeptoblog.generators", "x");
+    p.put("com.io7m.zeptoblog.generators.x.file", "y");
+
+    final Validation<Seq<ZError>, ZBlogConfiguration> r =
+      ZBlogConfigurations.fromProperties(Paths.get("/x/y/z"), p);
+    Assert.assertTrue(r.isInvalid());
+    Assert.assertThat(r.getError().get(0).message(), StringContains.containsString("type"));
   }
 
   public static Properties baseProperties()

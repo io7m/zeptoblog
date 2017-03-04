@@ -30,6 +30,9 @@ import com.io7m.zeptoblog.core.ZBlogParserProvider;
 import com.io7m.zeptoblog.core.ZBlogParserProviderType;
 import com.io7m.zeptoblog.core.ZBlogParserType;
 import com.io7m.zeptoblog.core.ZBlogPostFormatResolverSL;
+import com.io7m.zeptoblog.core.ZBlogPostGeneratorExecutor;
+import com.io7m.zeptoblog.core.ZBlogPostGeneratorExecutorType;
+import com.io7m.zeptoblog.core.ZBlogPostGeneratorResolverSL;
 import com.io7m.zeptoblog.core.ZBlogRendererProvider;
 import com.io7m.zeptoblog.core.ZBlogRendererProviderType;
 import com.io7m.zeptoblog.core.ZBlogRendererType;
@@ -72,15 +75,18 @@ public final class ZBlogMain implements Runnable
     final CommandRoot r = new CommandRoot();
     final CommandCompile compile = new CommandCompile();
     final CommandFormats formats = new CommandFormats();
+    final CommandGenerators generators = new CommandGenerators();
 
     this.commands = new HashMap<>(8);
     this.commands.put("compile", compile);
     this.commands.put("formats", formats);
+    this.commands.put("generators", generators);
 
     this.commander = new JCommander(r);
     this.commander.setProgramName("zeptoblog");
     this.commander.addCommand("compile", compile);
     this.commander.addCommand("formats", formats);
+    this.commander.addCommand("generators", generators);
   }
 
   /**
@@ -190,6 +196,26 @@ public final class ZBlogMain implements Runnable
     }
   }
 
+  @Parameters(commandDescription = "List supported page generators")
+  private final class CommandGenerators extends CommandRoot
+  {
+    CommandGenerators()
+    {
+
+    }
+
+    @Override
+    public Unit call()
+      throws Exception
+    {
+      super.call();
+
+      new ZBlogPostGeneratorResolverSL().available().forEach(
+        p -> System.out.printf("%-32s : %s\n", p.name(), p.description()));
+      return unit();
+    }
+  }
+
   @Parameters(commandDescription = "Compile a blog")
   private final class CommandCompile extends CommandRoot
   {
@@ -224,6 +250,14 @@ public final class ZBlogMain implements Runnable
       }
 
       final ZBlogConfiguration config = cr.get();
+      final ZBlogPostGeneratorExecutorType exec = new ZBlogPostGeneratorExecutor();
+      final Validation<Seq<ZError>, Unit> er = exec.executeAll(config);
+      if (!er.isValid()) {
+        ZBlogMain.this.exit_code = 1;
+        er.getError().forEach(ZBlogMain::show);
+        return unit();
+      }
+
       final ZBlogParserProviderType blog_provider = new ZBlogParserProvider();
       final ZBlogParserType blog_parser = blog_provider.createParser(config);
       final Validation<Seq<ZError>, ZBlog> br = blog_parser.parse();

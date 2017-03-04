@@ -11,9 +11,9 @@
     <version>0.3.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>com.io7m.zeptoblog.commonmark</artifactId>
+  <artifactId>com.io7m.zeptoblog.glossary</artifactId>
   <packaging>bundle</packaging>
-  <description>Static blog generator (CommonMark format support)</description>
+  <description>Static blog generator (Glossary generation)</description>
 
   <dependencies>
     <dependency>
@@ -23,14 +23,15 @@
     </dependency>
 
     <dependency>
-      <groupId>com.atlassian.commonmark</groupId>
-      <artifactId>commonmark</artifactId>
+      <groupId>org.immutables</groupId>
+      <artifactId>value</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.atlassian.commonmark</groupId>
-      <artifactId>commonmark-ext-heading-anchor</artifactId>
+      <groupId>org.immutables.javaslang</groupId>
+      <artifactId>javaslang-encodings</artifactId>
+      <scope>provided</scope>
     </dependency>
-
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.service.component.annotations</artifactId>
@@ -57,7 +58,7 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
-            <Export-Package>com.io7m.zeptoblog.commonmark</Export-Package>
+            <Export-Package>com.io7m.zeptoblog.glossary</Export-Package>
           </instructions>
         </configuration>
       </plugin>

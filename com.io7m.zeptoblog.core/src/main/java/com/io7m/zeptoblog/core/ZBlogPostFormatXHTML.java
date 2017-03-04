@@ -26,12 +26,15 @@ import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
 import nu.xom.ParsingException;
+import nu.xom.Serializer;
 import org.osgi.service.component.annotations.Component;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -83,6 +86,29 @@ public final class ZBlogPostFormatXHTML implements
     for (int index = 0; index < elements.size(); ++index) {
       final Element element = elements.get(index);
       setXHTMLNamespace(element);
+    }
+  }
+
+  /**
+   * Serialize the given element as a UTF-8 string.
+   *
+   * @param e The element
+   *
+   * @return Serialized XML
+   */
+
+  public static String serializeXML(
+    final Element e)
+  {
+    try (final ByteArrayOutputStream bao = new ByteArrayOutputStream()) {
+      final Serializer serial =
+        new Serializer(bao, StandardCharsets.UTF_8.name());
+      serial.write(new Document(e));
+      serial.flush();
+      bao.flush();
+      return new String(bao.toByteArray(), StandardCharsets.UTF_8);
+    } catch (final IOException ex) {
+      throw new UnreachableCodeException(ex);
     }
   }
 

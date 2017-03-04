@@ -14,10 +14,12 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.zeptoblog.core;
+package com.io7m.zeptoblog.glossary;
 
 import com.io7m.jlexing.core.LexicalPosition;
 import com.io7m.jnull.NullCheck;
+import com.io7m.zeptoblog.core.ZBlogConfiguration;
+import com.io7m.zeptoblog.core.ZError;
 import javaslang.collection.Seq;
 import javaslang.collection.TreeMap;
 import javaslang.collection.Vector;
@@ -44,87 +46,97 @@ import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Optional;
 
+import static javaslang.control.Validation.invalid;
+import static javaslang.control.Validation.valid;
+
 /**
- * The default blog parser post_provider.
+ * The default glossary parser provider.
  */
 
-@Component(service = ZBlogParserProviderType.class)
-public final class ZBlogParserProvider implements ZBlogParserProviderType
+@Component(service = ZGlossaryParserProviderType.class)
+public final class ZGlossaryParserProvider
+  implements ZGlossaryParserProviderType
 {
   private static final Logger LOG;
 
   static {
-    LOG = LoggerFactory.getLogger(ZBlogParserProvider.class);
+    LOG = LoggerFactory.getLogger(ZGlossaryParserProvider.class);
   }
 
-  private volatile ZBlogPostParserProviderType post_provider;
+  private volatile ZGlossaryItemParserProviderType item_provider;
 
   /**
-   * Construct a blog parser provider.
+   * Construct a glossary parser provider.
    */
 
-  public ZBlogParserProvider()
+  public ZGlossaryParserProvider()
   {
-    this.post_provider = new ZBlogPostParserProvider();
+    this.item_provider = new ZGlossaryItemParserProvider();
   }
 
   /**
-   * Introduce a blog post parser provider.
+   * Introduce a glossary item parser provider.
    *
-   * @param provider The post parser provider
+   * @param provider The item parser provider
    */
 
   @Reference(
     policyOption = ReferencePolicyOption.RELUCTANT,
     policy = ReferencePolicy.STATIC,
     cardinality = ReferenceCardinality.MANDATORY)
-  public void setBlogPostParserProvider(
-    final ZBlogPostParserProviderType provider)
+  public void setGlossaryItemParserProvider(
+    final ZGlossaryItemParserProviderType provider)
   {
-    this.post_provider = NullCheck.notNull(provider, "Post provider");
+    this.item_provider = NullCheck.notNull(provider, "Item provider");
   }
 
   @Override
-  public ZBlogParserType createParser(
-    final ZBlogConfiguration config)
+  public ZGlossaryParserType createParser(
+    final ZBlogConfiguration config,
+    final Path path)
   {
     NullCheck.notNull(config, "config");
-    return new Parser(this.post_provider, config);
+    NullCheck.notNull(path, "path");
+    return new Parser(this.item_provider, config, path);
   }
 
-  private static final class Parser
-    implements ZBlogParserType, FileVisitor<Path>
+  private static final class Parser implements ZGlossaryParserType,
+    FileVisitor<Path>
   {
     private final ZBlogConfiguration config;
-    private final ZBlog.Builder builder;
-    private final ZBlogPostParserProviderType post_provider;
-    private TreeMap<Path, ZBlogPost> posts;
+    private final ZGlossary.Builder builder;
+    private final ZGlossaryItemParserProviderType item_provider;
+    private final Path path;
+    private TreeMap<String, ZGlossaryItem> items;
     private Vector<ZError> errors;
 
     Parser(
-      final ZBlogPostParserProviderType in_post_provider,
-      final ZBlogConfiguration in_config)
+      final ZGlossaryItemParserProviderType in_item_provider,
+      final ZBlogConfiguration in_config,
+      final Path in_path)
     {
-      this.post_provider =
-        NullCheck.notNull(in_post_provider, "Post provider");
+      this.item_provider =
+        NullCheck.notNull(in_item_provider, "Post provider");
+      this.config =
+        NullCheck.notNull(in_config, "Config");
+      this.path =
+        NullCheck.notNull(in_path, "Path");
 
-      this.config = NullCheck.notNull(in_config, "Config");
       this.errors = Vector.empty();
-      this.builder = ZBlog.builder();
-      this.builder.setTitle(in_config.title());
-      this.posts = TreeMap.empty();
+      this.builder = ZGlossary.builder();
+      this.items = TreeMap.empty();
     }
 
     @Override
-    public Validation<Seq<ZError>, ZBlog> parse()
+    public Validation<Seq<ZError>, ZGlossary> parse()
     {
       try {
         Files.walkFileTree(
-          this.config.sourceRoot(),
+          this.path,
           EnumSet.noneOf(FileVisitOption.class),
           Integer.MAX_VALUE,
           this);
-        this.builder.setPosts(this.posts);
+        this.builder.setItems(this.items);
       } catch (final NoSuchFileException e) {
         this.errors = this.errors.append(ZError.of(
           "No such file: " + e.getMessage(),
@@ -138,9 +150,9 @@ public final class ZBlogParserProvider implements ZBlogParserProviderType
       }
 
       if (this.errors.isEmpty()) {
-        return Validation.valid(this.builder.build());
+        return valid(this.builder.build());
       }
-      return Validation.invalid(this.errors);
+      return invalid(this.errors);
     }
 
     @Override
@@ -172,19 +184,34 @@ public final class ZBlogParserProvider implements ZBlogParserProviderType
       final Path file)
       throws IOException
     {
-      LOG.debug("parsing post {}", file);
+      LOG.debug("parsing item {}", file);
 
       try (final InputStream stream = Files.newInputStream(file)) {
-        final Path relative = this.config.sourceRoot().relativize(file);
+        final Path absolute = file.toAbsolutePath();
+        final Path relative = this.config.sourceRoot().relativize(absolute);
 
-        final ZBlogPostParserType parser =
-          this.post_provider.createParser(this.config, stream, relative);
-        final Validation<Seq<ZError>, ZBlogPost> r = parser.parse();
+        final ZGlossaryItemParserType parser =
+          this.item_provider.createParser(this.config, stream, relative);
+        final Validation<Seq<ZError>, ZGlossaryItem> r = parser.parse();
         if (r.isInvalid()) {
           this.errors = this.errors.appendAll(r.getError());
         } else {
-          final ZBlogPost post = r.get();
-          this.posts = this.posts.put(post.path(), post);
+          final ZGlossaryItem item = r.get();
+
+          if (this.items.containsKey(item.term())) {
+            final StringBuilder sb = new StringBuilder(128);
+            sb.append("Duplicate glossary item.");
+            sb.append(System.lineSeparator());
+            sb.append("  Post term: ");
+            sb.append(item.term());
+            sb.append(System.lineSeparator());
+            this.errors.append(ZError.of(
+              sb.toString(),
+              LexicalPosition.of(0, 0, Optional.of(file)),
+              Optional.empty()));
+          } else {
+            this.items = this.items.put(item.term(), item);
+          }
         }
       }
     }

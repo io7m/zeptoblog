@@ -16,10 +16,10 @@
 
 package com.io7m.zeptoblog.commonmark;
 
-import com.io7m.jlexing.core.LexicalPosition;
 import com.io7m.junreachable.UnreachableCodeException;
 import com.io7m.zeptoblog.core.ZBlogPostFormatType;
 import com.io7m.zeptoblog.core.ZError;
+import com.io7m.zeptoblog.core.ZErrors;
 import javaslang.collection.Seq;
 import javaslang.collection.Vector;
 import javaslang.control.Validation;
@@ -46,7 +46,6 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -117,13 +116,7 @@ public final class ZBlogPostFormatCommonMark implements
         return Validation.valid((Element) root.copy());
       } catch (final ParsingException e) {
         return Validation.invalid(Vector.of(
-          ZError.of(
-            e.getMessage(),
-            LexicalPosition.of(
-              e.getLineNumber(),
-              e.getColumnNumber(),
-              Optional.of(path)),
-            Optional.of(e))));
+          ZErrors.ofExceptionParse(e, path)));
       }
     } catch (final IOException e) {
       throw new UnreachableCodeException(e);

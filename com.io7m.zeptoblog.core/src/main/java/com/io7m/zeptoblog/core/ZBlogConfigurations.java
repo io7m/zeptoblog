@@ -27,8 +27,8 @@ import javaslang.control.Validation;
 
 import java.math.BigInteger;
 import java.net.URI;
+import java.nio.file.FileSystem;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -70,18 +70,19 @@ public final class ZBlogConfigurations
       errors = errors.append(ofException(path, e));
     }
 
+    final FileSystem fs = path.getFileSystem();
+
     try {
-      builder.setSourceRoot(
-        Paths.get(JProperties.getString(
-          p,
-          "com.io7m.zeptoblog.source_root")).toAbsolutePath());
+      builder.setSourceRoot(fs.getPath(JProperties.getString(
+        p,
+        "com.io7m.zeptoblog.source_root")).toAbsolutePath());
     } catch (final Exception e) {
       errors = errors.append(ofException(path, e));
     }
 
     try {
       builder.setOutputRoot(
-        Paths.get(JProperties.getString(
+        fs.getPath(JProperties.getString(
           p,
           "com.io7m.zeptoblog.output_root")).toAbsolutePath());
     } catch (final Exception e) {
@@ -120,38 +121,65 @@ public final class ZBlogConfigurations
     }
 
     try {
-      builder.setFooterPre(Paths.get(
+      builder.setFooterPre(fs.getPath(
         JProperties.getString(p, "com.io7m.zeptoblog.footer_pre")));
     } catch (final JPropertyNonexistent e) {
       // Ignore
     }
 
     try {
-      builder.setFooterPost(Paths.get(
+      builder.setFooterPost(fs.getPath(
         JProperties.getString(p, "com.io7m.zeptoblog.footer_post")));
     } catch (final JPropertyNonexistent e) {
       // Ignore
     }
 
     try {
-      builder.setHeaderReplace(Paths.get(
+      builder.setHeaderReplace(fs.getPath(
         JProperties.getString(p, "com.io7m.zeptoblog.header_replace")));
     } catch (final JPropertyNonexistent e) {
       // Ignore
     }
 
     try {
-      builder.setHeaderPre(Paths.get(
+      builder.setHeaderPre(fs.getPath(
         JProperties.getString(p, "com.io7m.zeptoblog.header_pre")));
     } catch (final JPropertyNonexistent e) {
       // Ignore
     }
 
     try {
-      builder.setHeaderPost(Paths.get(
+      builder.setHeaderPost(fs.getPath(
         JProperties.getString(p, "com.io7m.zeptoblog.header_post")));
     } catch (final JPropertyNonexistent e) {
       // Ignore
+    }
+
+
+    try {
+      String generators = "";
+      try {
+        generators =
+          JProperties.getStringOptional(
+            p, "com.io7m.zeptoblog.generators", "").trim();
+      } catch (final JPropertyNonexistent ex) {
+        // Ignore
+      }
+
+      if (!generators.isEmpty()) {
+        final String[] names = generators.split("\\s+");
+        for (int index = 0; index < names.length; ++index) {
+          final String name = names[index];
+          final String gen_type = JProperties.getString(
+            p, String.format("com.io7m.zeptoblog.generators.%s.type", name));
+          final Path gen_file = fs.getPath(JProperties.getString(
+            p, String.format("com.io7m.zeptoblog.generators.%s.file", name)));
+          builder.putGeneratorRequests(
+            name, ZBlogPostGeneratorRequest.of(name, gen_type, gen_file));
+        }
+      }
+    } catch (final JPropertyNonexistent ex) {
+      errors = errors.append(ofException(path, ex));
     }
 
     if (errors.isEmpty()) {

@@ -18,7 +18,9 @@ package com.io7m.zeptoblog.core;
 
 import com.io7m.jlexing.core.LexicalPosition;
 import com.io7m.junreachable.UnreachableCodeException;
+import nu.xom.ParsingException;
 
+import java.nio.file.Path;
 import java.util.Optional;
 
 /**
@@ -46,6 +48,83 @@ public final class ZErrors
     return ZError.of(
       e.getMessage(),
       LexicalPosition.of(0, 0, Optional.empty()),
+      Optional.of(e));
+  }
+
+  /**
+   * Construct an error from the given message.
+   *
+   * @param m The message
+   *
+   * @return An error
+   */
+
+  public static ZError ofMessage(
+    final String m)
+  {
+    return ZError.of(
+      m,
+      LexicalPosition.of(0, 0, Optional.empty()),
+      Optional.empty());
+  }
+
+  /**
+   * Construct an error from the given message.
+   *
+   * @param m The message
+   * @param p The associated path
+   *
+   * @return An error
+   */
+
+  public static ZError ofMessagePath(
+    final String m,
+    final Path p)
+  {
+    return ZError.of(
+      m,
+      LexicalPosition.of(0, 0, Optional.of(p)),
+      Optional.empty());
+  }
+
+  /**
+   * Construct an error from the given exception.
+   *
+   * @param e The exception
+   * @param p The associated path
+   *
+   * @return An error
+   */
+
+  public static ZError ofExceptionPath(
+    final Exception e,
+    final Path p)
+  {
+    return ZError.of(
+      e.getMessage(),
+      LexicalPosition.of(0, 0, Optional.of(p)),
+      Optional.of(e));
+  }
+
+  /**
+   * Construct an error from the given exception.
+   *
+   * @param e The exception
+   * @param p The associated path
+   *
+   * @return An error
+   */
+
+  public static ZError ofExceptionParse(
+    final ParsingException e,
+    final Path p)
+  {
+    return ZError.of(
+      e.getMessage(),
+      LexicalPosition.of(
+        e.getLineNumber(),
+        e.getColumnNumber(),
+        Optional.of(p)),
       Optional.of(e));
   }
 }

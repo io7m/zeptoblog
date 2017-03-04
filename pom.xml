@@ -9,16 +9,16 @@
   <parent>
     <groupId>com.io7m.primogenitor</groupId>
     <artifactId>com.io7m.primogenitor</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
   </parent>
 
   <groupId>com.io7m.zeptoblog</groupId>
   <artifactId>com.io7m.zeptoblog</artifactId>
-  <version>0.2.0</version>
+  <version>0.3.0-SNAPSHOT</version>
 
   <packaging>pom</packaging>
   <name>com.io7m.zeptoblog</name>
-  <description>Git mirroring tool</description>
+  <description>Static blog generator</description>
   <url>http://github.com/io7m/zeptoblog</url>
 
   <modules>
@@ -26,6 +26,7 @@
     <module>com.io7m.zeptoblog.cmdline</module>
     <module>com.io7m.zeptoblog.commonmark</module>
     <module>com.io7m.zeptoblog.core</module>
+    <module>com.io7m.zeptoblog.glossary</module>
     <module>com.io7m.zeptoblog.tests</module>
   </modules>
 
