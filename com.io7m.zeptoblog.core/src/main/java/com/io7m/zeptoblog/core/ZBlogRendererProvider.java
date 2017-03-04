@@ -776,6 +776,7 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
         e_date.addAttribute(new Attribute("class", "zb_post_date"));
         e_date.appendChild(date.format(this.format_date));
         e_head.appendChild(e_date);
+        e_head.appendChild(" ");
       });
 
       {
