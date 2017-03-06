@@ -118,6 +118,9 @@ By default, the `zeptoblog` distribution supports the following formats:
 | com.io7m.zeptoblog.commonmark | [CommonMark](https://commonmark.org) |
 | com.io7m.zeptoblog.xhtml      | XHTML                                |
 
+Additional formats can be implemented by implementing the [ZBlogPostFormatType](https://github.com/io7m/zeptoblog/blob/develop/com.io7m.zeptoblog.core/src/main/java/com/io7m/zeptoblog/core/ZBlogPostFormatType.java)
+and registering the implementation as a [service provider](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html).
+
 ## Real-world Examples
 
 http://blog.io7m.com
