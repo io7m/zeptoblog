@@ -6,6 +6,12 @@ zeptoblog
 
 ![zeptoblog](./src/site/resources/zeptoblog.jpg?raw=true)
 
+## Contents
+
+* [Usage](#usage)
+* [Page Syntax](#page-syntax)
+* [Supported Formats](#supported-formats)
+
 ## Usage
 
 Create a configuration file (in [Java properties](https://docs.oracle.com/javase/8/docs/api/java/util/Properties.html) format):
