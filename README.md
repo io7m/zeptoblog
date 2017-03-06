@@ -71,6 +71,53 @@ $ find /tmp/blog-out -name '*.xhtml' -type f -exec gpg -a --detach-sign -u 'my k
 
 Use [rsync](https://rsync.samba.org/) to copy `/tmp/blog-out` to a site.
 
+## Page Syntax
+
+A `zbp` file has the following syntax (given in [EBNF](https://en.wikipedia.org/wiki/Extended_Backus-Naur_form)):
+
+```
+text =
+  ? any unicode text not including newlines ? ;
+
+newline =
+  U+000A | U+00OD , U+000A ;
+
+title_command =
+  "title" , { text } , newline ;
+
+date_command =
+  "date" , timestamp , newline ;
+
+format_name =
+  { (? any unicode letter and number ?) | "." } ;
+
+format_command =
+  "format" , format_name , newline ;
+
+header =
+  { title_command | date_command | format_command } ;
+
+body =
+  { text } ;
+
+zbp =
+  header , newline , body ;
+```
+
+The `title` command sets the title for a post.
+The `date` command sets the date for a post. If no date is specified, then the post will not
+appear in any listings of posts such as the generated "posts by year" page.
+The `format` command specifies the [format](#supported-formats) of the body of the post.
+
+## Supported Formats
+
+By default, the `zeptoblog` distribution supports the following formats:
+
+| Format                        | Description                          |
+| ----------------------------- | ------------------------------------ |
+| com.io7m.zeptoblog.commonmark | [CommonMark](https://commonmark.org) |
+| com.io7m.zeptoblog.xhtml      | XHTML                                |
+
 ## Real-world Examples
 
 http://blog.io7m.com
