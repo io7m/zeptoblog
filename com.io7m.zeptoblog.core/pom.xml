@@ -14,7 +14,7 @@
   <artifactId>com.io7m.zeptoblog.core</artifactId>
   <packaging>bundle</packaging>
 
-  <name>com.io7m.zeptoblog.commonmark</name>
+  <name>com.io7m.zeptoblog.core</name>
   <description>Static blog generator (Core)</description>
   <url>http://github.com/io7m/zeptoblog</url>
 
