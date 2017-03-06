@@ -9,12 +9,12 @@
   <parent>
     <groupId>com.io7m.primogenitor</groupId>
     <artifactId>com.io7m.primogenitor</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
   </parent>
 
   <groupId>com.io7m.zeptoblog</groupId>
   <artifactId>com.io7m.zeptoblog</artifactId>
-  <version>0.3.0-SNAPSHOT</version>
+  <version>0.3.0</version>
 
   <packaging>pom</packaging>
   <name>com.io7m.zeptoblog</name>
@@ -33,7 +33,7 @@
   <properties>
     <io7m.checkstyle.artifact>com.io7m.zeptoblog.checkstyle</io7m.checkstyle.artifact>
     <io7m.checkstyle.path>/com/io7m/zeptoblog/checkstyle/checkstyle.xml</io7m.checkstyle.path>
-    <io7m.api.previousVersion>0.2.0</io7m.api.previousVersion>
+    <io7m.api.previousVersion>0.3.0</io7m.api.previousVersion>
   </properties>
 
   <licenses>
