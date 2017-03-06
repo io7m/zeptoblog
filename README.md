@@ -28,9 +28,17 @@ com.io7m.zeptoblog.site_uri = http://blog.io7m.com/
 
 # The author information that will appear in Atom feeds
 com.io7m.zeptoblog.author = blog@io7m.com
+
+# The default format of blog posts (CommonMark, here)
+com.io7m.zeptoblog.format_default = com.io7m.zeptoblog.commonmark
 ```
 
-Create posts by creating files in `com.io7m.zeptoblog.source_root` with names ending in `.zbp`:
+Create posts by creating files in `com.io7m.zeptoblog.source_root` with names ending in `.zbp`.
+
+Posts must consist of a series of commands that specify the date
+(in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format) and
+title of the post, followed by an empty line, followed by the body
+of the post in [CommonMark](http://commonmark.org/) format.
 
 ```
 $ cat /home/someone/blog-src/2017/02/24/post.zbp
@@ -43,14 +51,26 @@ efficitur sed nisi ac volutpat.
 ![Ladybug](/2017/02/24/ladybug.jpg)
 ```
 
-Any files with names not ending in `.zbp` will be copied unmodified to the
-output directory.
+Files can appear anywhere in `com.io7m.zeptoblog.source_root`,
+including any subdirectory, and directory names do not carry any
+specific meaning. Organizing posts by `year/month/day` is merely a
+useful convention. Any files with names not ending in `.zbp` will
+be copied unmodified to the output directory.
 
 Compile the blog:
 
 ```
-$ java -jar com.io7m.zeptoblog-0.2.0-main.jar compile -config blog.conf
+$ java -jar com.io7m.zeptoblog.cmdline-0.2.0-main.jar compile -config blog.conf
+```
+
+Sign pages with `gpg`:
+
+```
+$ find /tmp/blog-out -name '*.xhtml' -type f -exec gpg -a --detach-sign -u 'my key id' {} \;
 ```
 
 Use [rsync](https://rsync.samba.org/) to copy `/tmp/blog-out` to a site.
 
+## Real-world Examples
+
+http://blog.io7m.com

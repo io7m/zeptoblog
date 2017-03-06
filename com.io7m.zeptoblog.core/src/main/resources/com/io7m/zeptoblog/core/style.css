@@ -1,0 +1,78 @@
+body
+{
+  max-width: 40em;
+  padding:   1em;
+}
+
+p
+{
+  text-align:  justify;
+}
+
+code
+{
+  font-family: monospace;
+}
+
+pre
+{
+  margin-left: 1em;
+  font-family: monospace;
+}
+
+th
+{
+  text-align: left;
+  padding-bottom: 0.5em;
+}
+
+td
+{
+  padding-right: 2em;
+}
+
+.zb_post
+{
+  margin-bottom: 3em;
+}
+
+.zb_post_date
+{
+  font-weight: bold;
+  margin-right: 1em;
+}
+
+.zb_post_title
+{
+
+}
+
+.zb_post_foot
+{
+
+}
+
+#zb_footer
+{
+  margin-top: 2em;
+}
+
+#zb_footer_links
+{
+  margin-bottom: 1em;
+}
+
+.zb_glossary_item
+{
+
+}
+
+.zb_glossary_related
+{
+  margin-top: 2em;
+}
+
+.zb_glossary_letter
+{
+
+}
