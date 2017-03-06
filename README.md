@@ -109,6 +109,16 @@ The `date` command sets the date for a post. If no date is specified, then the p
 appear in any listings of posts such as the generated "posts by year" page.
 The `format` command specifies the [format](#supported-formats) of the body of the post.
 
+```
+title An XHTML post
+date 2017-03-06T13:25:16+0000
+format com.io7m.zeptoblog.xhtml
+
+<div>
+  <p>An XHTML post.</p>
+</div>
+```
+
 ## Supported Formats
 
 By default, the `zeptoblog` distribution supports the following formats:
