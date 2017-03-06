@@ -131,6 +131,14 @@ By default, the `zeptoblog` distribution supports the following formats:
 Additional formats can be implemented by implementing the [ZBlogPostFormatType](https://github.com/io7m/zeptoblog/blob/develop/com.io7m.zeptoblog.core/src/main/java/com/io7m/zeptoblog/core/ZBlogPostFormatType.java)
 and registering the implementation as a [service provider](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html).
 
+The detected formats can be listed from the command line:
+
+```
+$ java -jar com.io7m.zeptoblog.cmdline-0.3.0-main.jar formats
+com.io7m.zeptoblog.xhtml         : XHTML 1.0 Strict
+com.io7m.zeptoblog.commonmark    : http://commonmark.org 0.27
+```
+
 ## Real-world Examples
 
 http://blog.io7m.com
