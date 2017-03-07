@@ -87,8 +87,35 @@ A `zbp` file has the following syntax (given in [EBNF](https://en.wikipedia.org/
 text =
   ? any unicode text not including newlines ? ;
 
+digit =
+  "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "0" ;
+
 newline =
   U+000A | U+00OD , U+000A ;
+
+year =
+  digit , digit , digit , { digit } ;
+
+month =
+  digit , digit ;
+
+day =
+  digit , digit ;
+
+hour =
+  digit , digit ;
+
+minute =
+  digit , digit ;
+
+second =
+  digit , digit ;
+
+offset =
+  ( "+" | "-" ) , digit , digit , digit , digit ;
+
+timestamp =
+  year , "-" , month , "-" , day , "T" , hour , ":" , minute , ":" , second , offset ;
 
 title_command =
   "title" , { text } , newline ;
