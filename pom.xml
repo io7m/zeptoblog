@@ -222,11 +222,6 @@
   <build>
     <pluginManagement>
       <plugins>
-        <!-- Check style -->
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-checkstyle-plugin</artifactId>
-        </plugin>
 
         <!-- Require JDK >= 1.8 -->
         <plugin>
