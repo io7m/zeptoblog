@@ -106,7 +106,7 @@ header =
   { title_command | date_command | format_command } ;
 
 body =
-  { text } ;
+  { text | newline } ;
 
 zbp =
   header , newline , body ;
