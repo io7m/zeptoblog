@@ -88,7 +88,7 @@ text =
   ? any unicode text not including newlines ? ;
 
 digit =
-  "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "0" ;
+  "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
 
 newline =
   U+000A | U+00OD , U+000A ;
