@@ -26,6 +26,19 @@
     </dependency>
 
     <dependency>
+      <groupId>com.io7m.jnull</groupId>
+      <artifactId>io7m-jnull-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.junreachable</groupId>
+      <artifactId>io7m-junreachable-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.xom</groupId>
+      <artifactId>xom</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>com.atlassian.commonmark</groupId>
       <artifactId>commonmark</artifactId>
     </dependency>
@@ -33,16 +46,14 @@
       <groupId>com.atlassian.commonmark</groupId>
       <artifactId>commonmark-ext-heading-anchor</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.service.component.annotations</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.annotation</artifactId>
-      <scope>provided</scope>
+      <groupId>io.javaslang</groupId>
+      <artifactId>javaslang</artifactId>
     </dependency>
   </dependencies>
 
