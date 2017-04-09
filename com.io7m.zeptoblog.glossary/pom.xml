@@ -27,7 +27,7 @@
 
     <dependency>
       <groupId>com.io7m.jnull</groupId>
-      <artifactId>io7m-jnull-core</artifactId>
+      <artifactId>com.io7m.jnull.core</artifactId>
     </dependency>
     <dependency>
       <groupId>com.io7m.xom</groupId>
@@ -35,11 +35,11 @@
     </dependency>
     <dependency>
       <groupId>com.io7m.jproperties</groupId>
-      <artifactId>io7m-jproperties-core</artifactId>
+      <artifactId>com.io7m.jproperties.core</artifactId>
     </dependency>
     <dependency>
       <groupId>com.io7m.jlexing</groupId>
-      <artifactId>io7m-jlexing-core</artifactId>
+      <artifactId>com.io7m.jlexing.core</artifactId>
     </dependency>
 
     <dependency>
