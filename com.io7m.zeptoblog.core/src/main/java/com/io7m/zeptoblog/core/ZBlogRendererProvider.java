@@ -336,10 +336,11 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
       {
         final Element e_a = new Element("a", XHTML_URI_TEXT);
         e_a.addAttribute(new Attribute("href", null, "/"));
+        e_a.appendChild(this.config.title());
+
         final Element e_title = new Element("h2", XHTML_URI_TEXT);
-        e_title.appendChild(this.config.title());
-        e_a.appendChild(e_title);
-        e_head.appendChild(e_a);
+        e_title.appendChild(e_a);
+        e_head.appendChild(e_title);
       }
 
       e_head.addAttribute(new Attribute("class", "zb_header"));
