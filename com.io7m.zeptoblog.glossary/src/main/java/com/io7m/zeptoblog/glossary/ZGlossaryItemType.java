@@ -67,4 +67,13 @@ public interface ZGlossaryItemType extends Comparable<ZGlossaryItemType>
   {
     return this.term().compareTo(NullCheck.notNull(o, "Other").term());
   }
+
+  /**
+   * @return A unique ID for the term
+   */
+
+  default String targetID()
+  {
+    return this.term().toLowerCase().replaceAll("\\s+", "_");
+  }
 }

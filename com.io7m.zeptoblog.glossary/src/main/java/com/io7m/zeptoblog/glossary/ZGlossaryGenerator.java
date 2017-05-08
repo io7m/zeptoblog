@@ -234,7 +234,7 @@ public final class ZGlossaryGenerator implements ZBlogPostGeneratorType
       e_container.addAttribute(
         new Attribute("class", "zb_glossary_item"));
       e_container.appendChild(
-        title("h3", item.term().toLowerCase(), item.term()));
+        title("h3", item.targetID(), item.term()));
       e_container.appendChild(e_body);
 
       final Set<String> related = item.seeAlso();
@@ -245,7 +245,7 @@ public final class ZGlossaryGenerator implements ZBlogPostGeneratorType
         e_related.appendChild("See: ");
 
         related.forEach(term -> {
-          final String r_id = term.toLowerCase();
+          final String r_id = item.targetID();
           final Element e_link = new Element("a", XHTML_URI_TEXT);
           e_link.addAttribute(new Attribute("href", null, "#" + r_id));
           e_link.appendChild(term);
