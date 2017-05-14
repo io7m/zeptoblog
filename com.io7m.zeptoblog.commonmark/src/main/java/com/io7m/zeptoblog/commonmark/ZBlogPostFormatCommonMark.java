@@ -16,6 +16,7 @@
 
 package com.io7m.zeptoblog.commonmark;
 
+import com.io7m.jnull.NullCheck;
 import com.io7m.junreachable.UnreachableCodeException;
 import com.io7m.zeptoblog.core.ZBlogPostFormatType;
 import com.io7m.zeptoblog.core.ZError;
@@ -32,11 +33,15 @@ import org.commonmark.ext.heading.anchor.HeadingAnchorExtension;
 import org.commonmark.node.FencedCodeBlock;
 import org.commonmark.node.IndentedCodeBlock;
 import org.commonmark.node.Node;
+import org.commonmark.node.Paragraph;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.NodeRenderer;
 import org.commonmark.renderer.html.HtmlNodeRendererContext;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.commonmark.renderer.html.HtmlWriter;
+import org.commonmark.renderer.text.TextContentNodeRendererContext;
+import org.commonmark.renderer.text.TextContentRenderer;
+import org.commonmark.renderer.text.TextContentWriter;
 import org.osgi.service.component.annotations.Component;
 
 import java.io.IOException;
@@ -48,6 +53,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static javaslang.control.Validation.invalid;
+import static javaslang.control.Validation.valid;
+
 /**
  * A format provider for the <i>CommonMark</i> format.
  *
@@ -55,8 +63,7 @@ import java.util.Set;
  */
 
 @Component
-public final class ZBlogPostFormatCommonMark implements
-  ZBlogPostFormatType
+public final class ZBlogPostFormatCommonMark implements ZBlogPostFormatType
 {
   /**
    * The name of the format.
@@ -113,13 +120,75 @@ public final class ZBlogPostFormatCommonMark implements
         final Builder b = new Builder();
         final Document doc = b.build(reader);
         final Element root = doc.getRootElement();
-        return Validation.valid((Element) root.copy());
+        return valid((Element) root.copy());
       } catch (final ParsingException e) {
-        return Validation.invalid(Vector.of(
+        return invalid(Vector.of(
           ZErrors.ofExceptionParse(e, path)));
       }
     } catch (final IOException e) {
       throw new UnreachableCodeException(e);
+    }
+  }
+
+  @Override
+  public Validation<Seq<ZError>, String> producePlain(
+    final Path path,
+    final String text)
+  {
+    final Parser parser = Parser.builder().build();
+    final Node document = parser.parse(text);
+
+    final TextContentRenderer renderer =
+      TextContentRenderer.builder()
+        .nodeRendererFactory(TextRenderer::new)
+        .build();
+
+    try (final StringWriter writer = new StringWriter(1024)) {
+      renderer.render(document, writer);
+      writer.append(System.lineSeparator());
+      writer.flush();
+
+      return valid(writer.toString());
+    } catch (final IOException e) {
+      throw new UnreachableCodeException(e);
+    }
+  }
+
+  private static final class TextRenderer
+    implements NodeRenderer
+  {
+    private final TextContentWriter writer;
+    private final TextContentNodeRendererContext context;
+
+    TextRenderer(
+      final TextContentNodeRendererContext in_context)
+    {
+      this.context =
+        NullCheck.notNull(in_context, "Context");
+      this.writer =
+        NullCheck.notNull(in_context.getWriter(), "Writer");
+    }
+
+    @Override
+    public Set<Class<? extends Node>> getNodeTypes()
+    {
+      final Set<Class<? extends Node>> s = new HashSet<>(1);
+      s.add(Paragraph.class);
+      return s;
+    }
+
+    @Override
+    public void render(final Node node)
+    {
+      if (node instanceof Paragraph) {
+        Node ch = node.getFirstChild();
+        while (ch != null) {
+          this.context.render(ch);
+          ch = ch.getNext();
+        }
+        this.writer.line();
+        this.writer.write(System.lineSeparator());
+      }
     }
   }
 
@@ -131,7 +200,7 @@ public final class ZBlogPostFormatCommonMark implements
     IndentedCodeBlockNodeRenderer(
       final HtmlNodeRendererContext context)
     {
-      this.html = context.getWriter();
+      this.html = NullCheck.notNull(context, "Context").getWriter();
     }
 
     @Override

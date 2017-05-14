@@ -602,7 +602,27 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
           final List<SyndContent> content = new ArrayList<>(1);
           final SyndContentImpl cc = new SyndContentImpl();
           cc.setType(Content.TEXT);
-          cc.setValue(ellipsize(post.body().text(), 72));
+
+          {
+            final Optional<ZBlogPostFormatType> format_opt =
+              this.resolver.resolve(post.body().format());
+            if (format_opt.isPresent()) {
+              final ZBlogPostFormatType format = format_opt.get();
+              final Validation<Seq<ZError>, String> result =
+                format.producePlain(post.path(), post.body().text());
+
+              if (result.isValid()) {
+                cc.setValue(ellipsize(result.get(), 256));
+              } else {
+                this.errors = this.errors.appendAll(result.getError());
+                throw new IOException("An error occurred in a format provider");
+              }
+            } else {
+              throw new UnsupportedOperationException(
+                "No format provider exists for the format: " + post.body().format());
+            }
+          }
+
           cc.setMode(Content.ESCAPED);
           content.add(cc);
 

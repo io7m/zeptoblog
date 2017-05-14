@@ -42,4 +42,18 @@ public interface ZBlogPostFormatType extends ZServiceType
   Validation<Seq<ZError>, Element> produceXHTML(
     Path path,
     String text);
+
+  /**
+   * Produce plain text for the given body text.
+   *
+   * @param path The path of the original file, for error reporting
+   * @param text The input body text
+   *
+   * @return Plain text, or a list of reasons why plain text could not be
+   * produced
+   */
+
+  Validation<Seq<ZError>, String> producePlain(
+    Path path,
+    String text);
 }
