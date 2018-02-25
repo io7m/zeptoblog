@@ -23,9 +23,9 @@ import com.io7m.zeptoblog.core.ZError;
 import com.io7m.zeptoblog.glossary.ZGlossaryItem;
 import com.io7m.zeptoblog.glossary.ZGlossaryItemParserProviderType;
 import com.io7m.zeptoblog.glossary.ZGlossaryItemParserType;
-import javaslang.collection.HashSet;
-import javaslang.collection.Seq;
-import javaslang.control.Validation;
+import io.vavr.collection.HashSet;
+import io.vavr.collection.Seq;
+import io.vavr.control.Validation;
 import org.hamcrest.core.StringContains;
 import org.junit.Assert;
 import org.junit.Test;
@@ -84,13 +84,13 @@ public abstract class ZGlossaryItemParserContract
 
     final ZGlossaryItemParserProviderType p_prov = this.createParserProvider();
 
-    try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-      try (final BufferedWriter w = writer(os)) {
+    try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+      try (BufferedWriter w = writer(os)) {
         w.write("");
         w.flush();
       }
 
-      try (final ByteArrayInputStream is = byteStream(os)) {
+      try (ByteArrayInputStream is = byteStream(os)) {
         final ZGlossaryItemParserType p =
           p_prov.createParser(config, is, Paths.get("/x/y/z"));
 
@@ -111,14 +111,14 @@ public abstract class ZGlossaryItemParserContract
 
     final ZGlossaryItemParserProviderType p_prov = this.createParserProvider();
 
-    try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-      try (final BufferedWriter w = writer(os)) {
+    try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+      try (BufferedWriter w = writer(os)) {
         w.write("term");
         w.newLine();
         w.flush();
       }
 
-      try (final ByteArrayInputStream is = byteStream(os)) {
+      try (ByteArrayInputStream is = byteStream(os)) {
         final ZGlossaryItemParserType p =
           p_prov.createParser(config, is, Paths.get("/x/y/z"));
 
@@ -138,14 +138,14 @@ public abstract class ZGlossaryItemParserContract
 
     final ZGlossaryItemParserProviderType p_prov = this.createParserProvider();
 
-    try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-      try (final BufferedWriter w = writer(os)) {
+    try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+      try (BufferedWriter w = writer(os)) {
         w.write("format");
         w.newLine();
         w.flush();
       }
 
-      try (final ByteArrayInputStream is = byteStream(os)) {
+      try (ByteArrayInputStream is = byteStream(os)) {
         final ZGlossaryItemParserType p =
           p_prov.createParser(config, is, Paths.get("/x/y/z"));
 
@@ -165,14 +165,14 @@ public abstract class ZGlossaryItemParserContract
 
     final ZGlossaryItemParserProviderType p_prov = this.createParserProvider();
 
-    try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-      try (final BufferedWriter w = writer(os)) {
+    try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+      try (BufferedWriter w = writer(os)) {
         w.write("related");
         w.newLine();
         w.flush();
       }
 
-      try (final ByteArrayInputStream is = byteStream(os)) {
+      try (ByteArrayInputStream is = byteStream(os)) {
         final ZGlossaryItemParserType p =
           p_prov.createParser(config, is, Paths.get("/x/y/z"));
 
@@ -192,14 +192,14 @@ public abstract class ZGlossaryItemParserContract
 
     final ZGlossaryItemParserProviderType p_prov = this.createParserProvider();
 
-    try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-      try (final BufferedWriter w = writer(os)) {
+    try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+      try (BufferedWriter w = writer(os)) {
         w.write("unknown");
         w.newLine();
         w.flush();
       }
 
-      try (final ByteArrayInputStream is = byteStream(os)) {
+      try (ByteArrayInputStream is = byteStream(os)) {
         final ZGlossaryItemParserType p =
           p_prov.createParser(config, is, Paths.get("/x/y/z"));
 
@@ -219,8 +219,8 @@ public abstract class ZGlossaryItemParserContract
 
     final ZGlossaryItemParserProviderType p_prov = this.createParserProvider();
 
-    try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-      try (final BufferedWriter w = writer(os)) {
+    try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+      try (BufferedWriter w = writer(os)) {
         w.write("term A");
         w.newLine();
         w.write("related X Y Z");
@@ -233,7 +233,7 @@ public abstract class ZGlossaryItemParserContract
         w.flush();
       }
 
-      try (final ByteArrayInputStream is = byteStream(os)) {
+      try (ByteArrayInputStream is = byteStream(os)) {
         final ZGlossaryItemParserType p =
           p_prov.createParser(config, is, Paths.get("/x/y/z"));
 
@@ -245,7 +245,9 @@ public abstract class ZGlossaryItemParserContract
         Assert.assertEquals("A", i.term());
         Assert.assertEquals(HashSet.of("X", "Y", "Z"), i.seeAlso());
         Assert.assertEquals("F", i.body().format());
-        Assert.assertThat(i.body().text(), StringContains.containsString("Hello."));
+        Assert.assertThat(
+          i.body().text(),
+          StringContains.containsString("Hello."));
       }
     }
   }
@@ -258,8 +260,8 @@ public abstract class ZGlossaryItemParserContract
 
     final ZGlossaryItemParserProviderType p_prov = this.createParserProvider();
 
-    try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-      try (final BufferedWriter w = writer(os)) {
+    try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+      try (BufferedWriter w = writer(os)) {
         w.write("term A");
         w.newLine();
         w.write("related X Y Z");
@@ -270,7 +272,7 @@ public abstract class ZGlossaryItemParserContract
         w.flush();
       }
 
-      try (final ByteArrayInputStream is = byteStream(os)) {
+      try (ByteArrayInputStream is = byteStream(os)) {
         final ZGlossaryItemParserType p =
           p_prov.createParser(config, is, Paths.get("/x/y/z"));
 
@@ -282,7 +284,9 @@ public abstract class ZGlossaryItemParserContract
         Assert.assertEquals("A", i.term());
         Assert.assertEquals(HashSet.of("X", "Y", "Z"), i.seeAlso());
         Assert.assertEquals(ZBlogPostFormatCommonMark.NAME, i.body().format());
-        Assert.assertThat(i.body().text(), StringContains.containsString("Hello."));
+        Assert.assertThat(
+          i.body().text(),
+          StringContains.containsString("Hello."));
       }
     }
   }

@@ -16,7 +16,6 @@
 
 package com.io7m.zeptoblog.glossary;
 
-import com.io7m.jnull.NullCheck;
 import com.io7m.jproperties.JProperties;
 import com.io7m.jproperties.JPropertyNonexistent;
 import com.io7m.zeptoblog.core.ZBlogConfiguration;
@@ -28,15 +27,14 @@ import com.io7m.zeptoblog.core.ZBlogPostFormatType;
 import com.io7m.zeptoblog.core.ZBlogPostFormatXHTML;
 import com.io7m.zeptoblog.core.ZBlogPostGeneratorType;
 import com.io7m.zeptoblog.core.ZError;
-import javaslang.collection.List;
-import javaslang.collection.Seq;
-import javaslang.collection.Set;
-import javaslang.collection.SortedMap;
-import javaslang.collection.TreeMap;
-import javaslang.collection.Vector;
-import javaslang.control.Validation;
-import nu.xom.Attribute;
-import nu.xom.Element;
+import com.io7m.zeptoblog.core.ZXML;
+import io.vavr.collection.List;
+import io.vavr.collection.Seq;
+import io.vavr.collection.Set;
+import io.vavr.collection.SortedMap;
+import io.vavr.collection.TreeMap;
+import io.vavr.collection.Vector;
+import io.vavr.control.Validation;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -44,17 +42,21 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 
 import static com.io7m.zeptoblog.core.ZBlogPostFormatXHTML.XHTML_URI_TEXT;
 import static com.io7m.zeptoblog.core.ZErrors.ofException;
 import static com.io7m.zeptoblog.core.ZErrors.ofMessagePath;
-import static javaslang.control.Validation.invalid;
-import static javaslang.control.Validation.sequence;
-import static javaslang.control.Validation.valid;
+import static io.vavr.control.Validation.invalid;
+import static io.vavr.control.Validation.sequence;
+import static io.vavr.control.Validation.valid;
 
 /**
  * A glossary generator.
@@ -95,7 +97,7 @@ public final class ZGlossaryGenerator implements ZBlogPostGeneratorType
   public void setGlossaryParserProvider(
     final ZGlossaryParserProviderType in_provider)
   {
-    this.parsers = NullCheck.notNull(in_provider, "provider");
+    this.parsers = Objects.requireNonNull(in_provider, "provider");
   }
 
   /**
@@ -111,7 +113,7 @@ public final class ZGlossaryGenerator implements ZBlogPostGeneratorType
   public void setPostFormatResolver(
     final ZBlogPostFormatResolverType in_formats)
   {
-    this.formats = NullCheck.notNull(in_formats, "formats");
+    this.formats = Objects.requireNonNull(in_formats, "formats");
   }
 
   @Override
@@ -147,32 +149,32 @@ public final class ZGlossaryGenerator implements ZBlogPostGeneratorType
       final ZBlogConfiguration in_config,
       final Properties in_props)
     {
-      this.parsers = NullCheck.notNull(in_parsers, "Parsers");
-      this.formats = NullCheck.notNull(in_formats, "Formats");
-      this.config = NullCheck.notNull(in_config, "Config");
-      this.props = NullCheck.notNull(in_props, "Props");
+      this.parsers = Objects.requireNonNull(in_parsers, "Parsers");
+      this.formats = Objects.requireNonNull(in_formats, "Formats");
+      this.config = Objects.requireNonNull(in_config, "Config");
+      this.props = Objects.requireNonNull(in_props, "Props");
     }
 
     private static Validation<Seq<ZError>, SortedMap<Path, ZBlogPost>>
     generate(
+      final Document document,
       final ZBlogPostFormatResolverType formats,
       final Path output_file,
       final ZGlossary glossary)
     {
-      return createGlossaryPost(formats, output_file, glossary)
-        .<SortedMap<Path, ZBlogPost>>flatMap(post -> valid(TreeMap.of(
-          output_file,
-          post)))
+      return createGlossaryPost(document, formats, output_file, glossary)
+        .<SortedMap<Path, ZBlogPost>>flatMap(post -> valid(TreeMap.of(output_file, post)))
         .mapError(Vector::ofAll);
     }
 
-    private static Validation<List<ZError>, ZBlogPost>
+    private static Validation<Seq<ZError>, ZBlogPost>
     createGlossaryPost(
+      final Document document,
       final ZBlogPostFormatResolverType formats,
       final Path output_file,
       final ZGlossary glossary)
     {
-      return transformGlossary(formats, glossary)
+      return transformGlossary(document, formats, glossary)
         .flatMap(e -> valid(ZBlogPost.of(
           "Glossary", Optional.empty(), output_file, bodyOfElement(e))));
     }
@@ -185,23 +187,26 @@ public final class ZGlossaryGenerator implements ZBlogPostGeneratorType
         ZBlogPostFormatXHTML.serializeXML(e));
     }
 
-    private static Validation<List<ZError>, Element>
+    private static Validation<Seq<ZError>, Element>
     transformGlossary(
+      final Document document,
       final ZBlogPostFormatResolverType formats,
       final ZGlossary glossary)
     {
       return sequence(
         glossary.itemsByLetter()
           .toList()
-          .map(p -> transformLetter(formats, p._1, p._2)))
+          .map(p -> transformLetter(document, formats, p._1, p._2)))
         .flatMap(elements -> {
-          final Element e_container = new Element("div", XHTML_URI_TEXT);
+          final Element e_container = document.createElementNS(
+            XHTML_URI_TEXT,
+            "div");
           elements.forEach(e_container::appendChild);
           return valid(e_container);
         });
     }
 
-    private static Validation<List<ZError>, Element>
+    private static Validation<Seq<ZError>, Element>
     transformItemBody(
       final ZBlogPostFormatResolverType formats,
       final ZGlossaryItem item)
@@ -223,34 +228,41 @@ public final class ZGlossaryGenerator implements ZBlogPostGeneratorType
         "No provider for format: " + format_name, item.path())));
     }
 
-    private static Validation<List<ZError>, Element>
+    private static Validation<Seq<ZError>, Element>
     transformItemEnclose(
+      final Document document,
       final ZGlossaryItem item,
       final Element e_body)
     {
       LOG.trace("transformItemEnclose: {}", item.term());
 
-      final Element e_container = new Element("div", XHTML_URI_TEXT);
-      e_container.addAttribute(
-        new Attribute("class", "zb_glossary_item"));
-      e_container.appendChild(
-        title("h3", item.targetID(), item.term()));
-      e_container.appendChild(e_body);
+      final Element e_container = document.createElementNS(
+        XHTML_URI_TEXT,
+        "div");
+      e_container.setAttribute("class", "zb_glossary_item");
+      e_container.appendChild(title(
+        document,
+        "h3",
+        item.targetID(),
+        item.term()));
+
+      final Document elem_document = e_container.getOwnerDocument();
+      e_container.appendChild(elem_document.importNode(e_body, true));
 
       final Set<String> related = item.seeAlso();
       if (!related.isEmpty()) {
-        final Element e_related = new Element("div", XHTML_URI_TEXT);
-        e_related.addAttribute(
-          new Attribute("class", "zb_glossary_related"));
-        e_related.appendChild("See: ");
+        final Element e_related =
+          document.createElementNS(XHTML_URI_TEXT, "div");
+        e_related.setAttribute("class", "zb_glossary_related");
+        e_related.appendChild(document.createTextNode("See: "));
 
         related.forEach(term -> {
           final String r_id = item.targetID();
-          final Element e_link = new Element("a", XHTML_URI_TEXT);
-          e_link.addAttribute(new Attribute("href", null, "#" + r_id));
-          e_link.appendChild(term);
+          final Element e_link = document.createElementNS(XHTML_URI_TEXT, "a");
+          e_link.setAttribute("href", "#" + r_id);
+          e_link.setTextContent(term);
           e_related.appendChild(e_link);
-          e_related.appendChild(" ");
+          e_related.appendChild(document.createTextNode(" "));
         });
 
         e_container.appendChild(e_related);
@@ -259,18 +271,20 @@ public final class ZGlossaryGenerator implements ZBlogPostGeneratorType
       return valid(e_container);
     }
 
-    private static Validation<List<ZError>, Element>
+    private static Validation<Seq<ZError>, Element>
     transformItem(
+      final Document document,
       final ZBlogPostFormatResolverType formats,
       final ZGlossaryItem item)
     {
       LOG.trace("transformItem: {}", item.term());
       return transformItemBody(formats, item)
-        .flatMap(body -> transformItemEnclose(item, body));
+        .flatMap(body -> transformItemEnclose(document, item, body));
     }
 
-    private static Validation<List<ZError>, Element>
+    private static Validation<Seq<ZError>, Element>
     transformLetter(
+      final Document document,
       final ZBlogPostFormatResolverType formats,
       final String letter,
       final SortedMap<String, ZGlossaryItem> terms)
@@ -280,32 +294,39 @@ public final class ZGlossaryGenerator implements ZBlogPostGeneratorType
         letter,
         Integer.valueOf(terms.size()));
 
-      return sequence(terms.values().map(item -> transformItem(formats, item)))
+      return sequence(terms.values().map(item -> transformItem(
+        document,
+        formats,
+        item)))
         .flatMap(elements -> {
-          final Element e_container = new Element("div", XHTML_URI_TEXT);
-          e_container.addAttribute(new Attribute(
-            "class",
-            "zb_glossary_letter"));
-
-          e_container.appendChild(title("h2", letter.toLowerCase(), letter));
+          final Element e_container = document.createElementNS(
+            XHTML_URI_TEXT,
+            "div");
+          e_container.setAttribute("class", "zb_glossary_letter");
+          e_container.appendChild(title(
+            document,
+            "h2",
+            letter.toLowerCase(),
+            letter));
           elements.forEach(e_container::appendChild);
-          e_container.appendChild(new Element("hr", XHTML_URI_TEXT));
+          e_container.appendChild(document.createElementNS(
+            XHTML_URI_TEXT,
+            "hr"));
           return valid(e_container);
         });
     }
 
     private static Element title(
+      final Document document,
       final String type,
       final String id,
       final String text)
     {
-      final Element e_title_h2 = new Element(type, XHTML_URI_TEXT);
-      final Element e_title = new Element("a", XHTML_URI_TEXT);
-      e_title.addAttribute(
-        new Attribute("href", null, "#" + id));
-      e_title.addAttribute(
-        new Attribute("id", null, id));
-      e_title.appendChild(text);
+      final Element e_title_h2 = document.createElementNS(XHTML_URI_TEXT, type);
+      final Element e_title = document.createElementNS(XHTML_URI_TEXT, "a");
+      e_title.setAttribute("href", "#" + id);
+      e_title.setAttribute("id", id);
+      e_title.setTextContent(text);
       e_title_h2.appendChild(e_title);
       return e_title_h2;
     }
@@ -354,10 +375,17 @@ public final class ZGlossaryGenerator implements ZBlogPostGeneratorType
       final ZGlossaryParserProviderType ps = this.parsers;
       final ZBlogPostFormatResolverType fs = this.formats;
 
+      final Document doc;
+      try {
+        doc = ZXML.xmlNewDocument();
+      } catch (final ParserConfigurationException e) {
+        return invalid(Vector.of(ofException(e)));
+      }
+
       return getSourcePath(c, p)
         .flatMap(source_path -> getOutputPath(c, p)
           .flatMap(output_path -> runParse(c, ps, source_path)
-            .flatMap(glossary -> generate(fs, output_path, glossary))));
+            .flatMap(glossary -> generate(doc, fs, output_path, glossary))));
     }
   }
 }

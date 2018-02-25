@@ -18,5 +18,5 @@
  * Unit tests.
  */
 
-@com.io7m.jnull.NonNullByDefault
+
 package com.io7m.zeptoblog.tests;

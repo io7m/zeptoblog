@@ -26,14 +26,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.io7m.jnull</groupId>
-      <artifactId>com.io7m.jnull.core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.io7m.xom</groupId>
-      <artifactId>xom</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.io7m.jproperties</groupId>
       <artifactId>com.io7m.jproperties.core</artifactId>
     </dependency>
@@ -56,8 +48,8 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>io.javaslang</groupId>
-      <artifactId>javaslang</artifactId>
+      <groupId>io.vavr</groupId>
+      <artifactId>vavr</artifactId>
     </dependency>
     <dependency>
       <groupId>org.immutables</groupId>
@@ -65,8 +57,8 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.immutables.javaslang</groupId>
-      <artifactId>javaslang-encodings</artifactId>
+      <groupId>org.immutables.vavr</groupId>
+      <artifactId>vavr-encodings</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -84,6 +76,22 @@
         <artifactId>maven-checkstyle-plugin</artifactId>
       </plugin>
 
+      <!-- Process annotations -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <annotationProcessorPaths>
+            <dependency>
+              <groupId>org.immutables</groupId>
+              <artifactId>value</artifactId>
+              <version>${io7m.org.immutables.version}</version>
+            </dependency>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+
+      <!-- Produce OSGi bundle -->
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>

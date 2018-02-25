@@ -16,9 +16,8 @@
 
 package com.io7m.zeptoblog.core;
 
-import com.io7m.jfunctional.Unit;
-import javaslang.collection.Seq;
-import javaslang.control.Validation;
+import io.vavr.collection.Seq;
+import io.vavr.control.Validation;
 
 /**
  * The type of blog renderers.
@@ -34,6 +33,6 @@ public interface ZBlogRendererType
    * @return Nothing, or a list of rendering errors
    */
 
-  Validation<Seq<ZError>, Unit> render(
+  Validation<Seq<ZError>, Void> render(
     ZBlog blog);
 }

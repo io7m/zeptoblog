@@ -17,10 +17,9 @@
 package com.io7m.zeptoblog.tests;
 
 import com.io7m.zeptoblog.commonmark.ZBlogPostFormatCommonMark;
-import com.io7m.zeptoblog.core.ZBlogPostFormatXHTML;
 import com.io7m.zeptoblog.core.ZError;
-import javaslang.collection.Seq;
-import javaslang.control.Validation;
+import io.vavr.collection.Seq;
+import io.vavr.control.Validation;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -39,14 +38,23 @@ public final class ZBlogPostFormatCommonMarkTest
     LOG = LoggerFactory.getLogger(ZBlogPostFormatCommonMarkTest.class);
   }
 
+  private static void dumpError(
+    final Validation<Seq<ZError>, String> result)
+  {
+    if (result.isInvalid()) {
+      result.getError().forEach(e -> LOG.error("{}", e));
+    }
+  }
+
   @Test
   public void testPlain()
     throws Exception
   {
     final ZBlogPostFormatCommonMark format = new ZBlogPostFormatCommonMark();
 
-    try (final InputStream is =
-           ZBlogPostFormatCommonMarkTest.class.getResourceAsStream("simple.cmark")) {
+    try (InputStream is =
+           ZBlogPostFormatCommonMarkTest.class.getResourceAsStream(
+             "simple.cmark")) {
       final String text = IOUtils.toString(is, StandardCharsets.UTF_8);
 
       final Validation<Seq<ZError>, String> result =
@@ -56,14 +64,6 @@ public final class ZBlogPostFormatCommonMarkTest
       Assert.assertTrue(result.isValid());
 
       System.out.println(result.get());
-    }
-  }
-
-  private static void dumpError(
-    final Validation<Seq<ZError>, String> result)
-  {
-    if (result.isInvalid()) {
-      result.getError().forEach(e -> LOG.error("{}", e));
     }
   }
 }

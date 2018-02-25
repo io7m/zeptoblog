@@ -16,18 +16,14 @@
 
 package com.io7m.zeptoblog.commonmark;
 
-import com.io7m.jnull.NullCheck;
+import com.io7m.jlexing.core.LexicalPosition;
 import com.io7m.junreachable.UnreachableCodeException;
 import com.io7m.zeptoblog.core.ZBlogPostFormatType;
 import com.io7m.zeptoblog.core.ZError;
-import com.io7m.zeptoblog.core.ZErrors;
-import javaslang.collection.Seq;
-import javaslang.collection.Vector;
-import javaslang.control.Validation;
-import nu.xom.Builder;
-import nu.xom.Document;
-import nu.xom.Element;
-import nu.xom.ParsingException;
+import com.io7m.zeptoblog.core.ZXML;
+import io.vavr.collection.Seq;
+import io.vavr.collection.Vector;
+import io.vavr.control.Validation;
 import org.commonmark.Extension;
 import org.commonmark.ext.heading.anchor.HeadingAnchorExtension;
 import org.commonmark.node.FencedCodeBlock;
@@ -43,18 +39,25 @@ import org.commonmark.renderer.text.TextContentNodeRendererContext;
 import org.commonmark.renderer.text.TextContentRenderer;
 import org.commonmark.renderer.text.TextContentWriter;
 import org.osgi.service.component.annotations.Component;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
-import static javaslang.control.Validation.invalid;
-import static javaslang.control.Validation.valid;
+import static io.vavr.control.Validation.invalid;
+import static io.vavr.control.Validation.valid;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * A format provider for the <i>CommonMark</i> format.
@@ -108,7 +111,7 @@ public final class ZBlogPostFormatCommonMark implements ZBlogPostFormatType
         .extensions(extensions)
         .build();
 
-    try (final StringWriter writer = new StringWriter(1024)) {
+    try (StringWriter writer = new StringWriter(1024)) {
       writer.append("<div xmlns=\"http://www.w3.org/1999/xhtml\">");
       writer.append(System.lineSeparator());
       renderer.render(document, writer);
@@ -116,14 +119,17 @@ public final class ZBlogPostFormatCommonMark implements ZBlogPostFormatType
       writer.append(System.lineSeparator());
       writer.flush();
 
-      try (final StringReader reader = new StringReader(writer.toString())) {
-        final Builder b = new Builder();
-        final Document doc = b.build(reader);
-        final Element root = doc.getRootElement();
-        return valid((Element) root.copy());
-      } catch (final ParsingException e) {
+      try (InputStream stream =
+             new ByteArrayInputStream(writer.toString().getBytes(UTF_8))) {
+        return valid(ZXML.xmlParseFromStream(
+          path,
+          stream).getDocumentElement());
+      } catch (final SAXException | ParserConfigurationException ex) {
         return invalid(Vector.of(
-          ZErrors.ofExceptionParse(e, path)));
+          ZError.of(
+            ex.getMessage(),
+            LexicalPosition.of(0, 0, Optional.of(path)),
+            Optional.of(ex))));
       }
     } catch (final IOException e) {
       throw new UnreachableCodeException(e);
@@ -143,7 +149,7 @@ public final class ZBlogPostFormatCommonMark implements ZBlogPostFormatType
         .nodeRendererFactory(TextRenderer::new)
         .build();
 
-    try (final StringWriter writer = new StringWriter(1024)) {
+    try (StringWriter writer = new StringWriter(1024)) {
       renderer.render(document, writer);
       writer.append(System.lineSeparator());
       writer.flush();
@@ -164,9 +170,9 @@ public final class ZBlogPostFormatCommonMark implements ZBlogPostFormatType
       final TextContentNodeRendererContext in_context)
     {
       this.context =
-        NullCheck.notNull(in_context, "Context");
+        Objects.requireNonNull(in_context, "Context");
       this.writer =
-        NullCheck.notNull(in_context.getWriter(), "Writer");
+        Objects.requireNonNull(in_context.getWriter(), "Writer");
     }
 
     @Override
@@ -200,7 +206,7 @@ public final class ZBlogPostFormatCommonMark implements ZBlogPostFormatType
     IndentedCodeBlockNodeRenderer(
       final HtmlNodeRendererContext context)
     {
-      this.html = NullCheck.notNull(context, "Context").getWriter();
+      this.html = Objects.requireNonNull(context, "Context").getWriter();
     }
 
     @Override

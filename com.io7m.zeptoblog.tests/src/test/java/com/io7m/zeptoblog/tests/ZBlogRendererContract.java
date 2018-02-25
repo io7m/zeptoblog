@@ -16,7 +16,6 @@
 
 package com.io7m.zeptoblog.tests;
 
-import com.io7m.jfunctional.Unit;
 import com.io7m.zeptoblog.commonmark.ZBlogPostFormatCommonMark;
 import com.io7m.zeptoblog.core.ZBlog;
 import com.io7m.zeptoblog.core.ZBlogConfiguration;
@@ -25,8 +24,8 @@ import com.io7m.zeptoblog.core.ZBlogParserType;
 import com.io7m.zeptoblog.core.ZBlogRendererProviderType;
 import com.io7m.zeptoblog.core.ZBlogRendererType;
 import com.io7m.zeptoblog.core.ZError;
-import javaslang.collection.Seq;
-import javaslang.control.Validation;
+import io.vavr.collection.Seq;
+import io.vavr.control.Validation;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -81,7 +80,7 @@ public abstract class ZBlogRendererContract
     final ZBlogParserProviderType p_prov = this.createParserProvider();
     final ZBlogRendererProviderType w_prov = this.createWriterProvider();
 
-    try (final FileSystem fs = this.createFilesystem()) {
+    try (FileSystem fs = this.createFilesystem()) {
       final ZBlogConfiguration config = baseConfig(fs);
       Files.createDirectories(config.sourceRoot());
       Files.createDirectories(config.outputRoot());
@@ -93,7 +92,7 @@ public abstract class ZBlogRendererContract
       final ZBlog blog = p_result.get();
 
       final ZBlogRendererType writer = w_prov.createRenderer(config);
-      final Validation<Seq<ZError>, Unit> w_result = writer.render(blog);
+      final Validation<Seq<ZError>, Void> w_result = writer.render(blog);
       dumpResult(w_result);
       Assert.assertTrue(w_result.isValid());
     }
@@ -106,13 +105,13 @@ public abstract class ZBlogRendererContract
     final ZBlogParserProviderType p_prov = this.createParserProvider();
     final ZBlogRendererProviderType w_prov = this.createWriterProvider();
 
-    try (final FileSystem fs = this.createFilesystem()) {
+    try (FileSystem fs = this.createFilesystem()) {
       final ZBlogConfiguration config = baseConfig(fs);
       Files.createDirectories(config.sourceRoot());
 
       {
         final Path file = config.sourceRoot().resolve("one.zbp");
-        try (final BufferedWriter writer =
+        try (BufferedWriter writer =
                Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
           writer.write("title Title");
           writer.newLine();
@@ -125,25 +124,233 @@ public abstract class ZBlogRendererContract
         }
       }
 
-      final ZBlogParserType parser = p_prov.createParser(config);
-      final Validation<Seq<ZError>, ZBlog> result = parser.parse();
-      dumpResult(result);
-      Assert.assertTrue(result.isValid());
-      final ZBlog blog = result.get();
+      runOne(p_prov, w_prov, config);
+    }
+  }
 
-      final ZBlogRendererType writer = w_prov.createRenderer(config);
-      final Validation<Seq<ZError>, Unit> w_result = writer.render(blog);
-      dumpResult(w_result);
-      Assert.assertTrue(w_result.isValid());
+  private static void runOne(
+    final ZBlogParserProviderType p_prov,
+    final ZBlogRendererProviderType w_prov,
+    final ZBlogConfiguration config)
+  {
+    final ZBlogParserType parser = p_prov.createParser(config);
+    final Validation<Seq<ZError>, ZBlog> result = parser.parse();
+    dumpResult(result);
+    Assert.assertTrue(result.isValid());
+    final ZBlog blog = result.get();
 
-      Assert.assertTrue(
-        Files.isRegularFile(config.outputRoot().resolve("one.xhtml")));
-      Assert.assertTrue(
-        Files.isRegularFile(config.outputRoot().resolve("1.xhtml")));
-      Assert.assertTrue(
-        Files.isRegularFile(config.outputRoot().resolve("yearly.xhtml")));
-      Assert.assertTrue(
-        Files.isRegularFile(config.outputRoot().resolve("blog.atom")));
+    final ZBlogRendererType writer = w_prov.createRenderer(config);
+    final Validation<Seq<ZError>, Void> w_result = writer.render(blog);
+    dumpResult(w_result);
+    Assert.assertTrue(w_result.isValid());
+
+    Assert.assertTrue(
+      Files.isRegularFile(config.outputRoot().resolve("one.xhtml")));
+    Assert.assertTrue(
+      Files.isRegularFile(config.outputRoot().resolve("1.xhtml")));
+    Assert.assertTrue(
+      Files.isRegularFile(config.outputRoot().resolve("yearly.xhtml")));
+    Assert.assertTrue(
+      Files.isRegularFile(config.outputRoot().resolve("blog.atom")));
+  }
+
+  @Test
+  public final void testFooterPre()
+    throws Exception
+  {
+    final ZBlogParserProviderType p_prov = this.createParserProvider();
+    final ZBlogRendererProviderType w_prov = this.createWriterProvider();
+
+    try (FileSystem fs = this.createFilesystem()) {
+      final Path mod_path = fs.getPath("insert.xml");
+      Files.copy(ZBlogRendererContract.class.getResourceAsStream(
+        "/com/io7m/zeptoblog/tests/insertable.xml"),
+                 mod_path);
+
+      final ZBlogConfiguration config =
+        ZBlogConfiguration.builder()
+          .from(baseConfig(fs))
+          .setFooterPre(mod_path)
+          .build();
+
+      Files.createDirectories(config.sourceRoot());
+
+      {
+        final Path file = config.sourceRoot().resolve("one.zbp");
+        try (BufferedWriter writer =
+               Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+          writer.write("title Title");
+          writer.newLine();
+          writer.write("date 2020-01-01T00:00:00+0000");
+          writer.newLine();
+          writer.newLine();
+          writer.write("Hello.");
+          writer.newLine();
+          writer.flush();
+        }
+      }
+
+      runOne(p_prov, w_prov, config);
+    }
+  }
+
+  @Test
+  public final void testFooterPost()
+    throws Exception
+  {
+    final ZBlogParserProviderType p_prov = this.createParserProvider();
+    final ZBlogRendererProviderType w_prov = this.createWriterProvider();
+
+    try (FileSystem fs = this.createFilesystem()) {
+      final Path mod_path = fs.getPath("insert.xml");
+      Files.copy(ZBlogRendererContract.class.getResourceAsStream(
+        "/com/io7m/zeptoblog/tests/insertable.xml"),
+                 mod_path);
+
+      final ZBlogConfiguration config =
+        ZBlogConfiguration.builder()
+          .from(baseConfig(fs))
+          .setFooterPost(mod_path)
+          .build();
+
+      Files.createDirectories(config.sourceRoot());
+
+      {
+        final Path file = config.sourceRoot().resolve("one.zbp");
+        try (BufferedWriter writer =
+               Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+          writer.write("title Title");
+          writer.newLine();
+          writer.write("date 2020-01-01T00:00:00+0000");
+          writer.newLine();
+          writer.newLine();
+          writer.write("Hello.");
+          writer.newLine();
+          writer.flush();
+        }
+      }
+
+      runOne(p_prov, w_prov, config);
+    }
+  }
+
+  @Test
+  public final void testHeaderPre()
+    throws Exception
+  {
+    final ZBlogParserProviderType p_prov = this.createParserProvider();
+    final ZBlogRendererProviderType w_prov = this.createWriterProvider();
+
+    try (FileSystem fs = this.createFilesystem()) {
+      final Path mod_path = fs.getPath("insert.xml");
+      Files.copy(ZBlogRendererContract.class.getResourceAsStream(
+        "/com/io7m/zeptoblog/tests/insertable.xml"),
+                 mod_path);
+
+      final ZBlogConfiguration config =
+        ZBlogConfiguration.builder()
+          .from(baseConfig(fs))
+          .setHeaderPre(mod_path)
+          .build();
+
+      Files.createDirectories(config.sourceRoot());
+
+      {
+        final Path file = config.sourceRoot().resolve("one.zbp");
+        try (BufferedWriter writer =
+               Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+          writer.write("title Title");
+          writer.newLine();
+          writer.write("date 2020-01-01T00:00:00+0000");
+          writer.newLine();
+          writer.newLine();
+          writer.write("Hello.");
+          writer.newLine();
+          writer.flush();
+        }
+      }
+
+      runOne(p_prov, w_prov, config);
+    }
+  }
+
+  @Test
+  public final void testHeaderPost()
+    throws Exception
+  {
+    final ZBlogParserProviderType p_prov = this.createParserProvider();
+    final ZBlogRendererProviderType w_prov = this.createWriterProvider();
+
+    try (FileSystem fs = this.createFilesystem()) {
+      final Path mod_path = fs.getPath("insert.xml");
+      Files.copy(ZBlogRendererContract.class.getResourceAsStream(
+        "/com/io7m/zeptoblog/tests/insertable.xml"),
+                 mod_path);
+
+      final ZBlogConfiguration config =
+        ZBlogConfiguration.builder()
+          .from(baseConfig(fs))
+          .setHeaderPost(mod_path)
+          .build();
+
+      Files.createDirectories(config.sourceRoot());
+
+      {
+        final Path file = config.sourceRoot().resolve("one.zbp");
+        try (BufferedWriter writer =
+               Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+          writer.write("title Title");
+          writer.newLine();
+          writer.write("date 2020-01-01T00:00:00+0000");
+          writer.newLine();
+          writer.newLine();
+          writer.write("Hello.");
+          writer.newLine();
+          writer.flush();
+        }
+      }
+
+      runOne(p_prov, w_prov, config);
+    }
+  }
+
+  @Test
+  public final void testHeaderReplace()
+    throws Exception
+  {
+    final ZBlogParserProviderType p_prov = this.createParserProvider();
+    final ZBlogRendererProviderType w_prov = this.createWriterProvider();
+
+    try (FileSystem fs = this.createFilesystem()) {
+      final Path mod_path = fs.getPath("insert.xml");
+      Files.copy(ZBlogRendererContract.class.getResourceAsStream(
+        "/com/io7m/zeptoblog/tests/insertable.xml"),
+                 mod_path);
+
+      final ZBlogConfiguration config =
+        ZBlogConfiguration.builder()
+          .from(baseConfig(fs))
+          .setHeaderReplace(mod_path)
+          .build();
+
+      Files.createDirectories(config.sourceRoot());
+
+      {
+        final Path file = config.sourceRoot().resolve("one.zbp");
+        try (BufferedWriter writer =
+               Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+          writer.write("title Title");
+          writer.newLine();
+          writer.write("date 2020-01-01T00:00:00+0000");
+          writer.newLine();
+          writer.newLine();
+          writer.write("Hello.");
+          writer.newLine();
+          writer.flush();
+        }
+      }
+
+      runOne(p_prov, w_prov, config);
     }
   }
 }

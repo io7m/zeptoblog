@@ -16,7 +16,7 @@
 
 package com.io7m.zeptoblog.core;
 
-import javaslang.collection.Set;
+import io.vavr.collection.Set;
 import org.osgi.annotation.versioning.ProviderType;
 
 import java.util.Optional;

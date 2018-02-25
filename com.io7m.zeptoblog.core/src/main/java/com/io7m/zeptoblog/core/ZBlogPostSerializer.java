@@ -16,12 +16,12 @@
 
 package com.io7m.zeptoblog.core;
 
-import com.io7m.jnull.NullCheck;
-import javaslang.collection.Seq;
-import javaslang.control.Validation;
+import io.vavr.collection.Seq;
+import io.vavr.control.Validation;
 import org.osgi.service.component.annotations.Component;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 /**
  * The default implementation of the {@link ZBlogPostSerializerType} interface.
@@ -45,7 +45,7 @@ public final class ZBlogPostSerializer implements ZBlogPostSerializerType
   public Validation<Seq<ZError>, String> serialize(
     final ZBlogPost post)
   {
-    NullCheck.notNull(post, "post");
+    Objects.requireNonNull(post, "post");
 
     final StringBuilder sb = new StringBuilder(128);
     sb.append("title ");

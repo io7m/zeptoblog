@@ -17,11 +17,10 @@
 package com.io7m.zeptoblog.core;
 
 import com.io7m.jlexing.core.LexicalPosition;
-import com.io7m.jnull.NullCheck;
-import javaslang.collection.Seq;
-import javaslang.collection.TreeMap;
-import javaslang.collection.Vector;
-import javaslang.control.Validation;
+import io.vavr.collection.Seq;
+import io.vavr.collection.TreeMap;
+import io.vavr.collection.Vector;
+import io.vavr.control.Validation;
 import org.apache.commons.io.FilenameUtils;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -81,14 +80,14 @@ public final class ZBlogParserProvider implements ZBlogParserProviderType
   public void setBlogPostParserProvider(
     final ZBlogPostParserProviderType provider)
   {
-    this.post_provider = NullCheck.notNull(provider, "Post provider");
+    this.post_provider = Objects.requireNonNull(provider, "Post provider");
   }
 
   @Override
   public ZBlogParserType createParser(
     final ZBlogConfiguration config)
   {
-    NullCheck.notNull(config, "config");
+    Objects.requireNonNull(config, "config");
     return new Parser(this.post_provider, config);
   }
 
@@ -106,9 +105,9 @@ public final class ZBlogParserProvider implements ZBlogParserProviderType
       final ZBlogConfiguration in_config)
     {
       this.post_provider =
-        NullCheck.notNull(in_post_provider, "Post provider");
+        Objects.requireNonNull(in_post_provider, "Post provider");
 
-      this.config = NullCheck.notNull(in_config, "Config");
+      this.config = Objects.requireNonNull(in_config, "Config");
       this.errors = Vector.empty();
       this.builder = ZBlog.builder();
       this.builder.setTitle(in_config.title());
@@ -174,7 +173,7 @@ public final class ZBlogParserProvider implements ZBlogParserProviderType
     {
       LOG.debug("parsing post {}", file);
 
-      try (final InputStream stream = Files.newInputStream(file)) {
+      try (InputStream stream = Files.newInputStream(file)) {
         final Path relative = this.config.sourceRoot().relativize(file);
 
         final ZBlogPostParserType parser =

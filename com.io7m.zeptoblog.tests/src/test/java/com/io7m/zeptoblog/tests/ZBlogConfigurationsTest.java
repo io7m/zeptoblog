@@ -22,8 +22,8 @@ import com.io7m.zeptoblog.core.ZBlogConfiguration;
 import com.io7m.zeptoblog.core.ZBlogConfigurations;
 import com.io7m.zeptoblog.core.ZBlogPostGeneratorRequest;
 import com.io7m.zeptoblog.core.ZError;
-import javaslang.collection.Seq;
-import javaslang.control.Validation;
+import io.vavr.collection.Seq;
+import io.vavr.control.Validation;
 import org.hamcrest.core.StringContains;
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,6 +35,19 @@ import java.util.Properties;
 
 public final class ZBlogConfigurationsTest
 {
+  public static Properties baseProperties()
+  {
+    final Properties p = new Properties();
+    p.put("com.io7m.zeptoblog.title", "title");
+    p.put("com.io7m.zeptoblog.source_root", "/source");
+    p.put("com.io7m.zeptoblog.output_root", "/output");
+    p.put("com.io7m.zeptoblog.site_uri", "http://example.com");
+    p.put("com.io7m.zeptoblog.author", "author");
+    p.put("com.io7m.zeptoblog.posts_per_page", "23");
+    p.put("com.io7m.zeptoblog.format_default", ZBlogPostFormatCommonMark.NAME);
+    return p;
+  }
+
   @Test
   public void testEmpty()
   {
@@ -103,7 +116,9 @@ public final class ZBlogConfigurationsTest
     final Validation<Seq<ZError>, ZBlogConfiguration> r =
       ZBlogConfigurations.fromProperties(Paths.get("/x/y/z"), p);
     Assert.assertTrue(r.isInvalid());
-    Assert.assertThat(r.getError().get(0).message(), StringContains.containsString("x"));
+    Assert.assertThat(
+      r.getError().get(0).message(),
+      StringContains.containsString("x"));
   }
 
   @Test
@@ -116,7 +131,9 @@ public final class ZBlogConfigurationsTest
     final Validation<Seq<ZError>, ZBlogConfiguration> r =
       ZBlogConfigurations.fromProperties(Paths.get("/x/y/z"), p);
     Assert.assertTrue(r.isInvalid());
-    Assert.assertThat(r.getError().get(0).message(), StringContains.containsString("file"));
+    Assert.assertThat(
+      r.getError().get(0).message(),
+      StringContains.containsString("file"));
   }
 
   @Test
@@ -129,19 +146,8 @@ public final class ZBlogConfigurationsTest
     final Validation<Seq<ZError>, ZBlogConfiguration> r =
       ZBlogConfigurations.fromProperties(Paths.get("/x/y/z"), p);
     Assert.assertTrue(r.isInvalid());
-    Assert.assertThat(r.getError().get(0).message(), StringContains.containsString("type"));
-  }
-
-  public static Properties baseProperties()
-  {
-    final Properties p = new Properties();
-    p.put("com.io7m.zeptoblog.title", "title");
-    p.put("com.io7m.zeptoblog.source_root", "/source");
-    p.put("com.io7m.zeptoblog.output_root", "/output");
-    p.put("com.io7m.zeptoblog.site_uri", "http://example.com");
-    p.put("com.io7m.zeptoblog.author", "author");
-    p.put("com.io7m.zeptoblog.posts_per_page", "23");
-    p.put("com.io7m.zeptoblog.format_default", ZBlogPostFormatCommonMark.NAME);
-    return p;
+    Assert.assertThat(
+      r.getError().get(0).message(),
+      StringContains.containsString("type"));
   }
 }

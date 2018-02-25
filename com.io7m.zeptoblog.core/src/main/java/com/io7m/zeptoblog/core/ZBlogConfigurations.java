@@ -17,18 +17,18 @@
 package com.io7m.zeptoblog.core;
 
 import com.io7m.jlexing.core.LexicalPosition;
-import com.io7m.jnull.NullCheck;
 import com.io7m.jproperties.JProperties;
 import com.io7m.jproperties.JPropertyNonexistent;
 import com.io7m.junreachable.UnreachableCodeException;
-import javaslang.collection.Seq;
-import javaslang.collection.Vector;
-import javaslang.control.Validation;
+import io.vavr.collection.Seq;
+import io.vavr.collection.Vector;
+import io.vavr.control.Validation;
 
 import java.math.BigInteger;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -56,8 +56,8 @@ public final class ZBlogConfigurations
     final Path path,
     final Properties p)
   {
-    NullCheck.notNull(path, "Path");
-    NullCheck.notNull(p, "Properties");
+    Objects.requireNonNull(path, "Path");
+    Objects.requireNonNull(p, "Properties");
 
     final ZBlogConfiguration.Builder builder = ZBlogConfiguration.builder();
 

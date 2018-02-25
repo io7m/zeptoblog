@@ -14,9 +14,17 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-/**
- * Glossary generator.
- */
+module com.io7m.zeptoblog.cmdline
+{
+  requires com.io7m.jproperties.core;
+  requires com.io7m.zeptoblog.core;
+  requires io.vavr;
+  requires jcommander;
+  requires org.slf4j;
+  requires ch.qos.logback.classic;
+  requires com.io7m.junreachable.core;
 
+  opens com.io7m.zeptoblog.cmdline to jcommander;
 
-package com.io7m.zeptoblog.glossary;
+  exports com.io7m.zeptoblog.cmdline;
+}

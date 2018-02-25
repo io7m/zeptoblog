@@ -24,8 +24,8 @@ import com.io7m.zeptoblog.core.ZBlogPostParserProviderType;
 import com.io7m.zeptoblog.core.ZBlogPostParserType;
 import com.io7m.zeptoblog.core.ZBlogPostSerializerType;
 import com.io7m.zeptoblog.core.ZError;
-import javaslang.collection.Seq;
-import javaslang.control.Validation;
+import io.vavr.collection.Seq;
+import io.vavr.control.Validation;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -83,7 +83,7 @@ public abstract class ZBlogPostSerializerContract
     final ZBlogPostParserProviderType prov = this.createParserProvider();
     final ZBlogPostSerializerType serial = this.createSerializer();
 
-    try (final FileSystem fs = this.createFilesystem()) {
+    try (FileSystem fs = this.createFilesystem()) {
       final ZBlogConfiguration config = baseConfig(fs);
 
       Files.createDirectories(config.sourceRoot());
@@ -116,7 +116,7 @@ public abstract class ZBlogPostSerializerContract
       LOG.debug(out_text);
       Files.write(post_path, out_text.getBytes(StandardCharsets.UTF_8));
 
-      try (final InputStream stream = Files.newInputStream(post_path)) {
+      try (InputStream stream = Files.newInputStream(post_path)) {
         final ZBlogPostParserType parser =
           prov.createParser(config, stream, post_path);
         final Validation<Seq<ZError>, ZBlogPost> result = parser.parse();

@@ -17,15 +17,15 @@
 package com.io7m.zeptoblog.glossary;
 
 import com.io7m.zeptoblog.core.ZImmutableStyleType;
-import org.immutables.javaslang.encodings.JavaslangEncodingEnabled;
 import org.immutables.value.Value;
+import org.immutables.vavr.encodings.VavrEncodingEnabled;
 
 /**
  * The body of a glossary item.
  */
 
 @ZImmutableStyleType
-@JavaslangEncodingEnabled
+@VavrEncodingEnabled
 @Value.Immutable
 public interface ZGlossaryItemBodyType
 {

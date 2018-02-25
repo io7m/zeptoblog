@@ -18,8 +18,8 @@ package com.io7m.zeptoblog.tests;
 
 import com.io7m.zeptoblog.core.ZBlogPostFormatXHTML;
 import com.io7m.zeptoblog.core.ZError;
-import javaslang.collection.Seq;
-import javaslang.control.Validation;
+import io.vavr.collection.Seq;
+import io.vavr.control.Validation;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -38,13 +38,21 @@ public final class ZBlogPostFormatXHTMLTest
     LOG = LoggerFactory.getLogger(ZBlogPostFormatXHTMLTest.class);
   }
 
+  private static void dumpError(
+    final Validation<Seq<ZError>, String> result)
+  {
+    if (result.isInvalid()) {
+      result.getError().forEach(e -> LOG.error("{}: ", e, e.error().get()));
+    }
+  }
+
   @Test
   public void testPlain()
     throws Exception
   {
     final ZBlogPostFormatXHTML format = new ZBlogPostFormatXHTML();
 
-    try (final InputStream is =
+    try (InputStream is =
            ZBlogPostFormatXHTMLTest.class.getResourceAsStream("simple.xhtml")) {
       final String text = IOUtils.toString(is, StandardCharsets.UTF_8);
 
@@ -55,14 +63,6 @@ public final class ZBlogPostFormatXHTMLTest
       Assert.assertTrue(result.isValid());
 
       System.out.println(result.get());
-    }
-  }
-
-  private static void dumpError(
-    final Validation<Seq<ZError>, String> result)
-  {
-    if (result.isInvalid()) {
-      result.getError().forEach(e -> LOG.error("{}", e));
     }
   }
 }

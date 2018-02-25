@@ -15,8 +15,27 @@
  */
 
 /**
- * Glossary generator.
+ * Static blog generator (Core)
  */
 
+module com.io7m.zeptoblog.core
+{
+  requires static org.immutables.value;
+  requires static org.osgi.annotation;
+  requires static org.osgi.service.component.annotations;
+  requires static vavr.encodings;
 
-package com.io7m.zeptoblog.glossary;
+  requires com.io7m.jaffirm.core;
+  requires com.io7m.jlexing.core;
+  requires com.io7m.jproperties.core;
+  requires com.io7m.junreachable.core;
+  requires java.xml;
+  requires io.vavr;
+  requires org.apache.commons.io;
+  requires org.slf4j;
+
+  // XXX: rometools > 0.9.0 has a real module name
+  requires rome;
+
+  exports com.io7m.zeptoblog.core;
+}

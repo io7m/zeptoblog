@@ -23,8 +23,8 @@ import com.io7m.zeptoblog.core.ZBlogParserProviderType;
 import com.io7m.zeptoblog.core.ZBlogParserType;
 import com.io7m.zeptoblog.core.ZBlogPost;
 import com.io7m.zeptoblog.core.ZError;
-import javaslang.collection.Seq;
-import javaslang.control.Validation;
+import io.vavr.collection.Seq;
+import io.vavr.control.Validation;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -77,7 +77,7 @@ public abstract class ZBlogParserContract
   {
     final ZBlogParserProviderType prov = this.createParserProvider();
 
-    try (final FileSystem fs = this.createFilesystem()) {
+    try (FileSystem fs = this.createFilesystem()) {
       final ZBlogConfiguration config = baseConfig(fs);
 
       final ZBlogParserType parser = prov.createParser(config);
@@ -94,7 +94,7 @@ public abstract class ZBlogParserContract
   {
     final ZBlogParserProviderType prov = this.createParserProvider();
 
-    try (final FileSystem fs = this.createFilesystem()) {
+    try (FileSystem fs = this.createFilesystem()) {
       final ZBlogConfiguration config = baseConfig(fs);
       Files.createDirectories(config.sourceRoot());
 
@@ -115,13 +115,13 @@ public abstract class ZBlogParserContract
   {
     final ZBlogParserProviderType prov = this.createParserProvider();
 
-    try (final FileSystem fs = this.createFilesystem()) {
+    try (FileSystem fs = this.createFilesystem()) {
       final ZBlogConfiguration config = baseConfig(fs);
       Files.createDirectories(config.sourceRoot());
 
       {
         final Path file = config.sourceRoot().resolve("one.zbp");
-        try (final BufferedWriter writer =
+        try (BufferedWriter writer =
                Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
           writer.write("title Title");
           writer.newLine();
@@ -157,13 +157,13 @@ public abstract class ZBlogParserContract
   {
     final ZBlogParserProviderType prov = this.createParserProvider();
 
-    try (final FileSystem fs = this.createFilesystem()) {
+    try (FileSystem fs = this.createFilesystem()) {
       final ZBlogConfiguration config = baseConfig(fs);
       Files.createDirectories(config.sourceRoot());
 
       {
         final Path file = config.sourceRoot().resolve("one.zbp");
-        try (final BufferedWriter writer =
+        try (BufferedWriter writer =
                Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
           writer.write("nonsense");
           writer.newLine();

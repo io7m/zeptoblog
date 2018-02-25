@@ -17,13 +17,12 @@
 package com.io7m.zeptoblog.glossary;
 
 import com.io7m.jlexing.core.LexicalPosition;
-import com.io7m.jnull.NullCheck;
 import com.io7m.zeptoblog.core.ZBlogConfiguration;
 import com.io7m.zeptoblog.core.ZError;
-import javaslang.collection.Seq;
-import javaslang.collection.TreeMap;
-import javaslang.collection.Vector;
-import javaslang.control.Validation;
+import io.vavr.collection.Seq;
+import io.vavr.collection.TreeMap;
+import io.vavr.collection.Vector;
+import io.vavr.control.Validation;
 import org.apache.commons.io.FilenameUtils;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -46,8 +45,8 @@ import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Optional;
 
-import static javaslang.control.Validation.invalid;
-import static javaslang.control.Validation.valid;
+import static io.vavr.control.Validation.invalid;
+import static io.vavr.control.Validation.valid;
 
 /**
  * The default glossary parser provider.
@@ -87,7 +86,7 @@ public final class ZGlossaryParserProvider
   public void setGlossaryItemParserProvider(
     final ZGlossaryItemParserProviderType provider)
   {
-    this.item_provider = NullCheck.notNull(provider, "Item provider");
+    this.item_provider = Objects.requireNonNull(provider, "Item provider");
   }
 
   @Override
@@ -95,8 +94,8 @@ public final class ZGlossaryParserProvider
     final ZBlogConfiguration config,
     final Path path)
   {
-    NullCheck.notNull(config, "config");
-    NullCheck.notNull(path, "path");
+    Objects.requireNonNull(config, "config");
+    Objects.requireNonNull(path, "path");
     return new Parser(this.item_provider, config, path);
   }
 
@@ -116,11 +115,11 @@ public final class ZGlossaryParserProvider
       final Path in_path)
     {
       this.item_provider =
-        NullCheck.notNull(in_item_provider, "Post provider");
+        Objects.requireNonNull(in_item_provider, "Post provider");
       this.config =
-        NullCheck.notNull(in_config, "Config");
+        Objects.requireNonNull(in_config, "Config");
       this.path =
-        NullCheck.notNull(in_path, "Path");
+        Objects.requireNonNull(in_path, "Path");
 
       this.errors = Vector.empty();
       this.builder = ZGlossary.builder();
@@ -186,7 +185,7 @@ public final class ZGlossaryParserProvider
     {
       LOG.debug("parsing item {}", file);
 
-      try (final InputStream stream = Files.newInputStream(file)) {
+      try (InputStream stream = Files.newInputStream(file)) {
         final Path absolute = file.toAbsolutePath();
         final Path relative = this.config.sourceRoot().relativize(absolute);
 

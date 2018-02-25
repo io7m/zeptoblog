@@ -16,10 +16,10 @@
 
 package com.io7m.zeptoblog.core;
 
-import javaslang.collection.Seq;
-import javaslang.control.Validation;
-import nu.xom.Element;
+import io.vavr.collection.Seq;
+import io.vavr.control.Validation;
 import org.osgi.annotation.versioning.ProviderType;
+import org.w3c.dom.Element;
 
 import java.nio.file.Path;
 

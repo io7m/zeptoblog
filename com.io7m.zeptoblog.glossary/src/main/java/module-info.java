@@ -15,8 +15,23 @@
  */
 
 /**
- * Glossary generator.
+ * Static blog generator (Glossary generation)
  */
 
+module com.io7m.zeptoblog.glossary
+{
+  requires static org.osgi.service.component.annotations;
+  requires static vavr.encodings;
+  requires static org.immutables.value;
+  requires static org.osgi.annotation;
 
-package com.io7m.zeptoblog.glossary;
+  requires com.io7m.jlexing.core;
+  requires com.io7m.zeptoblog.core;
+  requires io.vavr;
+  requires org.apache.commons.io;
+  requires org.slf4j;
+  requires com.io7m.jproperties.core;
+  requires java.xml;
+
+  exports com.io7m.zeptoblog.glossary;
+}

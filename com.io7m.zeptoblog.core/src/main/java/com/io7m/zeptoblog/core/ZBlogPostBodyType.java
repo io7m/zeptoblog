@@ -16,15 +16,15 @@
 
 package com.io7m.zeptoblog.core;
 
-import org.immutables.javaslang.encodings.JavaslangEncodingEnabled;
 import org.immutables.value.Value;
+import org.immutables.vavr.encodings.VavrEncodingEnabled;
 
 /**
  * The body of a blog post.
  */
 
 @ZImmutableStyleType
-@JavaslangEncodingEnabled
+@VavrEncodingEnabled
 @Value.Immutable
 public interface ZBlogPostBodyType
 {

@@ -16,12 +16,12 @@
 
 package com.io7m.zeptoblog.core;
 
-import com.io7m.jnull.NullCheck;
-import org.immutables.javaslang.encodings.JavaslangEncodingEnabled;
 import org.immutables.value.Value;
+import org.immutables.vavr.encodings.VavrEncodingEnabled;
 
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -29,7 +29,7 @@ import java.util.Optional;
  */
 
 @ZImmutableStyleType
-@JavaslangEncodingEnabled
+@VavrEncodingEnabled
 @Value.Immutable
 public interface ZBlogPostType extends Comparable<ZBlogPostType>
 {
@@ -113,7 +113,7 @@ public interface ZBlogPostType extends Comparable<ZBlogPostType>
   @Override
   default int compareTo(final ZBlogPostType other)
   {
-    NullCheck.notNull(other, "other");
+    Objects.requireNonNull(other, "other");
 
     final Optional<ZonedDateTime> a_opt = this.date();
     final Optional<ZonedDateTime> b_opt = other.date();
