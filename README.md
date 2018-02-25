@@ -4,6 +4,7 @@ zeptoblog
 [![Build Status](https://travis-ci.org/io7m/zeptoblog.png)](https://travis-ci.org/io7m/zeptoblog)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.io7m.zeptoblog/com.io7m.zeptoblog/badge.png)](https://maven-badges.herokuapp.com/maven-central/com.io7m.zeptoblog/com.io7m.zeptoblog)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/6589f45ce9894044b13940a85aaf555c)](https://www.codacy.com/app/github_79/zeptoblog?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=io7m/zeptoblog&amp;utm_campaign=Badge_Grade)
+[![Codecov](https://img.shields.io/codecov/c/github/io7m/zeptoblog.png?style=flat-square)](https://codecov.io/gh/io7m/zeptoblog)
 
 ![zeptoblog](./src/site/resources/zeptoblog.jpg?raw=true)
 
