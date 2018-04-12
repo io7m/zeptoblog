@@ -197,9 +197,9 @@ public final class ZXML
     throws TransformerException
   {
     transformer.setOutputProperty(
-      OutputKeys.INDENT, "yes");
+      OutputKeys.INDENT, "no");
     transformer.setOutputProperty(
-      "{http://xml.apache.org/xslt}indent-amount", "2");
+      "{http://xml.apache.org/xslt}indent-amount", "0");
     transformer.setOutputProperty(
       OutputKeys.OMIT_XML_DECLARATION, "yes");
 
