@@ -57,6 +57,7 @@ public final class ZGlossaryItemParserProvider implements
   ZGlossaryItemParserProviderType
 {
   private static final Logger LOG;
+  private static final String LINE_SEPARATOR = System.lineSeparator();
 
   static {
     LOG = LoggerFactory.getLogger(ZGlossaryItemParserProvider.class);
@@ -235,12 +236,12 @@ public final class ZGlossaryItemParserProvider implements
       } else {
         final StringBuilder sb = new StringBuilder(128);
         sb.append("Syntax error.");
-        sb.append(System.lineSeparator());
+        sb.append(LINE_SEPARATOR);
         sb.append("  Expected: related <term> <term>*");
-        sb.append(System.lineSeparator());
+        sb.append(LINE_SEPARATOR);
         sb.append("  Received: ");
         sb.append(line);
-        sb.append(System.lineSeparator());
+        sb.append(LINE_SEPARATOR);
         this.fail(sb.toString(), Optional.empty());
       }
     }
@@ -254,12 +255,12 @@ public final class ZGlossaryItemParserProvider implements
       } else {
         final StringBuilder sb = new StringBuilder(128);
         sb.append("Syntax error.");
-        sb.append(System.lineSeparator());
+        sb.append(LINE_SEPARATOR);
         sb.append("  Expected: format <format-name>");
-        sb.append(System.lineSeparator());
+        sb.append(LINE_SEPARATOR);
         sb.append("  Received: ");
         sb.append(line);
-        sb.append(System.lineSeparator());
+        sb.append(LINE_SEPARATOR);
         this.fail(sb.toString(), Optional.empty());
       }
     }
@@ -273,12 +274,12 @@ public final class ZGlossaryItemParserProvider implements
       } else {
         final StringBuilder sb = new StringBuilder(128);
         sb.append("Syntax error.");
-        sb.append(System.lineSeparator());
+        sb.append(LINE_SEPARATOR);
         sb.append("  Expected: term <text> <text>*");
-        sb.append(System.lineSeparator());
+        sb.append(LINE_SEPARATOR);
         sb.append("  Received: ");
         sb.append(line);
-        sb.append(System.lineSeparator());
+        sb.append(LINE_SEPARATOR);
         this.fail(sb.toString(), Optional.empty());
       }
     }

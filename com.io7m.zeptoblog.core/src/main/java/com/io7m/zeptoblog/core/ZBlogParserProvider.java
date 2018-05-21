@@ -146,7 +146,6 @@ public final class ZBlogParserProvider implements ZBlogParserProviderType
     public FileVisitResult preVisitDirectory(
       final Path dir,
       final BasicFileAttributes attrs)
-      throws IOException
     {
       return FileVisitResult.CONTINUE;
     }
@@ -192,7 +191,6 @@ public final class ZBlogParserProvider implements ZBlogParserProviderType
     public FileVisitResult visitFileFailed(
       final Path file,
       final IOException exc)
-      throws IOException
     {
       if (exc instanceof NoSuchFileException) {
         this.errors = this.errors.append(ZError.of(
@@ -213,7 +211,6 @@ public final class ZBlogParserProvider implements ZBlogParserProviderType
     public FileVisitResult postVisitDirectory(
       final Path dir,
       final IOException exc)
-      throws IOException
     {
       return FileVisitResult.CONTINUE;
     }

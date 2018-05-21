@@ -158,7 +158,6 @@ public final class ZGlossaryParserProvider
     public FileVisitResult preVisitDirectory(
       final Path dir,
       final BasicFileAttributes attrs)
-      throws IOException
     {
       return FileVisitResult.CONTINUE;
     }
@@ -196,20 +195,21 @@ public final class ZGlossaryParserProvider
           this.errors = this.errors.appendAll(r.getError());
         } else {
           final ZGlossaryItem item = r.get();
-
-          if (this.items.containsKey(item.term())) {
+          final String item_term = item.term();
+          if (this.items.containsKey(item_term)) {
             final StringBuilder sb = new StringBuilder(128);
             sb.append("Duplicate glossary item.");
-            sb.append(System.lineSeparator());
+            final String separator = System.lineSeparator();
+            sb.append(separator);
             sb.append("  Post term: ");
-            sb.append(item.term());
-            sb.append(System.lineSeparator());
+            sb.append(item_term);
+            sb.append(separator);
             this.errors.append(ZError.of(
               sb.toString(),
               LexicalPosition.of(0, 0, Optional.of(file)),
               Optional.empty()));
           } else {
-            this.items = this.items.put(item.term(), item);
+            this.items = this.items.put(item_term, item);
           }
         }
       }
@@ -219,7 +219,6 @@ public final class ZGlossaryParserProvider
     public FileVisitResult visitFileFailed(
       final Path file,
       final IOException exc)
-      throws IOException
     {
       if (exc instanceof NoSuchFileException) {
         this.errors = this.errors.append(ZError.of(
@@ -240,7 +239,6 @@ public final class ZGlossaryParserProvider
     public FileVisitResult postVisitDirectory(
       final Path dir,
       final IOException exc)
-      throws IOException
     {
       return FileVisitResult.CONTINUE;
     }

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter xmlns="https://github.com/spotbugs/filter/3.0.0">
+
+  <Match>
+    <Class name="~com\.io7m\.zeptoblog\..+\$InitShim"/>
+    <Or>
+      <Bug pattern="PME_POOR_MANS_ENUM"/>
+      <Bug pattern="SIC_INNER_SHOULD_BE_STATIC"/>
+      <Bug pattern="UPM_UNCALLED_PRIVATE_METHOD"/>
+    </Or>
+  </Match>
+
+  <Match>
+    <Class name="~com\.io7m\.zeptoblog\..+\$Builder"/>
+    <Or>
+      <Bug pattern="DLS_DEAD_LOCAL_STORE" />
+      <Bug pattern="ITC_INHERITANCE_TYPE_CHECKING"/>
+      <Bug pattern="PRMC_POSSIBLY_REDUNDANT_METHOD_CALLS"/>
+      <Bug pattern="FII_USE_FUNCTION_IDENTITY"/>
+    </Or>
+  </Match>
+
+  <Match>
+    <Or>
+      <Class name="com.io7m.zeptoblog.core.ZBlogConfiguration"/>
+      <Class name="com.io7m.zeptoblog.core.ZBlogPostBody"/>
+      <Class name="com.io7m.zeptoblog.core.ZBlogPostFormat"/>
+      <Class name="com.io7m.zeptoblog.core.ZBlogPost"/>
+      <Class name="com.io7m.zeptoblog.core.ZBlog"/>
+      <Class name="com.io7m.zeptoblog.core.ZError"/>
+      <Class name="com.io7m.zeptoblog.glossary.ZGlossary"/>
+      <Class name="com.io7m.zeptoblog.glossary.ZGlossaryItemBody"/>
+      <Class name="com.io7m.zeptoblog.glossary.ZGlossaryItem"/>
+    </Or>
+  </Match>
+
+  <!-- Trusted XSLT is loaded from class resources -->
+  <Match>
+    <Class name="com.io7m.zeptoblog.core.ZXML"/>
+    <Bug pattern="MALICIOUS_XSLT"/>
+  </Match>
+
+  <!-- False positive: Exception really is thrown -->
+  <Match>
+    <Class name="com.io7m.zeptoblog.core.ZBlogRendererProvider$Writer"/>
+    <Method name="generateYearlyPages"/>
+    <Bug pattern="REC_CATCH_EXCEPTION"/>
+  </Match>
+
+  <!-- Bad API gives no choice other than to do this -->
+  <Match>
+    <Class name="com.io7m.zeptoblog.commonmark.ZBlogPostFormatCommonMark$IndentedCodeBlockNodeRenderer"/>
+    <Bug pattern="ITC_INHERITANCE_TYPE_CHECKING"/>
+  </Match>
+
+  <Match>
+    <Class name="com.io7m.zeptoblog.core.ZBlogRendererProvider$Writer"/>
+    <Bug pattern="WEM_WEAK_EXCEPTION_MESSAGING"/>
+  </Match>
+
+  <Match>
+    <Or>
+      <Bug pattern="OCP_OVERLY_CONCRETE_PARAMETER"/>
+      <Bug pattern="IMC_IMMATURE_CLASS_NO_TOSTRING"/>
+      <Bug pattern="CRLF_INJECTION_LOGS"/>
+      <Bug pattern="OPM_OVERLY_PERMISSIVE_METHOD"/>
+      <Bug pattern="EXS_EXCEPTION_SOFTENING_NO_CHECKED"/>
+      <Bug pattern="EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS"/>
+      <Bug pattern="DM_CONVERT_CASE"/>
+
+      <!-- Modern versions of Java are not vulnerable to this issue -->
+      <Bug pattern="WEAK_FILENAMEUTILS"/>
+    </Or>
+  </Match>
+
+</FindBugsFilter>

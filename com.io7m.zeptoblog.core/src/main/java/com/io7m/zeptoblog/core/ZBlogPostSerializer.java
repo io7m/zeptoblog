@@ -47,23 +47,25 @@ public final class ZBlogPostSerializer implements ZBlogPostSerializerType
   {
     Objects.requireNonNull(post, "post");
 
+    final String separator = System.lineSeparator();
     final StringBuilder sb = new StringBuilder(128);
     sb.append("title ");
     sb.append(post.title());
-    sb.append(System.lineSeparator());
+    sb.append(separator);
 
     post.date().ifPresent(date -> {
       sb.append("date ");
       sb.append(date.format(this.formatter));
-      sb.append(System.lineSeparator());
+      sb.append(separator);
     });
 
     sb.append("format ");
-    sb.append(post.body().format());
-    sb.append(System.lineSeparator());
+    final ZBlogPostBody body = post.body();
+    sb.append(body.format());
+    sb.append(separator);
 
-    sb.append(System.lineSeparator());
-    sb.append(post.body().text());
+    sb.append(separator);
+    sb.append(body.text());
 
     return Validation.valid(sb.toString());
   }

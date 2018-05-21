@@ -74,12 +74,22 @@ public interface ZBlogPostType extends Comparable<ZBlogPostType>
 
     final Path source_xhtml;
     final Path parent = source_zbp.getParent();
+    final Path file_name = source_zbp.getFileName();
+
+    if (file_name == null) {
+      throw new IllegalStateException(
+        "Could not resolve a filename for path: " + source_zbp);
+    }
+
     if (parent != null) {
-      source_xhtml = parent.resolve(
-        source_zbp.getFileName().toString().replaceAll("\\.zbp", ".xhtml"));
+      source_xhtml =
+        parent.resolve(file_name.toString()
+                         .replaceAll("\\.zbp", ".xhtml"));
     } else {
-      source_xhtml = source_zbp.resolveSibling(
-        source_zbp.getFileName().toString().replaceAll("\\.zbp", ".xhtml"));
+      source_xhtml =
+        source_zbp.resolveSibling(
+          file_name.toString()
+            .replaceAll("\\.zbp", ".xhtml"));
     }
 
     return config.outputRoot().resolve(source_xhtml).toAbsolutePath();

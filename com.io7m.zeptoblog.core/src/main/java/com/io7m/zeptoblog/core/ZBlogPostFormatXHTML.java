@@ -93,7 +93,7 @@ public final class ZBlogPostFormatXHTML implements ZBlogPostFormatType
   {
     try (ByteArrayOutputStream bao = new ByteArrayOutputStream()) {
       ZXML.xmlSerializeElementToStream(bao, e);
-      return new String(bao.toByteArray(), UTF_8);
+      return bao.toString(UTF_8.name());
     } catch (final IOException | TransformerException | ParserConfigurationException ex) {
       throw new UnreachableCodeException(ex);
     }
@@ -108,7 +108,7 @@ public final class ZBlogPostFormatXHTML implements ZBlogPostFormatType
       try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
 
         ZXML.xmlTransformElementStream(output, e, is);
-        final String raw_text = new String(output.toByteArray(), UTF_8);
+        final String raw_text = output.toString(UTF_8.name());
         final String[] lines = raw_text.split("\\r?\\n");
         final StringBuilder text = new StringBuilder(256);
         text.setLength(0);
@@ -148,17 +148,18 @@ public final class ZBlogPostFormatXHTML implements ZBlogPostFormatType
     Objects.requireNonNull(path, "Path");
     Objects.requireNonNull(body, "Body");
 
+    final String separator = System.lineSeparator();
     try (StringWriter writer = new StringWriter(1024)) {
       writer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-      writer.append(System.lineSeparator());
+      writer.append(separator);
       writer.append("<div xmlns=\"");
       writer.append(XHTML_URI_TEXT);
       writer.append("\">");
-      writer.append(System.lineSeparator());
+      writer.append(separator);
       writer.append(body);
-      writer.append(System.lineSeparator());
+      writer.append(separator);
       writer.append("</div>");
-      writer.append(System.lineSeparator());
+      writer.append(separator);
       writer.flush();
 
       try (InputStream stream =

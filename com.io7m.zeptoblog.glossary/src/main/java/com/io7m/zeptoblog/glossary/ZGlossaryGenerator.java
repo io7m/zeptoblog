@@ -234,17 +234,19 @@ public final class ZGlossaryGenerator implements ZBlogPostGeneratorType
       final ZGlossaryItem item,
       final Element e_body)
     {
-      LOG.trace("transformItemEnclose: {}", item.term());
+      final String item_term = item.term();
+      LOG.trace("transformItemEnclose: {}", item_term);
 
-      final Element e_container = document.createElementNS(
-        XHTML_URI_TEXT,
-        "div");
+      final Element e_container =
+        document.createElementNS(XHTML_URI_TEXT, "div");
+
       e_container.setAttribute("class", "zb_glossary_item");
+      final String item_target_id = item.targetID();
       e_container.appendChild(title(
         document,
         "h3",
-        item.targetID(),
-        item.term()));
+        item_target_id,
+        item_term));
 
       final Document elem_document = e_container.getOwnerDocument();
       e_container.appendChild(elem_document.importNode(e_body, true));
@@ -257,9 +259,8 @@ public final class ZGlossaryGenerator implements ZBlogPostGeneratorType
         e_related.appendChild(document.createTextNode("See: "));
 
         related.forEach(term -> {
-          final String r_id = item.targetID();
           final Element e_link = document.createElementNS(XHTML_URI_TEXT, "a");
-          e_link.setAttribute("href", "#" + r_id);
+          e_link.setAttribute("href", "#" + item_target_id);
           e_link.setTextContent(term);
           e_related.appendChild(e_link);
           e_related.appendChild(document.createTextNode(" "));

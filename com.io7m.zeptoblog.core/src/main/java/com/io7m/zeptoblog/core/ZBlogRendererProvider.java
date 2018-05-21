@@ -16,8 +16,43 @@
 
 package com.io7m.zeptoblog.core;
 
-import static com.io7m.zeptoblog.core.ZBlogPostFormatXHTML.XHTML_URI_TEXT;
+import com.io7m.jaffirm.core.Preconditions;
+import com.io7m.jlexing.core.LexicalPosition;
+import com.rometools.rome.feed.atom.Content;
+import com.rometools.rome.feed.synd.SyndContent;
+import com.rometools.rome.feed.synd.SyndContentImpl;
+import com.rometools.rome.feed.synd.SyndEntry;
+import com.rometools.rome.feed.synd.SyndEntryImpl;
+import com.rometools.rome.feed.synd.SyndFeed;
+import com.rometools.rome.feed.synd.SyndFeedImpl;
+import com.rometools.rome.io.FeedException;
+import com.rometools.rome.io.SyndFeedOutput;
+import io.vavr.Tuple2;
+import io.vavr.collection.Iterator;
+import io.vavr.collection.Seq;
+import io.vavr.collection.SortedMap;
+import io.vavr.collection.Vector;
+import io.vavr.control.Option;
+import io.vavr.control.Validation;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -40,45 +75,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
-import com.io7m.jaffirm.core.Preconditions;
-import com.io7m.jlexing.core.LexicalPosition;
-import com.rometools.rome.feed.atom.Content;
-import com.rometools.rome.feed.synd.SyndContent;
-import com.rometools.rome.feed.synd.SyndContentImpl;
-import com.rometools.rome.feed.synd.SyndEntry;
-import com.rometools.rome.feed.synd.SyndEntryImpl;
-import com.rometools.rome.feed.synd.SyndFeed;
-import com.rometools.rome.feed.synd.SyndFeedImpl;
-import com.rometools.rome.io.FeedException;
-import com.rometools.rome.io.SyndFeedOutput;
-
-import io.vavr.Tuple2;
-import io.vavr.collection.Iterator;
-import io.vavr.collection.Seq;
-import io.vavr.collection.SortedMap;
-import io.vavr.collection.Vector;
-import io.vavr.control.Option;
-import io.vavr.control.Validation;
+import static com.io7m.zeptoblog.core.ZBlogPostFormatXHTML.XHTML_URI_TEXT;
 
 /**
  * The default blog writer provider.
@@ -130,7 +127,6 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
   private static final class Page
   {
     private final Document document;
-    private final Element header;
     private final Element content;
     private final Element footer;
 
@@ -141,7 +137,6 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
       final Element in_footer)
     {
       this.document = in_document;
-      this.header = in_header;
       this.content = in_content;
       this.footer = in_footer;
     }
@@ -367,13 +362,26 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
         e_tr.appendChild(e_td1);
 
         final String replaced =
-          current_file.toString().replaceAll("\\.xhtml$", ".xhtml.asc");
-        final Path absolute =
-          current_file.getFileSystem().getPath(replaced).toAbsolutePath();
-        final Path relative =
-          this.config.outputRoot().toAbsolutePath().relativize(absolute);
+          current_file.toString()
+            .replaceAll("\\.xhtml$", ".xhtml.asc");
 
-        final String sig_name = relative.getFileName().toString();
+        final Path absolute =
+          current_file.getFileSystem()
+            .getPath(replaced)
+            .toAbsolutePath();
+
+        final Path relative =
+          this.config.outputRoot()
+            .toAbsolutePath()
+            .relativize(absolute);
+
+        final Path sig_file_name = relative.getFileName();
+        if (sig_file_name == null) {
+          throw new IllegalStateException(
+            "Could not resolve a filename for: " + relative);
+        }
+
+        final String sig_name = sig_file_name.toString();
         final Element e_a = document.createElementNS(XHTML_URI_TEXT, "a");
         e_a.setAttribute("href", "/" + relative.toString());
         e_a.setTextContent(sig_name);
@@ -515,8 +523,13 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
       LOG.debug("out: yearly {}", out_xhtml);
 
       try {
-        Files.createDirectories(out_xhtml.getParent());
+        final Path parent = out_xhtml.getParent();
+        if (parent == null) {
+          throw new IllegalStateException(
+            "Could not resolve the parent path of: " + out_xhtml);
+        }
 
+        Files.createDirectories(parent);
         try (OutputStream output = Files.newOutputStream(out_xhtml)) {
           final Page page = this.page(out_xhtml, sb.toString());
 
@@ -550,22 +563,21 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
       e.appendChild(e_table);
 
       for (final ZBlogPost p : posts) {
+        final Optional<ZonedDateTime> date_opt = p.date();
         Preconditions.checkPrecondition(
-          p.date().isPresent(), "Post must have a date");
+          date_opt.isPresent(), "Post must have a date");
 
         final Element e_tr = document.createElementNS(XHTML_URI_TEXT, "tr");
         e_table.appendChild(e_tr);
 
-        final Element e_td_date = document.createElementNS(
-          XHTML_URI_TEXT,
-          "td");
+        final Element e_td_date =
+          document.createElementNS(XHTML_URI_TEXT, "td");
         e_tr.appendChild(e_td_date);
-        e_td_date.setTextContent(p.date().get().format(this.format_date));
+        e_td_date.setTextContent(date_opt.get().format(this.format_date));
         e_td_date.setAttribute("class", "zb_post_date");
 
-        final Element e_td_title = document.createElementNS(
-          XHTML_URI_TEXT,
-          "td");
+        final Element e_td_title =
+          document.createElementNS(XHTML_URI_TEXT, "td");
         e_tr.appendChild(e_td_title);
 
         final Element e_a = document.createElementNS(XHTML_URI_TEXT, "a");
@@ -679,12 +691,18 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
         sb.append(this.config.title());
         sb.append(": Page ");
         sb.append(page_human);
-        sb.append("/");
+        sb.append('/');
         sb.append(pages.size());
         LOG.debug("out: segmented {}", out_xhtml);
 
         try {
-          Files.createDirectories(out_xhtml.getParent());
+          final Path parent = out_xhtml.getParent();
+          if (parent == null) {
+            throw new IllegalStateException(
+              "Could not resolve the parent path of: " + out_xhtml);
+          }
+
+          Files.createDirectories(parent);
           try (OutputStream output = Files.newOutputStream(out_xhtml)) {
             final Page page = this.page(out_xhtml, sb.toString());
 
@@ -720,7 +738,13 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
         LOG.debug("out: permalink {}", out_xhtml);
 
         try {
-          Files.createDirectories(out_xhtml.getParent());
+          final Path parent = out_xhtml.getParent();
+          if (parent == null) {
+            throw new IllegalStateException(
+              "Could not resolve the parent path of: " + out_xhtml);
+          }
+
+          Files.createDirectories(parent);
           try (OutputStream output = Files.newOutputStream(out_xhtml)) {
             final Page page = this.page(out_xhtml, sb.toString());
             page.content.appendChild(this.writePost(page.document, post));
@@ -854,7 +878,6 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
     public FileVisitResult preVisitDirectory(
       final Path dir,
       final BasicFileAttributes attrs)
-      throws IOException
     {
       return FileVisitResult.CONTINUE;
     }
@@ -886,7 +909,6 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
     public FileVisitResult visitFileFailed(
       final Path file,
       final IOException exc)
-      throws IOException
     {
       this.failException(file, exc);
       return FileVisitResult.CONTINUE;
@@ -896,7 +918,6 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
     public FileVisitResult postVisitDirectory(
       final Path dir,
       final IOException exc)
-      throws IOException
     {
       return FileVisitResult.CONTINUE;
     }

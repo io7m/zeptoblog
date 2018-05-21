@@ -27,6 +27,7 @@ import org.immutables.vavr.encodings.VavrEncodingEnabled;
 
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -61,8 +62,9 @@ public interface ZBlogType
   {
     SortedMap<ZonedDateTime, ZBlogPost> results = TreeMap.empty();
     for (final ZBlogPost post : this.posts().values()) {
-      if (post.date().isPresent()) {
-        results = results.put(post.date().get(), post);
+      final Optional<ZonedDateTime> date_opt = post.date();
+      if (date_opt.isPresent()) {
+        results = results.put(date_opt.get(), post);
       }
     }
 

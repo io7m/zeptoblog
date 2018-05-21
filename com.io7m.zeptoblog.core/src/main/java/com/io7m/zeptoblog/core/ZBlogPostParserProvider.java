@@ -239,14 +239,15 @@ public final class ZBlogPostParserProvider implements
           this.fail(e.getMessage(), Optional.of(e));
         }
       } else {
+        final String separator = System.lineSeparator();
         final StringBuilder sb = new StringBuilder(128);
         sb.append("Syntax error.");
-        sb.append(System.lineSeparator());
+        sb.append(separator);
         sb.append("  Expected: date <date>");
-        sb.append(System.lineSeparator());
+        sb.append(separator);
         sb.append("  Received: ");
         sb.append(line);
-        sb.append(System.lineSeparator());
+        sb.append(separator);
         this.fail(sb.toString(), Optional.empty());
       }
     }
@@ -259,13 +260,14 @@ public final class ZBlogPostParserProvider implements
         this.format_name = tokens.get(1);
       } else {
         final StringBuilder sb = new StringBuilder(128);
+        final String separator = System.lineSeparator();
         sb.append("Syntax error.");
-        sb.append(System.lineSeparator());
+        sb.append(separator);
         sb.append("  Expected: format <format-name>");
-        sb.append(System.lineSeparator());
+        sb.append(separator);
         sb.append("  Received: ");
         sb.append(line);
-        sb.append(System.lineSeparator());
+        sb.append(separator);
         this.fail(sb.toString(), Optional.empty());
       }
     }
@@ -278,13 +280,14 @@ public final class ZBlogPostParserProvider implements
         this.title = tokens.tail().collect(Collectors.joining(" "));
       } else {
         final StringBuilder sb = new StringBuilder(128);
+        final String separator = System.lineSeparator();
         sb.append("Syntax error.");
-        sb.append(System.lineSeparator());
+        sb.append(separator);
         sb.append("  Expected: title <text> <text>*");
-        sb.append(System.lineSeparator());
+        sb.append(separator);
         sb.append("  Received: ");
         sb.append(line);
-        sb.append(System.lineSeparator());
+        sb.append(separator);
         this.fail(sb.toString(), Optional.empty());
       }
     }

@@ -94,13 +94,14 @@ public final class ZBlogPostGeneratorExecutor
     final ZBlogPost post,
     final String text)
   {
-    LOG.debug("writing {}", post.path());
+    final Path path = post.path();
+    LOG.debug("writing {}", path);
 
     try {
-      Files.write(post.path(), text.getBytes(StandardCharsets.UTF_8));
+      Files.write(path, text.getBytes(StandardCharsets.UTF_8));
       return valid(null);
     } catch (final IOException e) {
-      return invalid(List.of(ZErrors.ofExceptionPath(e, post.path())));
+      return invalid(List.of(ZErrors.ofExceptionPath(e, path)));
     }
   }
 

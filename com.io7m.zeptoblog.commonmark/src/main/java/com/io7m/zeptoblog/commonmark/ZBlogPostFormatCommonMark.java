@@ -48,7 +48,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.file.Path;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -103,7 +103,7 @@ public final class ZBlogPostFormatCommonMark implements ZBlogPostFormatType
     final Parser parser = Parser.builder().build();
     final Node document = parser.parse(body);
     final List<Extension> extensions =
-      Arrays.asList(HeadingAnchorExtension.create());
+      Collections.singletonList(HeadingAnchorExtension.create());
 
     final HtmlRenderer renderer =
       HtmlRenderer.builder()
@@ -113,10 +113,11 @@ public final class ZBlogPostFormatCommonMark implements ZBlogPostFormatType
 
     try (StringWriter writer = new StringWriter(1024)) {
       writer.append("<div xmlns=\"http://www.w3.org/1999/xhtml\">");
-      writer.append(System.lineSeparator());
+      final String separator = System.lineSeparator();
+      writer.append(separator);
       renderer.render(document, writer);
       writer.append("</div>");
-      writer.append(System.lineSeparator());
+      writer.append(separator);
       writer.flush();
 
       try (InputStream stream =
