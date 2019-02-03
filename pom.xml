@@ -29,6 +29,9 @@
   <properties>
     <io7m.api.previousVersion>0.4.0-SNAPSHOT</io7m.api.previousVersion>
     <io7m.org.immutables.version>2.6.0</io7m.org.immutables.version>
+
+    <!-- Skip baseline until the first Maven Central release -->
+    <bnd.baseline.skip>true</bnd.baseline.skip>
   </properties>
 
   <licenses>
@@ -207,14 +210,14 @@
   <build>
     <pluginManagement>
       <plugins>
-        <!-- Require JDK >= 9 -->
+        <!-- Require JDK >= 11 -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <configuration>
-            <source>9</source>
-            <target>9</target>
-            <release>9</release>
+            <source>11</source>
+            <target>11</target>
+            <release>11</release>
             <annotationProcessorPaths>
               <dependency>
                 <groupId>org.immutables</groupId>
