@@ -124,7 +124,7 @@ public final class ZBlogMain implements Runnable
       final String cmd = this.commander.getParsedCommand();
       if (cmd == null) {
         final StringBuilder sb = new StringBuilder(128);
-        this.commander.usage(sb);
+        this.commander.usage();
         LOG.info("Arguments required.\n{}", sb.toString());
         return;
       }
@@ -133,9 +133,8 @@ public final class ZBlogMain implements Runnable
       command.call();
 
     } catch (final ParameterException e) {
-      final StringBuilder sb = new StringBuilder(128);
-      this.commander.usage(sb);
-      LOG.error("{}\n{}", e.getMessage(), sb.toString());
+      LOG.error("error: ", e);
+      this.commander.usage();
       this.exit_code = 1;
     } catch (final Exception e) {
       LOG.error("{}", e.getMessage(), e);

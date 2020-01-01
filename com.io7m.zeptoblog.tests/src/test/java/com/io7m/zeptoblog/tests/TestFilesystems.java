@@ -39,7 +39,7 @@ public final class TestFilesystems
       final MemoryFileSystemBuilder base = MemoryFileSystemBuilder.newEmpty();
       base.addRoot("/");
       base.setCurrentWorkingDirectory("/");
-      base.setSeprator("/");
+      base.setSeparator("/");
       base.addUser(user);
       base.addGroup(user);
       base.addFileAttributeView(PosixFileAttributeView.class);
@@ -59,7 +59,7 @@ public final class TestFilesystems
       final String user = "Administrator";
       final MemoryFileSystemBuilder base = MemoryFileSystemBuilder.newEmpty();
       base.addRoot("C:\\");
-      base.setSeprator("\\");
+      base.setSeparator("\\");
       base.addUser(user);
       base.addGroup(user);
       base.addFileAttributeView(DosFileAttributeView.class);
