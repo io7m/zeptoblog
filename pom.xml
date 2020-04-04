@@ -30,6 +30,7 @@
   <properties>
     <io7m.api.previousVersion>0.4.0-SNAPSHOT</io7m.api.previousVersion>
     <io7m.org.immutables.version>2.6.0</io7m.org.immutables.version>
+    <commonmark.version>0.14.0</commonmark.version>
   </properties>
 
   <licenses>
@@ -110,12 +111,12 @@
       <dependency>
         <groupId>com.atlassian.commonmark</groupId>
         <artifactId>commonmark</artifactId>
-        <version>0.13.1</version>
+        <version>${commonmark.version}</version>
       </dependency>
       <dependency>
         <groupId>com.atlassian.commonmark</groupId>
         <artifactId>commonmark-ext-heading-anchor</artifactId>
-        <version>0.13.1</version>
+        <version>${commonmark.version}</version>
       </dependency>
       <dependency>
         <groupId>org.osgi</groupId>
