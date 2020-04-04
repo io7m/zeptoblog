@@ -16,9 +16,9 @@
 
 package com.io7m.zeptoblog.core;
 
-import javaslang.collection.Seq;
-import javaslang.collection.SortedMap;
-import javaslang.control.Validation;
+import io.vavr.collection.Seq;
+import io.vavr.collection.SortedMap;
+import io.vavr.control.Validation;
 import org.osgi.annotation.versioning.ProviderType;
 
 import java.nio.file.Path;

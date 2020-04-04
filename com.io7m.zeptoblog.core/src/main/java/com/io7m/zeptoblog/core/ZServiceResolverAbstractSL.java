@@ -17,13 +17,13 @@
 package com.io7m.zeptoblog.core;
 
 
-import com.io7m.jnull.NullCheck;
-import javaslang.collection.HashSet;
-import javaslang.collection.Set;
+import io.vavr.collection.HashSet;
+import io.vavr.collection.Set;
 import org.osgi.service.component.annotations.Component;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
@@ -62,7 +62,7 @@ public abstract class ZServiceResolverAbstractSL<T extends ZServiceType>
   public final Optional<T> resolve(
     final String name)
   {
-    NullCheck.notNull(name, "name");
+    Objects.requireNonNull(name, "name");
     return Optional.ofNullable(this.services.get(name));
   }
 

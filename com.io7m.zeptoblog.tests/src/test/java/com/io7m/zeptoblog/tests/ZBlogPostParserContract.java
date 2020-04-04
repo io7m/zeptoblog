@@ -23,10 +23,8 @@ import com.io7m.zeptoblog.core.ZBlogPost;
 import com.io7m.zeptoblog.core.ZBlogPostParserProviderType;
 import com.io7m.zeptoblog.core.ZBlogPostParserType;
 import com.io7m.zeptoblog.core.ZError;
-import com.io7m.zeptoblog.glossary.ZGlossaryItem;
-import javaslang.collection.HashSet;
-import javaslang.collection.Seq;
-import javaslang.control.Validation;
+import io.vavr.collection.Seq;
+import io.vavr.control.Validation;
 import org.hamcrest.core.StringContains;
 import org.junit.Assert;
 import org.junit.Test;
@@ -79,13 +77,13 @@ public abstract class ZBlogPostParserContract
 
     final ZBlogPostParserProviderType p_prov = this.createParserProvider();
 
-    try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-      try (final BufferedWriter w = writer(os)) {
+    try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+      try (BufferedWriter w = writer(os)) {
         w.write("");
         w.flush();
       }
 
-      try (final ByteArrayInputStream is = byteStream(os)) {
+      try (ByteArrayInputStream is = byteStream(os)) {
         final ZBlogPostParserType p =
           p_prov.createParser(config, is, Paths.get("/x/y/z"));
 
@@ -112,14 +110,14 @@ public abstract class ZBlogPostParserContract
 
     final ZBlogPostParserProviderType p_prov = this.createParserProvider();
 
-    try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-      try (final BufferedWriter w = writer(os)) {
+    try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+      try (BufferedWriter w = writer(os)) {
         w.write("date");
         w.newLine();
         w.flush();
       }
 
-      try (final ByteArrayInputStream is = byteStream(os)) {
+      try (ByteArrayInputStream is = byteStream(os)) {
         final ZBlogPostParserType p =
           p_prov.createParser(config, is, Paths.get("/x/y/z"));
 
@@ -139,14 +137,14 @@ public abstract class ZBlogPostParserContract
 
     final ZBlogPostParserProviderType p_prov = this.createParserProvider();
 
-    try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-      try (final BufferedWriter w = writer(os)) {
+    try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+      try (BufferedWriter w = writer(os)) {
         w.write("date 2010");
         w.newLine();
         w.flush();
       }
 
-      try (final ByteArrayInputStream is = byteStream(os)) {
+      try (ByteArrayInputStream is = byteStream(os)) {
         final ZBlogPostParserType p =
           p_prov.createParser(config, is, Paths.get("/x/y/z"));
 
@@ -166,14 +164,14 @@ public abstract class ZBlogPostParserContract
 
     final ZBlogPostParserProviderType p_prov = this.createParserProvider();
 
-    try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-      try (final BufferedWriter w = writer(os)) {
+    try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+      try (BufferedWriter w = writer(os)) {
         w.write("title");
         w.newLine();
         w.flush();
       }
 
-      try (final ByteArrayInputStream is = byteStream(os)) {
+      try (ByteArrayInputStream is = byteStream(os)) {
         final ZBlogPostParserType p =
           p_prov.createParser(config, is, Paths.get("/x/y/z"));
 
@@ -193,14 +191,14 @@ public abstract class ZBlogPostParserContract
 
     final ZBlogPostParserProviderType p_prov = this.createParserProvider();
 
-    try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-      try (final BufferedWriter w = writer(os)) {
+    try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+      try (BufferedWriter w = writer(os)) {
         w.write("format");
         w.newLine();
         w.flush();
       }
 
-      try (final ByteArrayInputStream is = byteStream(os)) {
+      try (ByteArrayInputStream is = byteStream(os)) {
         final ZBlogPostParserType p =
           p_prov.createParser(config, is, Paths.get("/x/y/z"));
 
@@ -220,21 +218,22 @@ public abstract class ZBlogPostParserContract
 
     final ZBlogPostParserProviderType p_prov = this.createParserProvider();
 
-    try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-      try (final BufferedWriter w = writer(os)) {
+    try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+      try (BufferedWriter w = writer(os)) {
         w.newLine();
         w.newLine();
         w.flush();
       }
 
-      try (final ByteArrayInputStream is = byteStream(os)) {
+      try (ByteArrayInputStream is = byteStream(os)) {
         final ZBlogPostParserType p =
           p_prov.createParser(config, is, Paths.get("/x/y/z"));
 
         final Validation<Seq<ZError>, ZBlogPost> r = p.parse();
         dumpResult(r);
         Assert.assertTrue(r.isInvalid());
-        Assert.assertTrue(r.getError().get(0).message().contains("Title not specified"));
+        Assert.assertTrue(r.getError().get(0).message().contains(
+          "Title not specified"));
       }
     }
   }
@@ -247,8 +246,8 @@ public abstract class ZBlogPostParserContract
 
     final ZBlogPostParserProviderType p_prov = this.createParserProvider();
 
-    try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-      try (final BufferedWriter w = writer(os)) {
+    try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+      try (BufferedWriter w = writer(os)) {
         w.write("title A");
         w.newLine();
         w.write("date 2017-01-01T00:01:02+0000");
@@ -261,7 +260,7 @@ public abstract class ZBlogPostParserContract
         w.flush();
       }
 
-      try (final ByteArrayInputStream is = byteStream(os)) {
+      try (ByteArrayInputStream is = byteStream(os)) {
         final ZBlogPostParserType p =
           p_prov.createParser(config, is, Paths.get("/x/y/z"));
 
@@ -272,7 +271,9 @@ public abstract class ZBlogPostParserContract
         final ZBlogPost i = r.get();
         Assert.assertEquals("A", i.title());
         Assert.assertEquals("F", i.body().format());
-        Assert.assertThat(i.body().text(), StringContains.containsString("Hello."));
+        Assert.assertThat(
+          i.body().text(),
+          StringContains.containsString("Hello."));
       }
     }
   }
@@ -285,8 +286,8 @@ public abstract class ZBlogPostParserContract
 
     final ZBlogPostParserProviderType p_prov = this.createParserProvider();
 
-    try (final ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-      try (final BufferedWriter w = writer(os)) {
+    try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+      try (BufferedWriter w = writer(os)) {
         w.write("title A");
         w.newLine();
         w.write("date 2017-01-01T00:01:02+0000");
@@ -297,7 +298,7 @@ public abstract class ZBlogPostParserContract
         w.flush();
       }
 
-      try (final ByteArrayInputStream is = byteStream(os)) {
+      try (ByteArrayInputStream is = byteStream(os)) {
         final ZBlogPostParserType p =
           p_prov.createParser(config, is, Paths.get("/x/y/z"));
 
@@ -308,7 +309,9 @@ public abstract class ZBlogPostParserContract
         final ZBlogPost i = r.get();
         Assert.assertEquals("A", i.title());
         Assert.assertEquals(ZBlogPostFormatCommonMark.NAME, i.body().format());
-        Assert.assertThat(i.body().text(), StringContains.containsString("Hello."));
+        Assert.assertThat(
+          i.body().text(),
+          StringContains.containsString("Hello."));
       }
     }
   }

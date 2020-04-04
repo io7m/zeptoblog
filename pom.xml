@@ -1,20 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>com.io7m.primogenitor</groupId>
-    <artifactId>com.io7m.primogenitor</artifactId>
-    <version>0.0.3</version>
+    <artifactId>com.io7m.primogenitor.full</artifactId>
+    <version>3.9.0</version>
   </parent>
 
   <groupId>com.io7m.zeptoblog</groupId>
   <artifactId>com.io7m.zeptoblog</artifactId>
-  <version>0.3.0</version>
+  <version>0.4.0</version>
 
   <packaging>pom</packaging>
   <name>com.io7m.zeptoblog</name>
@@ -22,7 +20,6 @@
   <url>http://github.com/io7m/zeptoblog</url>
 
   <modules>
-    <module>com.io7m.zeptoblog.checkstyle</module>
     <module>com.io7m.zeptoblog.cmdline</module>
     <module>com.io7m.zeptoblog.commonmark</module>
     <module>com.io7m.zeptoblog.core</module>
@@ -31,9 +28,9 @@
   </modules>
 
   <properties>
-    <io7m.checkstyle.artifact>com.io7m.zeptoblog.checkstyle</io7m.checkstyle.artifact>
-    <io7m.checkstyle.path>/com/io7m/zeptoblog/checkstyle/checkstyle.xml</io7m.checkstyle.path>
-    <io7m.api.previousVersion>0.3.0</io7m.api.previousVersion>
+    <io7m.api.previousVersion>0.4.0</io7m.api.previousVersion>
+    <io7m.org.immutables.version>2.8.3</io7m.org.immutables.version>
+    <commonmark.version>0.14.0</commonmark.version>
   </properties>
 
   <licenses>
@@ -65,14 +62,18 @@
 
   <distributionManagement>
     <site>
-      <id>GitHub</id>
-      <name>GitHub</name>
-      <url>https://github.com/io7m/zeptoblog</url>
+      <id>io7m.com</id>
+      <name>io7m.com</name>
+      <url>https://www.io7m.com/software/zeptoblog</url>
     </site>
     <repository>
       <id>sonatype-nexus-staging</id>
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
+    <snapshotRepository>
+      <id>sonatype-nexus-snapshots</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </snapshotRepository>
   </distributionManagement>
 
   <ciManagement>
@@ -87,55 +88,40 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>com.io7m.jnull</groupId>
-        <artifactId>io7m-jnull-core</artifactId>
-        <version>[1.0.0, 2.0.0)</version>
-      </dependency>
-      <dependency>
         <groupId>com.io7m.junreachable</groupId>
-        <artifactId>io7m-junreachable-core</artifactId>
-        <version>[1.0.0, 2.0.0)</version>
-      </dependency>
-      <dependency>
-        <groupId>com.io7m.jfunctional</groupId>
-        <artifactId>io7m-jfunctional-core</artifactId>
-        <version>[1.0.0, 2.0.0)</version>
+        <artifactId>com.io7m.junreachable.core</artifactId>
+        <version>3.0.0</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.jproperties</groupId>
-        <artifactId>io7m-jproperties-core</artifactId>
-        <version>[1.0.2, 2.0.0)</version>
+        <artifactId>com.io7m.jproperties.core</artifactId>
+        <version>2.0.0</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.jlexing</groupId>
-        <artifactId>io7m-jlexing-core</artifactId>
-        <version>0.2.0</version>
+        <artifactId>com.io7m.jlexing.core</artifactId>
+        <version>2.0.0</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.jaffirm</groupId>
-        <artifactId>io7m-jaffirm-core</artifactId>
-        <version>[1.0.0, 2.0.0)</version>
+        <artifactId>com.io7m.jaffirm.core</artifactId>
+        <version>3.0.4</version>
       </dependency>
 
       <dependency>
         <groupId>com.atlassian.commonmark</groupId>
         <artifactId>commonmark</artifactId>
-        <version>0.8.0</version>
+        <version>${commonmark.version}</version>
       </dependency>
       <dependency>
         <groupId>com.atlassian.commonmark</groupId>
         <artifactId>commonmark-ext-heading-anchor</artifactId>
-        <version>0.8.0</version>
-      </dependency>
-      <dependency>
-        <groupId>com.io7m.xom</groupId>
-        <artifactId>xom</artifactId>
-        <version>1.2.10</version>
+        <version>${commonmark.version}</version>
       </dependency>
       <dependency>
         <groupId>org.osgi</groupId>
         <artifactId>org.osgi.service.component.annotations</artifactId>
-        <version>1.3.0</version>
+        <version>1.4.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -145,76 +131,77 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>io.javaslang</groupId>
-        <artifactId>javaslang</artifactId>
-        <version>2.1.0-alpha</version>
+        <groupId>io.vavr</groupId>
+        <artifactId>vavr</artifactId>
+        <version>1.0.0-alpha-3</version>
       </dependency>
       <dependency>
         <groupId>org.immutables</groupId>
         <artifactId>value</artifactId>
-        <version>2.4.0</version>
+        <version>${io7m.org.immutables.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.immutables.javaslang</groupId>
-        <artifactId>javaslang-encodings</artifactId>
-        <version>0.2.0</version>
+        <groupId>org.immutables.vavr</groupId>
+        <artifactId>vavr-encodings</artifactId>
+        <version>0.6.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>1.7.22</version>
+        <version>2.0.0-alpha1</version>
       </dependency>
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.1.8</version>
+        <version>1.3.0-alpha5</version>
       </dependency>
       <dependency>
         <groupId>com.beust</groupId>
         <artifactId>jcommander</artifactId>
-        <version>1.58</version>
+        <version>1.78</version>
       </dependency>
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
-        <version>2.5</version>
+        <version>2.6</version>
       </dependency>
       <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
-        <version>1.10</version>
+        <version>1.14</version>
       </dependency>
       <dependency>
         <groupId>com.rometools</groupId>
         <artifactId>rome</artifactId>
-        <version>1.7.1</version>
+        <version>1.12.2</version>
       </dependency>
 
       <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest-core</artifactId>
+        <version>2.2</version>
+      </dependency>
+      <dependency>
         <groupId>com.github.marschall</groupId>
         <artifactId>memoryfilesystem</artifactId>
-        <version>0.9.0</version>
-        <scope>test</scope>
+        <version>2.1.0</version>
       </dependency>
       <dependency>
         <groupId>org.jmockit</groupId>
         <artifactId>jmockit</artifactId>
-        <version>1.30</version>
-        <scope>test</scope>
+        <version>1.49</version>
       </dependency>
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <version>4.12</version>
-        <scope>test</scope>
+        <version>4.13</version>
       </dependency>
       <dependency>
         <groupId>net.java.quickcheck</groupId>
         <artifactId>quickcheck</artifactId>
         <version>0.6</version>
-        <scope>test</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -222,23 +209,40 @@
   <build>
     <pluginManagement>
       <plugins>
-        <!-- Check style -->
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-checkstyle-plugin</artifactId>
-        </plugin>
-
-        <!-- Require JDK >= 1.8 -->
+        <!-- Configure compiler -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <configuration>
-            <source>1.8</source>
-            <target>1.8</target>
+            <annotationProcessorPaths>
+              <dependency>
+                <groupId>org.immutables</groupId>
+                <artifactId>value</artifactId>
+                <version>${io7m.org.immutables.version}</version>
+              </dependency>
+            </annotationProcessorPaths>
+          </configuration>
+        </plugin>
+
+        <!-- Spot bugs -->
+        <plugin>
+          <groupId>com.github.spotbugs</groupId>
+          <artifactId>spotbugs-maven-plugin</artifactId>
+          <configuration>
+            <excludeFilterFile>spotbugs-filter.xml</excludeFilterFile>
           </configuration>
         </plugin>
       </plugins>
     </pluginManagement>
+
+    <plugins>
+      <!-- Generate a site -->
+      <plugin>
+        <groupId>com.io7m.minisite</groupId>
+        <artifactId>com.io7m.minisite.maven_plugin</artifactId>
+        <inherited>false</inherited>
+      </plugin>
+    </plugins>
   </build>
 
 </project>

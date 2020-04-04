@@ -16,9 +16,8 @@
 
 package com.io7m.zeptoblog.core;
 
-import com.io7m.jnull.NullCheck;
-import javaslang.collection.HashSet;
-import javaslang.collection.Set;
+import io.vavr.collection.HashSet;
+import io.vavr.collection.Set;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -26,6 +25,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -85,7 +85,7 @@ public abstract class ZServiceResolverAbstractOSGi<T extends ZServiceType>
   public final Optional<T> resolve(
     final String name)
   {
-    NullCheck.notNull(name, "name");
+    Objects.requireNonNull(name, "name");
     return Optional.ofNullable(this.services.get(name));
   }
 

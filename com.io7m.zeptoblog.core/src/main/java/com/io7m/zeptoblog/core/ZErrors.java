@@ -18,7 +18,6 @@ package com.io7m.zeptoblog.core;
 
 import com.io7m.jlexing.core.LexicalPosition;
 import com.io7m.junreachable.UnreachableCodeException;
-import nu.xom.ParsingException;
 
 import java.nio.file.Path;
 import java.util.Optional;
@@ -103,28 +102,6 @@ public final class ZErrors
     return ZError.of(
       e.getMessage(),
       LexicalPosition.of(0, 0, Optional.of(p)),
-      Optional.of(e));
-  }
-
-  /**
-   * Construct an error from the given exception.
-   *
-   * @param e The exception
-   * @param p The associated path
-   *
-   * @return An error
-   */
-
-  public static ZError ofExceptionParse(
-    final ParsingException e,
-    final Path p)
-  {
-    return ZError.of(
-      e.getMessage(),
-      LexicalPosition.of(
-        e.getLineNumber(),
-        e.getColumnNumber(),
-        Optional.of(p)),
       Optional.of(e));
   }
 }

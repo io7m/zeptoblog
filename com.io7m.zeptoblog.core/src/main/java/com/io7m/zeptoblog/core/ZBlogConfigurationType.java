@@ -17,9 +17,9 @@
 package com.io7m.zeptoblog.core;
 
 import com.io7m.jaffirm.core.Preconditions;
-import javaslang.collection.Map;
-import org.immutables.javaslang.encodings.JavaslangEncodingEnabled;
+import io.vavr.collection.Map;
 import org.immutables.value.Value;
+import org.immutables.vavr.encodings.VavrEncodingEnabled;
 
 import java.net.URI;
 import java.nio.file.Path;
@@ -30,7 +30,7 @@ import java.util.Optional;
  */
 
 @ZImmutableStyleType
-@JavaslangEncodingEnabled
+@VavrEncodingEnabled
 @Value.Immutable
 public interface ZBlogConfigurationType
 {

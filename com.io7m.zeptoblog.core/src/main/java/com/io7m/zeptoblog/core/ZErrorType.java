@@ -17,8 +17,8 @@
 package com.io7m.zeptoblog.core;
 
 import com.io7m.jlexing.core.LexicalPosition;
-import org.immutables.javaslang.encodings.JavaslangEncodingEnabled;
 import org.immutables.value.Value;
+import org.immutables.vavr.encodings.VavrEncodingEnabled;
 
 import java.nio.file.Path;
 import java.util.Optional;
@@ -29,7 +29,7 @@ import java.util.Optional;
 
 @ZImmutableStyleType
 @Value.Immutable
-@JavaslangEncodingEnabled
+@VavrEncodingEnabled
 public interface ZErrorType
 {
   /**

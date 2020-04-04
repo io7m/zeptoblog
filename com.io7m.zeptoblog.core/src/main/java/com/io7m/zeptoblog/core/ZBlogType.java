@@ -16,17 +16,18 @@
 
 package com.io7m.zeptoblog.core;
 
-import javaslang.Tuple2;
-import javaslang.collection.Iterator;
-import javaslang.collection.Seq;
-import javaslang.collection.SortedMap;
-import javaslang.collection.TreeMap;
-import javaslang.collection.Vector;
-import org.immutables.javaslang.encodings.JavaslangEncodingEnabled;
+import io.vavr.Tuple2;
+import io.vavr.collection.Iterator;
+import io.vavr.collection.Seq;
+import io.vavr.collection.SortedMap;
+import io.vavr.collection.TreeMap;
+import io.vavr.collection.Vector;
 import org.immutables.value.Value;
+import org.immutables.vavr.encodings.VavrEncodingEnabled;
 
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -34,7 +35,7 @@ import java.util.function.Function;
  */
 
 @ZImmutableStyleType
-@JavaslangEncodingEnabled
+@VavrEncodingEnabled
 @Value.Immutable
 public interface ZBlogType
 {
@@ -60,9 +61,10 @@ public interface ZBlogType
   default SortedMap<ZonedDateTime, ZBlogPost> postsByDate()
   {
     SortedMap<ZonedDateTime, ZBlogPost> results = TreeMap.empty();
-    for (ZBlogPost post : this.posts().values()) {
-      if (post.date().isPresent()) {
-        results = results.put(post.date().get(), post);
+    for (final ZBlogPost post : this.posts().values()) {
+      final Optional<ZonedDateTime> date_opt = post.date();
+      if (date_opt.isPresent()) {
+        results = results.put(date_opt.get(), post);
       }
     }
 

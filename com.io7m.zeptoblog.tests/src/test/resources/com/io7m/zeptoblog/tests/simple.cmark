@@ -1,0 +1,21 @@
+Been experimenting with independent
+[module](/glossary.xhtml#module) versioning by developing an
+[OSGi IRC bot](https://github.com/io7m/thoth/). The idea is to
+expose any deficiencies in tools when modules within a single
+[Maven](/glossary.xhtml#maven) project have different version numbers.
+
+Initial indications are good!
+
+One serious issue is that with independent versions, sooner or later
+there's going to be a release of the project where one or more modules
+haven't been updated and will therefore have the same version numbers
+as existing already-deployed modules. It's therefore going to be
+necessary to work out how to prevent Maven deploying bundles that
+already exist. Apparently, [Charles Honton](http://www.mail-archive.com/users@maven.apache.org/msg139206.html)
+has a plugin for this.
+
+Conceptually, moving to independently versioned modules means that a
+given _project version_ now describes _a set of module versions_ as
+opposed to simply defining a single version for all modules. I might
+rewrite [changelog](https://github.com/io7m/changelog) to better fit
+with this fundamental conceptual change.

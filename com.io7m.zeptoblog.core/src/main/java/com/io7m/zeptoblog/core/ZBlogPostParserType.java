@@ -16,8 +16,8 @@
 
 package com.io7m.zeptoblog.core;
 
-import javaslang.collection.Seq;
-import javaslang.control.Validation;
+import io.vavr.collection.Seq;
+import io.vavr.control.Validation;
 
 /**
  * The type of blog post parsers.

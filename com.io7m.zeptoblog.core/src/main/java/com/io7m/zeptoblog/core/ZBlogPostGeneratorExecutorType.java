@@ -16,9 +16,8 @@
 
 package com.io7m.zeptoblog.core;
 
-import com.io7m.jfunctional.Unit;
-import javaslang.collection.Seq;
-import javaslang.control.Validation;
+import io.vavr.collection.Seq;
+import io.vavr.control.Validation;
 
 /**
  * The type of generator executors.
@@ -34,6 +33,6 @@ public interface ZBlogPostGeneratorExecutorType
    * @return Nothing on success, a list of errors on failure
    */
 
-  Validation<Seq<ZError>, Unit> executeAll(
+  Validation<Seq<ZError>, Void> executeAll(
     ZBlogConfiguration config);
 }

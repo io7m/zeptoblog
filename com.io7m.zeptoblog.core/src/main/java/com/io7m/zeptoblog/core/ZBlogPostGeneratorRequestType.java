@@ -16,8 +16,8 @@
 
 package com.io7m.zeptoblog.core;
 
-import org.immutables.javaslang.encodings.JavaslangEncodingEnabled;
 import org.immutables.value.Value;
+import org.immutables.vavr.encodings.VavrEncodingEnabled;
 
 import java.nio.file.Path;
 
@@ -26,7 +26,7 @@ import java.nio.file.Path;
  */
 
 @ZImmutableStyleType
-@JavaslangEncodingEnabled
+@VavrEncodingEnabled
 @Value.Immutable
 public interface ZBlogPostGeneratorRequestType
 {

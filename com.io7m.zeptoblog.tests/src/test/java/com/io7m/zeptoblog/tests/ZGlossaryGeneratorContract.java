@@ -21,10 +21,9 @@ import com.io7m.zeptoblog.core.ZBlogConfigurations;
 import com.io7m.zeptoblog.core.ZBlogPost;
 import com.io7m.zeptoblog.core.ZBlogPostGeneratorType;
 import com.io7m.zeptoblog.core.ZError;
-import javaslang.Tuple2;
-import javaslang.collection.Seq;
-import javaslang.collection.SortedMap;
-import javaslang.control.Validation;
+import io.vavr.collection.Seq;
+import io.vavr.collection.SortedMap;
+import io.vavr.control.Validation;
 import org.hamcrest.core.StringContains;
 import org.junit.Assert;
 import org.junit.Test;
@@ -42,72 +41,6 @@ public abstract class ZGlossaryGeneratorContract
 
   static {
     LOG = LoggerFactory.getLogger(ZGlossaryGeneratorContract.class);
-  }
-
-  protected abstract ZBlogPostGeneratorType createGenerator();
-
-  protected abstract FileSystem createFilesystem();
-
-  @Test
-  public final void testMissingSourcePath()
-    throws Exception
-  {
-    try (final FileSystem fs = this.createFilesystem()) {
-      final ZBlogPostGeneratorType gen = this.createGenerator();
-      final ZBlogConfiguration config = baseConfiguration(fs);
-      final Properties props = new Properties();
-      final Validation<Seq<ZError>, SortedMap<Path, ZBlogPost>> r =
-        gen.generate(config, props);
-
-      dumpResult(r);
-      Assert.assertTrue(r.isInvalid());
-      Assert.assertThat(
-        r.getError().get(0).message(),
-        StringContains.containsString("source_dir"));
-    }
-  }
-
-  @Test
-  public final void testMissingOutputPath()
-    throws Exception
-  {
-    try (final FileSystem fs = this.createFilesystem()) {
-      final ZBlogPostGeneratorType gen = this.createGenerator();
-      final ZBlogConfiguration config = baseConfiguration(fs);
-      final Properties props = new Properties();
-      props.setProperty("com.io7m.zeptoblog.glossary.source_dir", "/glossary");
-      final Validation<Seq<ZError>, SortedMap<Path, ZBlogPost>> r =
-        gen.generate(config, props);
-
-      dumpResult(r);
-      Assert.assertTrue(r.isInvalid());
-      Assert.assertThat(
-        r.getError().get(0).message(),
-        StringContains.containsString("output_file"));
-    }
-  }
-
-  @Test
-  public final void testEmpty()
-    throws Exception
-  {
-    try (final FileSystem fs = this.createFilesystem()) {
-      Files.createDirectories(fs.getPath("/glossary"));
-
-      final ZBlogPostGeneratorType gen = this.createGenerator();
-      final ZBlogConfiguration config = baseConfiguration(fs);
-      final Properties props = new Properties();
-      props.setProperty("com.io7m.zeptoblog.glossary.source_dir", "/glossary");
-      props.setProperty("com.io7m.zeptoblog.glossary.output_file", "glossary.zbp");
-      final Validation<Seq<ZError>, SortedMap<Path, ZBlogPost>> r =
-        gen.generate(config, props);
-
-      dumpResult(r);
-      Assert.assertTrue(r.isValid());
-
-      final SortedMap<Path, ZBlogPost> glossary = r.get();
-      Assert.assertEquals(1L , (long) glossary.size());
-    }
   }
 
   private static <T> void dumpResult(
@@ -128,5 +61,73 @@ public abstract class ZGlossaryGeneratorContract
       ZBlogConfigurations.fromProperties(
         fs.getPath("/config"), properties);
     return result.get();
+  }
+
+  protected abstract ZBlogPostGeneratorType createGenerator();
+
+  protected abstract FileSystem createFilesystem();
+
+  @Test
+  public final void testMissingSourcePath()
+    throws Exception
+  {
+    try (FileSystem fs = this.createFilesystem()) {
+      final ZBlogPostGeneratorType gen = this.createGenerator();
+      final ZBlogConfiguration config = baseConfiguration(fs);
+      final Properties props = new Properties();
+      final Validation<Seq<ZError>, SortedMap<Path, ZBlogPost>> r =
+        gen.generate(config, props);
+
+      dumpResult(r);
+      Assert.assertTrue(r.isInvalid());
+      Assert.assertThat(
+        r.getError().get(0).message(),
+        StringContains.containsString("source_dir"));
+    }
+  }
+
+  @Test
+  public final void testMissingOutputPath()
+    throws Exception
+  {
+    try (FileSystem fs = this.createFilesystem()) {
+      final ZBlogPostGeneratorType gen = this.createGenerator();
+      final ZBlogConfiguration config = baseConfiguration(fs);
+      final Properties props = new Properties();
+      props.setProperty("com.io7m.zeptoblog.glossary.source_dir", "/glossary");
+      final Validation<Seq<ZError>, SortedMap<Path, ZBlogPost>> r =
+        gen.generate(config, props);
+
+      dumpResult(r);
+      Assert.assertTrue(r.isInvalid());
+      Assert.assertThat(
+        r.getError().get(0).message(),
+        StringContains.containsString("output_file"));
+    }
+  }
+
+  @Test
+  public final void testEmpty()
+    throws Exception
+  {
+    try (FileSystem fs = this.createFilesystem()) {
+      Files.createDirectories(fs.getPath("/glossary"));
+
+      final ZBlogPostGeneratorType gen = this.createGenerator();
+      final ZBlogConfiguration config = baseConfiguration(fs);
+      final Properties props = new Properties();
+      props.setProperty("com.io7m.zeptoblog.glossary.source_dir", "/glossary");
+      props.setProperty(
+        "com.io7m.zeptoblog.glossary.output_file",
+        "glossary.zbp");
+      final Validation<Seq<ZError>, SortedMap<Path, ZBlogPost>> r =
+        gen.generate(config, props);
+
+      dumpResult(r);
+      Assert.assertTrue(r.isValid());
+
+      final SortedMap<Path, ZBlogPost> glossary = r.get();
+      Assert.assertEquals(1L, (long) glossary.size());
+    }
   }
 }

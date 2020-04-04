@@ -16,12 +16,12 @@
 
 package com.io7m.zeptoblog.core;
 
-import com.io7m.jnull.NullCheck;
-import javaslang.collection.Seq;
-import javaslang.control.Validation;
+import io.vavr.collection.Seq;
+import io.vavr.control.Validation;
 import org.osgi.service.component.annotations.Component;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 /**
  * The default implementation of the {@link ZBlogPostSerializerType} interface.
@@ -45,25 +45,27 @@ public final class ZBlogPostSerializer implements ZBlogPostSerializerType
   public Validation<Seq<ZError>, String> serialize(
     final ZBlogPost post)
   {
-    NullCheck.notNull(post, "post");
+    Objects.requireNonNull(post, "post");
 
+    final String separator = System.lineSeparator();
     final StringBuilder sb = new StringBuilder(128);
     sb.append("title ");
     sb.append(post.title());
-    sb.append(System.lineSeparator());
+    sb.append(separator);
 
     post.date().ifPresent(date -> {
       sb.append("date ");
       sb.append(date.format(this.formatter));
-      sb.append(System.lineSeparator());
+      sb.append(separator);
     });
 
     sb.append("format ");
-    sb.append(post.body().format());
-    sb.append(System.lineSeparator());
+    final ZBlogPostBody body = post.body();
+    sb.append(body.format());
+    sb.append(separator);
 
-    sb.append(System.lineSeparator());
-    sb.append(post.body().text());
+    sb.append(separator);
+    sb.append(body.text());
 
     return Validation.valid(sb.toString());
   }

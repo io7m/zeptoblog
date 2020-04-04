@@ -17,9 +17,9 @@
 package com.io7m.zeptoblog.glossary;
 
 import com.io7m.zeptoblog.core.ZImmutableStyleType;
-import javaslang.collection.SortedMap;
-import org.immutables.javaslang.encodings.JavaslangEncodingEnabled;
+import io.vavr.collection.SortedMap;
 import org.immutables.value.Value;
+import org.immutables.vavr.encodings.VavrEncodingEnabled;
 
 import java.util.function.Function;
 
@@ -28,7 +28,7 @@ import java.util.function.Function;
  */
 
 @ZImmutableStyleType
-@JavaslangEncodingEnabled
+@VavrEncodingEnabled
 @Value.Immutable
 public interface ZGlossaryType
 {

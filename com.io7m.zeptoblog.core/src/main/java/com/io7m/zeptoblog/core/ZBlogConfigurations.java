@@ -17,20 +17,21 @@
 package com.io7m.zeptoblog.core;
 
 import com.io7m.jlexing.core.LexicalPosition;
-import com.io7m.jnull.NullCheck;
 import com.io7m.jproperties.JProperties;
 import com.io7m.jproperties.JPropertyNonexistent;
 import com.io7m.junreachable.UnreachableCodeException;
-import javaslang.collection.Seq;
-import javaslang.collection.Vector;
-import javaslang.control.Validation;
+import io.vavr.collection.Seq;
+import io.vavr.collection.Vector;
+import io.vavr.control.Validation;
 
 import java.math.BigInteger;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.function.Consumer;
 
 /**
  * Functions for producing blog configurations.
@@ -56,21 +57,45 @@ public final class ZBlogConfigurations
     final Path path,
     final Properties p)
   {
-    NullCheck.notNull(path, "Path");
-    NullCheck.notNull(p, "Properties");
+    Objects.requireNonNull(path, "Path");
+    Objects.requireNonNull(p, "Properties");
 
     final ZBlogConfiguration.Builder builder = ZBlogConfiguration.builder();
+    final FileSystem fs = path.getFileSystem();
 
     Vector<ZError> errors = Vector.empty();
+    errors = configureProperties(path, p, builder, fs, errors);
+    configureFooter(p, builder, fs);
+    configureHeader(p, builder, fs);
+    errors = configureGenerators(path, p, builder, errors, fs);
+    return validate(builder, errors);
+  }
 
+  private static Vector<ZError> property(
+    final Vector<ZError> errors_initial,
+    final Path path,
+    final Properties p,
+    final String name,
+    final Consumer<String> consumer)
+  {
     try {
-      builder.setTitle(
-        JProperties.getString(p, "com.io7m.zeptoblog.title"));
+      consumer.accept(JProperties.getString(p, name));
     } catch (final Exception e) {
-      errors = errors.append(ofException(path, e));
+      return errors_initial.append(ofException(path, e));
     }
+    return errors_initial;
+  }
 
-    final FileSystem fs = path.getFileSystem();
+  private static Vector<ZError> configureProperties(
+    final Path path,
+    final Properties p,
+    final ZBlogConfiguration.Builder builder,
+    final FileSystem fs,
+    final Vector<ZError> errors_initial)
+  {
+    Vector<ZError> errors = errors_initial;
+
+    errors = property(errors, path, p, "com.io7m.zeptoblog.title", value -> builder.setTitle(value));
 
     try {
       builder.setSourceRoot(fs.getPath(JProperties.getString(
@@ -96,19 +121,8 @@ public final class ZBlogConfigurations
       errors = errors.append(ofException(path, e));
     }
 
-    try {
-      builder.setAuthor(
-        JProperties.getString(p, "com.io7m.zeptoblog.author"));
-    } catch (final Exception e) {
-      errors = errors.append(ofException(path, e));
-    }
-
-    try {
-      builder.setFormatDefault(
-        JProperties.getString(p, "com.io7m.zeptoblog.format_default"));
-    } catch (final Exception e) {
-      errors = errors.append(ofException(path, e));
-    }
+    errors = property(errors, path, p, "com.io7m.zeptoblog.author", value -> builder.setAuthor(value));
+    errors = property(errors, path, p, "com.io7m.zeptoblog.format_default", value -> builder.setFormatDefault(value));
 
     try {
       builder.setPostsPerPage(
@@ -119,7 +133,24 @@ public final class ZBlogConfigurations
     } catch (final Exception e) {
       errors = errors.append(ofException(path, e));
     }
+    return errors;
+  }
 
+  private static Validation<Seq<ZError>, ZBlogConfiguration> validate(
+    final ZBlogConfiguration.Builder builder,
+    final Vector<ZError> errors)
+  {
+    if (errors.isEmpty()) {
+      return Validation.valid(builder.build());
+    }
+    return Validation.invalid(errors);
+  }
+
+  private static void configureFooter(
+    final Properties p,
+    final ZBlogConfiguration.Builder builder,
+    final FileSystem fs)
+  {
     try {
       builder.setFooterPre(fs.getPath(
         JProperties.getString(p, "com.io7m.zeptoblog.footer_pre")));
@@ -133,7 +164,13 @@ public final class ZBlogConfigurations
     } catch (final JPropertyNonexistent e) {
       // Ignore
     }
+  }
 
+  private static void configureHeader(
+    final Properties p,
+    final ZBlogConfiguration.Builder builder,
+    final FileSystem fs)
+  {
     try {
       builder.setHeaderReplace(fs.getPath(
         JProperties.getString(p, "com.io7m.zeptoblog.header_replace")));
@@ -154,7 +191,16 @@ public final class ZBlogConfigurations
     } catch (final JPropertyNonexistent e) {
       // Ignore
     }
+  }
 
+  private static Vector<ZError> configureGenerators(
+    final Path path,
+    final Properties p,
+    final ZBlogConfiguration.Builder builder,
+    final Vector<ZError> errors_initial,
+    final FileSystem fs)
+  {
+    Vector<ZError> errors = errors_initial;
 
     try {
       String generators = "";
@@ -181,11 +227,7 @@ public final class ZBlogConfigurations
     } catch (final JPropertyNonexistent ex) {
       errors = errors.append(ofException(path, ex));
     }
-
-    if (errors.isEmpty()) {
-      return Validation.valid(builder.build());
-    }
-    return Validation.invalid(errors);
+    return errors;
   }
 
   private static ZError ofException(

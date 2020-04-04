@@ -17,8 +17,8 @@
 package com.io7m.zeptoblog.glossary;
 
 import com.io7m.zeptoblog.core.ZError;
-import javaslang.collection.Seq;
-import javaslang.control.Validation;
+import io.vavr.collection.Seq;
+import io.vavr.control.Validation;
 
 /**
  * The type of glossary parsers.

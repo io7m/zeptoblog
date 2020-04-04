@@ -17,16 +17,15 @@
 package com.io7m.zeptoblog.glossary;
 
 import com.io7m.jlexing.core.LexicalPositionMutable;
-import com.io7m.jnull.NullCheck;
 import com.io7m.zeptoblog.core.ZBlogConfiguration;
 import com.io7m.zeptoblog.core.ZBlogPostFormatResolverSL;
 import com.io7m.zeptoblog.core.ZBlogPostFormatResolverType;
 import com.io7m.zeptoblog.core.ZError;
-import javaslang.collection.HashSet;
-import javaslang.collection.Seq;
-import javaslang.collection.Set;
-import javaslang.collection.Vector;
-import javaslang.control.Validation;
+import io.vavr.collection.HashSet;
+import io.vavr.collection.Seq;
+import io.vavr.collection.Set;
+import io.vavr.collection.Vector;
+import io.vavr.control.Validation;
 import org.apache.commons.io.input.CloseShieldInputStream;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -46,8 +45,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static javaslang.control.Validation.invalid;
-import static javaslang.control.Validation.valid;
+import static io.vavr.control.Validation.invalid;
+import static io.vavr.control.Validation.valid;
 
 /**
  * The default glossary item parser provider.
@@ -58,6 +57,7 @@ public final class ZGlossaryItemParserProvider implements
   ZGlossaryItemParserProviderType
 {
   private static final Logger LOG;
+  private static final String LINE_SEPARATOR = System.lineSeparator();
 
   static {
     LOG = LoggerFactory.getLogger(ZGlossaryItemParserProvider.class);
@@ -87,7 +87,7 @@ public final class ZGlossaryItemParserProvider implements
   public void resolverRegister(
     final ZBlogPostFormatResolverType in_resolver)
   {
-    this.resolver = NullCheck.notNull(in_resolver, "Resolver");
+    this.resolver = Objects.requireNonNull(in_resolver, "Resolver");
   }
 
   @Override
@@ -115,9 +115,9 @@ public final class ZGlossaryItemParserProvider implements
       final InputStream in_stream,
       final Path in_path)
     {
-      this.config = NullCheck.notNull(in_config, "Config");
-      this.stream = NullCheck.notNull(in_stream, "stream");
-      this.path = NullCheck.notNull(in_path, "path");
+      this.config = Objects.requireNonNull(in_config, "Config");
+      this.stream = Objects.requireNonNull(in_stream, "stream");
+      this.path = Objects.requireNonNull(in_path, "path");
 
       this.position = LexicalPositionMutable.create(0, 0, Optional.of(in_path));
       this.errors = Vector.empty();
@@ -127,7 +127,7 @@ public final class ZGlossaryItemParserProvider implements
     @Override
     public Validation<Seq<ZError>, ZGlossaryItem> parse()
     {
-      try (final BufferedReader reader =
+      try (BufferedReader reader =
              new BufferedReader(
                new InputStreamReader(
                  new CloseShieldInputStream(this.stream),
@@ -236,12 +236,12 @@ public final class ZGlossaryItemParserProvider implements
       } else {
         final StringBuilder sb = new StringBuilder(128);
         sb.append("Syntax error.");
-        sb.append(System.lineSeparator());
+        sb.append(LINE_SEPARATOR);
         sb.append("  Expected: related <term> <term>*");
-        sb.append(System.lineSeparator());
+        sb.append(LINE_SEPARATOR);
         sb.append("  Received: ");
         sb.append(line);
-        sb.append(System.lineSeparator());
+        sb.append(LINE_SEPARATOR);
         this.fail(sb.toString(), Optional.empty());
       }
     }
@@ -255,12 +255,12 @@ public final class ZGlossaryItemParserProvider implements
       } else {
         final StringBuilder sb = new StringBuilder(128);
         sb.append("Syntax error.");
-        sb.append(System.lineSeparator());
+        sb.append(LINE_SEPARATOR);
         sb.append("  Expected: format <format-name>");
-        sb.append(System.lineSeparator());
+        sb.append(LINE_SEPARATOR);
         sb.append("  Received: ");
         sb.append(line);
-        sb.append(System.lineSeparator());
+        sb.append(LINE_SEPARATOR);
         this.fail(sb.toString(), Optional.empty());
       }
     }
@@ -274,12 +274,12 @@ public final class ZGlossaryItemParserProvider implements
       } else {
         final StringBuilder sb = new StringBuilder(128);
         sb.append("Syntax error.");
-        sb.append(System.lineSeparator());
+        sb.append(LINE_SEPARATOR);
         sb.append("  Expected: term <text> <text>*");
-        sb.append(System.lineSeparator());
+        sb.append(LINE_SEPARATOR);
         sb.append("  Received: ");
         sb.append(line);
-        sb.append(System.lineSeparator());
+        sb.append(LINE_SEPARATOR);
         this.fail(sb.toString(), Optional.empty());
       }
     }

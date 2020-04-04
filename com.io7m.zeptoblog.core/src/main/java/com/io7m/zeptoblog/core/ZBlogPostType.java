@@ -16,12 +16,12 @@
 
 package com.io7m.zeptoblog.core;
 
-import com.io7m.jnull.NullCheck;
-import org.immutables.javaslang.encodings.JavaslangEncodingEnabled;
 import org.immutables.value.Value;
+import org.immutables.vavr.encodings.VavrEncodingEnabled;
 
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -29,7 +29,7 @@ import java.util.Optional;
  */
 
 @ZImmutableStyleType
-@JavaslangEncodingEnabled
+@VavrEncodingEnabled
 @Value.Immutable
 public interface ZBlogPostType extends Comparable<ZBlogPostType>
 {
@@ -74,12 +74,22 @@ public interface ZBlogPostType extends Comparable<ZBlogPostType>
 
     final Path source_xhtml;
     final Path parent = source_zbp.getParent();
+    final Path file_name = source_zbp.getFileName();
+
+    if (file_name == null) {
+      throw new IllegalStateException(
+        "Could not resolve a filename for path: " + source_zbp);
+    }
+
     if (parent != null) {
-      source_xhtml = parent.resolve(
-        source_zbp.getFileName().toString().replaceAll("\\.zbp", ".xhtml"));
+      source_xhtml =
+        parent.resolve(file_name.toString()
+                         .replaceAll("\\.zbp", ".xhtml"));
     } else {
-      source_xhtml = source_zbp.resolveSibling(
-        source_zbp.getFileName().toString().replaceAll("\\.zbp", ".xhtml"));
+      source_xhtml =
+        source_zbp.resolveSibling(
+          file_name.toString()
+            .replaceAll("\\.zbp", ".xhtml"));
     }
 
     return config.outputRoot().resolve(source_xhtml).toAbsolutePath();
@@ -113,7 +123,7 @@ public interface ZBlogPostType extends Comparable<ZBlogPostType>
   @Override
   default int compareTo(final ZBlogPostType other)
   {
-    NullCheck.notNull(other, "other");
+    Objects.requireNonNull(other, "other");
 
     final Optional<ZonedDateTime> a_opt = this.date();
     final Optional<ZonedDateTime> b_opt = other.date();

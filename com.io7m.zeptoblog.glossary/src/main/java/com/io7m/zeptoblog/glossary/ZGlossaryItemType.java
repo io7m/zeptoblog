@@ -16,20 +16,20 @@
 
 package com.io7m.zeptoblog.glossary;
 
-import com.io7m.jnull.NullCheck;
 import com.io7m.zeptoblog.core.ZImmutableStyleType;
-import javaslang.collection.Set;
-import org.immutables.javaslang.encodings.JavaslangEncodingEnabled;
+import io.vavr.collection.Set;
 import org.immutables.value.Value;
+import org.immutables.vavr.encodings.VavrEncodingEnabled;
 
 import java.nio.file.Path;
+import java.util.Objects;
 
 /**
  * The type of glossary items.
  */
 
 @ZImmutableStyleType
-@JavaslangEncodingEnabled
+@VavrEncodingEnabled
 @Value.Immutable
 public interface ZGlossaryItemType extends Comparable<ZGlossaryItemType>
 {
@@ -65,6 +65,15 @@ public interface ZGlossaryItemType extends Comparable<ZGlossaryItemType>
   default int compareTo(
     final ZGlossaryItemType o)
   {
-    return this.term().compareTo(NullCheck.notNull(o, "Other").term());
+    return this.term().compareTo(Objects.requireNonNull(o, "Other").term());
+  }
+
+  /**
+   * @return A unique ID for the term
+   */
+
+  default String targetID()
+  {
+    return this.term().toLowerCase().replaceAll("\\s+", "_");
   }
 }

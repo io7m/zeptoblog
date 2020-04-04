@@ -14,16 +14,17 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.zeptoblog.checkstyle;
-
-/**
- * Marker class for locating resources.
- */
-
-public final class Checkstyle
+module com.io7m.zeptoblog.cmdline
 {
-  private Checkstyle()
-  {
-    throw new AssertionError("Unreachable code");
-  }
+  requires com.io7m.jproperties.core;
+  requires com.io7m.zeptoblog.core;
+  requires io.vavr;
+  requires jcommander;
+  requires org.slf4j;
+  requires ch.qos.logback.classic;
+  requires com.io7m.junreachable.core;
+
+  opens com.io7m.zeptoblog.cmdline to jcommander;
+
+  exports com.io7m.zeptoblog.cmdline;
 }

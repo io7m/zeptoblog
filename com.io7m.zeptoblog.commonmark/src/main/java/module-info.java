@@ -15,8 +15,20 @@
  */
 
 /**
- * Checkstyle policy.
+ * Static blog generator (CommonMark format support)
  */
 
-@com.io7m.jnull.NonNullByDefault
-package com.io7m.zeptoblog.checkstyle;
+module com.io7m.zeptoblog.commonmark
+{
+  requires static org.osgi.service.component.annotations;
+
+  requires com.io7m.zeptoblog.core;
+  requires com.io7m.junreachable.core;
+  requires org.commonmark;
+  requires org.commonmark.ext.heading.anchor;
+  requires io.vavr;
+  requires java.xml;
+  requires com.io7m.jlexing.core;
+
+  exports com.io7m.zeptoblog.commonmark;
+}

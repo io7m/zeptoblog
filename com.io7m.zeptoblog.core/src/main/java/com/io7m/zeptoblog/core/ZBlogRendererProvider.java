@@ -17,9 +17,7 @@
 package com.io7m.zeptoblog.core;
 
 import com.io7m.jaffirm.core.Preconditions;
-import com.io7m.jfunctional.Unit;
 import com.io7m.jlexing.core.LexicalPosition;
-import com.io7m.jnull.NullCheck;
 import com.rometools.rome.feed.atom.Content;
 import com.rometools.rome.feed.synd.SyndContent;
 import com.rometools.rome.feed.synd.SyndContentImpl;
@@ -29,20 +27,13 @@ import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.feed.synd.SyndFeedImpl;
 import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedOutput;
-import javaslang.Tuple2;
-import javaslang.collection.Iterator;
-import javaslang.collection.Seq;
-import javaslang.collection.SortedMap;
-import javaslang.collection.Vector;
-import javaslang.control.Option;
-import javaslang.control.Validation;
-import nu.xom.Attribute;
-import nu.xom.Builder;
-import nu.xom.DocType;
-import nu.xom.Document;
-import nu.xom.Element;
-import nu.xom.ParsingException;
-import nu.xom.Serializer;
+import io.vavr.Tuple2;
+import io.vavr.collection.Iterator;
+import io.vavr.collection.Seq;
+import io.vavr.collection.SortedMap;
+import io.vavr.collection.Vector;
+import io.vavr.control.Option;
+import io.vavr.control.Validation;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.osgi.service.component.annotations.Component;
@@ -52,7 +43,16 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -114,7 +114,7 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
   public void resolverRegister(
     final ZBlogPostFormatResolverType in_resolver)
   {
-    this.resolver = NullCheck.notNull(in_resolver, "in_resolver");
+    this.resolver = Objects.requireNonNull(in_resolver, "in_resolver");
   }
 
   @Override
@@ -127,7 +127,6 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
   private static final class Page
   {
     private final Document document;
-    private final Element header;
     private final Element content;
     private final Element footer;
 
@@ -138,7 +137,6 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
       final Element in_footer)
     {
       this.document = in_document;
-      this.header = in_header;
       this.content = in_content;
       this.footer = in_footer;
     }
@@ -162,8 +160,8 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
       final ZServiceResolverType<ZBlogPostFormatType> in_resolver,
       final ZBlogConfiguration in_config)
     {
-      this.resolver = NullCheck.notNull(in_resolver, "Resolver");
-      this.config = NullCheck.notNull(in_config, "config");
+      this.resolver = Objects.requireNonNull(in_resolver, "Resolver");
+      this.config = Objects.requireNonNull(in_config, "config");
       this.errors = Vector.empty();
       this.format_date = DateTimeFormatter.ofPattern("yyyy-MM-dd");
       this.format_time = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
@@ -193,64 +191,57 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
         TimeUnit.SECONDS));
     }
 
-    private static Element metaType()
+    private static Element metaType(final Document document)
     {
-      final Element e = new Element("meta", XHTML_URI_TEXT);
-      e.addAttribute(
-        new Attribute("http-equiv", null, "Content-Type"));
-      e.addAttribute(
-        new Attribute("content", null, "application/xhtml+xml; charset=UTF-8"));
+      final Element e = document.createElementNS(XHTML_URI_TEXT, "meta");
+      e.setAttribute("http-equiv", "Content-Type");
+      e.setAttribute("content", "application/xhtml+xml; charset=UTF-8");
       return e;
     }
 
-    private static Element metaGenerator()
+    private static Element metaGenerator(final Document document)
     {
-      final Element e = new Element("meta", XHTML_URI_TEXT);
-      e.addAttribute(
-        new Attribute("name", null, "generator"));
-      e.addAttribute(
-        new Attribute(
-          "content",
-          null,
-          "https://github.com/io7m/zeptoblog; version=" + version()));
+      final Element e = document.createElementNS(XHTML_URI_TEXT, "meta");
+      e.setAttribute("name", "generator");
+      e.setAttribute(
+        "content",
+        "https://github.com/io7m/zeptoblog; version=" + version());
       return e;
     }
 
     private static Element head(
+      final Document document,
       final String title)
     {
-      final Element e = new Element("head", XHTML_URI_TEXT);
-      e.appendChild(metaType());
-      e.appendChild(metaGenerator());
+      final Element e = document.createElementNS(XHTML_URI_TEXT, "head");
+      e.appendChild(metaType(document));
+      e.appendChild(metaGenerator(document));
 
-      final Element e_title = new Element("title", XHTML_URI_TEXT);
-      e_title.appendChild(title);
+      final Element e_title = document.createElementNS(XHTML_URI_TEXT, "title");
+      e_title.setTextContent(title);
       e.appendChild(e_title);
 
       {
-        final Element e_link = new Element("link", XHTML_URI_TEXT);
-        e_link.addAttribute(new Attribute("rel", null, "stylesheet"));
-        e_link.addAttribute(new Attribute("type", null, "text/css"));
-        e_link.addAttribute(new Attribute("href", null, "/reset.css"));
+        final Element e_link = document.createElementNS(XHTML_URI_TEXT, "link");
+        e_link.setAttribute("rel", "stylesheet");
+        e_link.setAttribute("type", "text/css");
+        e_link.setAttribute("href", "/reset.css");
         e.appendChild(e_link);
       }
 
       {
-        final Element e_link = new Element("link", XHTML_URI_TEXT);
-        e_link.addAttribute(new Attribute("rel", null, "stylesheet"));
-        e_link.addAttribute(new Attribute("type", null, "text/css"));
-        e_link.addAttribute(new Attribute("href", null, "/style.css"));
+        final Element e_link = document.createElementNS(XHTML_URI_TEXT, "link");
+        e_link.setAttribute("rel", "stylesheet");
+        e_link.setAttribute("type", "text/css");
+        e_link.setAttribute("href", "/style.css");
         e.appendChild(e_link);
       }
 
       {
-        final Element e_link = new Element("link", XHTML_URI_TEXT);
-        e_link.addAttribute(new Attribute("rel", null, "alternate"));
-        e_link.addAttribute(new Attribute(
-          "type",
-          null,
-          "application/atom+xml"));
-        e_link.addAttribute(new Attribute("href", null, "/blog.atom"));
+        final Element e_link = document.createElementNS(XHTML_URI_TEXT, "link");
+        e_link.setAttribute("rel", "alternate");
+        e_link.setAttribute("type", "application/atom+xml");
+        e_link.setAttribute("href", "/blog.atom");
         e.appendChild(e_link);
       }
 
@@ -260,62 +251,59 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
     private static void writeFooter(
       final Page page)
     {
-      final Element e = footerPageLinkElement();
-      e.appendChild(footerPageLinksByYear());
-      page.footer.insertChild(e, 0);
+      final Element e = footerPageLinkElement(page.document);
+      e.appendChild(footerPageLinksByYear(page.document));
+      page.footer.insertBefore(e, page.footer.getFirstChild());
     }
 
     private static Element footerPageLinks(
+      final Document document,
       final Tuple2<Integer, Seq<ZBlogPost>> page_current,
       final SortedMap<Integer, Seq<ZBlogPost>> pages)
     {
-      final Element e = footerPageLinkElement();
-      e.appendChild(footerPageLinksByYear());
-      e.appendChild(footerPageLinksByPage(page_current, pages));
+      final Element e = footerPageLinkElement(document);
+      e.appendChild(footerPageLinksByYear(document));
+      e.appendChild(footerPageLinksByPage(document, page_current, pages));
       return e;
     }
 
-    private static Element footerPageLinkElement()
+    private static Element footerPageLinkElement(final Document document)
     {
-      final Element e = new Element("div", XHTML_URI_TEXT);
-      e.addAttribute(new Attribute("id", null, "zb_footer_links"));
+      final Element e = document.createElementNS(XHTML_URI_TEXT, "div");
+      e.setAttribute("id", "zb_footer_links");
       return e;
     }
 
-    private static Element footerPageLinksByYear()
+    private static Element footerPageLinksByYear(final Document document)
     {
-      final Element e_yearly = new Element("div", XHTML_URI_TEXT);
-      final Element e_a = new Element("a", XHTML_URI_TEXT);
-      e_a.addAttribute(new Attribute(
-        "href",
-        null,
-        "/yearly.xhtml"));
-      e_a.appendChild("Posts by year");
+      final Element e_yearly = document.createElementNS(XHTML_URI_TEXT, "div");
+      final Element e_a = document.createElementNS(XHTML_URI_TEXT, "a");
+      e_a.setAttribute("href", "/yearly.xhtml");
+      e_a.setTextContent("Posts by year");
       e_yearly.appendChild(e_a);
       return e_yearly;
     }
 
     private static Element footerPageLinksByPage(
+      final Document document,
       final Tuple2<Integer, Seq<ZBlogPost>> page_current,
       final SortedMap<Integer, Seq<ZBlogPost>> pages)
     {
-      final Element e_pages = new Element("div", XHTML_URI_TEXT);
-      e_pages.appendChild("Posts by page: ");
+      final Element e_pages = document.createElementNS(XHTML_URI_TEXT, "div");
+      e_pages.setTextContent("Posts by page: ");
       for (final Tuple2<Integer, Seq<ZBlogPost>> pair : pages) {
         final int page_human = pair._1.intValue() + 1;
 
         if (Objects.equals(page_current._1, pair._1)) {
-          e_pages.appendChild(Integer.toString(page_human));
+          e_pages.appendChild(document.createTextNode(Integer.toString(
+            page_human)));
         } else {
-          final Element e_a = new Element("a", XHTML_URI_TEXT);
-          e_a.addAttribute(new Attribute(
-            "href",
-            null,
-            "/" + page_human + ".xhtml"));
-          e_a.appendChild(Integer.toString(page_human));
+          final Element e_a = document.createElementNS(XHTML_URI_TEXT, "a");
+          e_a.setAttribute("href", "/" + page_human + ".xhtml");
+          e_a.setTextContent(Integer.toString(page_human));
           e_pages.appendChild(e_a);
         }
-        e_pages.appendChild(" ");
+        e_pages.appendChild(document.createTextNode(" "));
       }
 
       return e_pages;
@@ -328,28 +316,30 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
     }
 
     private Element body(
+      final Document document,
       final Path current_file)
     {
-      final Element e = new Element("body", XHTML_URI_TEXT);
-      final Element e_head = new Element("div", XHTML_URI_TEXT);
+      final Element e = document.createElementNS(XHTML_URI_TEXT, "body");
+      final Element e_head = document.createElementNS(XHTML_URI_TEXT, "div");
 
       {
-        final Element e_a = new Element("a", XHTML_URI_TEXT);
-        e_a.addAttribute(new Attribute("href", null, "/"));
-        final Element e_title = new Element("h2", XHTML_URI_TEXT);
-        e_title.appendChild(this.config.title());
-        e_a.appendChild(e_title);
-        e_head.appendChild(e_a);
+        final Element e_a = document.createElementNS(XHTML_URI_TEXT, "a");
+        e_a.setAttribute("href", "/");
+        e_a.setTextContent(this.config.title());
+
+        final Element e_title = document.createElementNS(XHTML_URI_TEXT, "h1");
+        e_title.appendChild(e_a);
+        e_head.appendChild(e_title);
       }
 
-      e_head.addAttribute(new Attribute("class", "zb_header"));
-      e_head.addAttribute(new Attribute("id", "zb_header"));
+      e_head.setAttribute("class", "zb_header");
+      e_head.setAttribute("id", "zb_header");
 
-      final Element e_content = new Element("div", XHTML_URI_TEXT);
-      e_content.addAttribute(new Attribute("class", "zb_body"));
-      e_content.addAttribute(new Attribute("id", "zb_body"));
+      final Element e_content = document.createElementNS(XHTML_URI_TEXT, "div");
+      e_content.setAttribute("class", "zb_body");
+      e_content.setAttribute("id", "zb_body");
 
-      final Element e_footer = this.footer(current_file);
+      final Element e_footer = this.footer(document, current_file);
       e.appendChild(e_head);
       e.appendChild(e_content);
       e.appendChild(e_footer);
@@ -357,50 +347,61 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
     }
 
     private Element footer(
+      final Document document,
       final Path current_file)
     {
-      final Element e_table = new Element("table", XHTML_URI_TEXT);
+      final Element e_table = document.createElementNS(XHTML_URI_TEXT, "table");
 
       {
-        final Element e_tr = new Element("tr", XHTML_URI_TEXT);
+        final Element e_tr = document.createElementNS(XHTML_URI_TEXT, "tr");
         e_table.appendChild(e_tr);
-        final Element e_td0 = new Element("td", XHTML_URI_TEXT);
+        final Element e_td0 = document.createElementNS(XHTML_URI_TEXT, "td");
         e_tr.appendChild(e_td0);
-        e_td0.appendChild("Signed:");
-        final Element e_td1 = new Element("td", XHTML_URI_TEXT);
+        e_td0.setTextContent("Signed:");
+        final Element e_td1 = document.createElementNS(XHTML_URI_TEXT, "td");
         e_tr.appendChild(e_td1);
 
         final String replaced =
-          current_file.toString().replaceAll("\\.xhtml$", ".xhtml.asc");
-        final Path absolute =
-          current_file.getFileSystem().getPath(replaced).toAbsolutePath();
-        final Path relative =
-          this.config.outputRoot().toAbsolutePath().relativize(absolute);
+          current_file.toString()
+            .replaceAll("\\.xhtml$", ".xhtml.asc");
 
-        final String sig_name = relative.getFileName().toString();
-        final Element e_a = new Element("a", XHTML_URI_TEXT);
-        e_a.addAttribute(new Attribute(
-          "href",
-          null,
-          "/" + relative.toString()));
-        e_a.appendChild(sig_name);
+        final Path absolute =
+          current_file.getFileSystem()
+            .getPath(replaced)
+            .toAbsolutePath();
+
+        final Path relative =
+          this.config.outputRoot()
+            .toAbsolutePath()
+            .relativize(absolute);
+
+        final Path sig_file_name = relative.getFileName();
+        if (sig_file_name == null) {
+          throw new IllegalStateException(
+            "Could not resolve a filename for: " + relative);
+        }
+
+        final String sig_name = sig_file_name.toString();
+        final Element e_a = document.createElementNS(XHTML_URI_TEXT, "a");
+        e_a.setAttribute("href", "/" + relative.toString());
+        e_a.setTextContent(sig_name);
         e_td1.appendChild(e_a);
       }
 
       {
-        final Element e_tr = new Element("tr", XHTML_URI_TEXT);
+        final Element e_tr = document.createElementNS(XHTML_URI_TEXT, "tr");
         e_table.appendChild(e_tr);
-        final Element e_td0 = new Element("td", XHTML_URI_TEXT);
+        final Element e_td0 = document.createElementNS(XHTML_URI_TEXT, "td");
         e_tr.appendChild(e_td0);
-        e_td0.appendChild("Updated:");
-        final Element e_td1 = new Element("td", XHTML_URI_TEXT);
+        e_td0.setTextContent("Updated:");
+        final Element e_td1 = document.createElementNS(XHTML_URI_TEXT, "td");
         e_tr.appendChild(e_td1);
-        e_td1.appendChild(ZonedDateTime.now().format(this.format_time));
+        e_td1.setTextContent(ZonedDateTime.now().format(this.format_time));
       }
 
-      final Element e_footer = new Element("div", XHTML_URI_TEXT);
-      e_footer.addAttribute(new Attribute("class", "zb_footer"));
-      e_footer.addAttribute(new Attribute("id", "zb_footer"));
+      final Element e_footer = document.createElementNS(XHTML_URI_TEXT, "div");
+      e_footer.setAttribute("class", "zb_footer");
+      e_footer.setAttribute("id", "zb_footer");
       e_footer.appendChild(e_table);
       return e_footer;
     }
@@ -408,46 +409,67 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
     private Page page(
       final Path current_file,
       final String title)
+      throws ParserConfigurationException
     {
-      final DocType dtype =
-        new DocType(
-          "html",
-          "-//W3C//DTD XHTML 1.0 Strict//EN",
-          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd");
-      final Element root = new Element("html", XHTML_URI_TEXT);
-      root.appendChild(head(title));
-      final Element body = this.body(current_file);
+      final DocumentBuilderFactory builder_factory =
+        DocumentBuilderFactory.newDefaultInstance();
+      final DocumentBuilder builder =
+        builder_factory.newDocumentBuilder();
+
+      final Document doc = builder.newDocument();
+      doc.setStrictErrorChecking(true);
+
+      final Element root = doc.createElement("html");
+      root.setAttribute("xmlns", XHTML_URI_TEXT);
+      root.setAttribute("xml:lang", "en");
+      doc.appendChild(root);
+
+      root.appendChild(head(doc, title));
+      final Element body = this.body(doc, current_file);
       root.appendChild(body);
-      final Document doc = new Document(root);
-      doc.setDocType(dtype);
 
       final Element head;
       if (this.header_replace.isPresent()) {
-        head = (Element) this.header_replace.get().copy();
-        body.replaceChild(body.getChild(0), head);
+        head = this.header_replace.get();
+        body.removeChild(body.getFirstChild());
+        body.appendChild(body.getOwnerDocument().importNode(head, true));
       } else {
-        head = (Element) body.getChild(0);
+        head = (Element) body.getFirstChild();
       }
 
       this.header_pre.ifPresent(
-        element -> head.insertChild(this.header_pre.get().copy(), 0));
+        element -> {
+          head.insertBefore(
+            head.getOwnerDocument().importNode(element, true),
+            head.getFirstChild());
+        });
       this.header_post.ifPresent(
-        element -> head.appendChild(this.header_post.get().copy()));
+        element -> {
+          head.appendChild(
+            head.getOwnerDocument().importNode(element, true));
+        });
 
-      final Element foot = (Element) body.getChild(2);
+      final Element foot = (Element) body.getChildNodes().item(2);
       this.footer_pre.ifPresent(
-        element -> foot.insertChild(this.footer_pre.get().copy(), 0));
+        element -> {
+          foot.insertBefore(
+            foot.getOwnerDocument().importNode(element, true),
+            foot.getFirstChild());
+        });
       this.footer_post.ifPresent(
-        element -> foot.appendChild(this.footer_post.get().copy()));
+        element -> {
+          foot.appendChild(
+            foot.getOwnerDocument().importNode(element, true));
+        });
 
-      return new Page(doc, head, (Element) body.getChild(1), foot);
+      return new Page(doc, head, (Element) body.getChildNodes().item(1), foot);
     }
 
     @Override
-    public Validation<Seq<ZError>, Unit> render(
+    public Validation<Seq<ZError>, Void> render(
       final ZBlog blog)
     {
-      NullCheck.notNull(blog, "Blog");
+      Objects.requireNonNull(blog, "Blog");
 
       this.loadReplacementElements();
 
@@ -460,7 +482,7 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
       this.copyFiles();
 
       if (this.errors.isEmpty()) {
-        return Validation.valid(Unit.unit());
+        return Validation.valid(null);
       }
 
       return Validation.invalid(this.errors);
@@ -478,10 +500,9 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
     private Optional<Element> loadXML(
       final Path path)
     {
-      try (final InputStream stream = Files.newInputStream(path)) {
-        final Builder builder = new Builder();
-        return Optional.of(builder.build(stream).getRootElement());
-      } catch (final IOException | ParsingException e) {
+      try {
+        return Optional.of(ZXML.xmlParseFromPath(path).getDocumentElement());
+      } catch (final ParserConfigurationException | SAXException | IOException e) {
         this.failException(path, e);
         return Optional.empty();
       }
@@ -502,59 +523,66 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
       LOG.debug("out: yearly {}", out_xhtml);
 
       try {
-        Files.createDirectories(out_xhtml.getParent());
+        final Path parent = out_xhtml.getParent();
+        if (parent == null) {
+          throw new IllegalStateException(
+            "Could not resolve the parent path of: " + out_xhtml);
+        }
 
-        try (final OutputStream output = Files.newOutputStream(out_xhtml)) {
+        Files.createDirectories(parent);
+        try (OutputStream output = Files.newOutputStream(out_xhtml)) {
           final Page page = this.page(out_xhtml, sb.toString());
 
-          for (final Tuple2<Integer, Seq<ZBlogPost>> pair : posts) {
+          final Vector<Tuple2<Integer, Seq<ZBlogPost>>> posts_reversed =
+            posts.toVector().reverse();
+
+          for (final Tuple2<Integer, Seq<ZBlogPost>> pair : posts_reversed) {
             page.content.appendChild(
-              this.generateYearlyIndex(pair._1, pair._2));
+              this.generateYearlyIndex(page.document, pair._1, pair._2));
           }
 
-          final Serializer serial = new Serializer(output, "UTF-8");
-          serial.write(page.document);
-          serial.flush();
+          ZXML.xhtmlSerializeToStream(output, page.document, true);
         }
-      } catch (final IOException e) {
+      } catch (final Exception e) {
         this.failException(out_xhtml, e);
       }
     }
 
     private Element generateYearlyIndex(
+      final Document document,
       final Integer year,
       final Seq<ZBlogPost> posts)
     {
-      final Element e = new Element("div", XHTML_URI_TEXT);
+      final Element e = document.createElementNS(XHTML_URI_TEXT, "div");
 
-      final Element e_title = new Element("h3", XHTML_URI_TEXT);
+      final Element e_title = document.createElementNS(XHTML_URI_TEXT, "h3");
       e.appendChild(e_title);
-      e_title.appendChild(year.toString());
+      e_title.setTextContent(year.toString());
 
-      final Element e_table = new Element("table", XHTML_URI_TEXT);
+      final Element e_table = document.createElementNS(XHTML_URI_TEXT, "table");
       e.appendChild(e_table);
 
       for (final ZBlogPost p : posts) {
+        final Optional<ZonedDateTime> date_opt = p.date();
         Preconditions.checkPrecondition(
-          p.date().isPresent(), "Post must have a date");
+          date_opt.isPresent(), "Post must have a date");
 
-        final Element e_tr = new Element("tr", XHTML_URI_TEXT);
+        final Element e_tr = document.createElementNS(XHTML_URI_TEXT, "tr");
         e_table.appendChild(e_tr);
 
-        final Element e_td_date = new Element("td", XHTML_URI_TEXT);
+        final Element e_td_date =
+          document.createElementNS(XHTML_URI_TEXT, "td");
         e_tr.appendChild(e_td_date);
-        e_td_date.appendChild(p.date().get().format(this.format_date));
-        e_td_date.addAttribute(new Attribute("class", null, "zb_post_date"));
+        e_td_date.setTextContent(date_opt.get().format(this.format_date));
+        e_td_date.setAttribute("class", "zb_post_date");
 
-        final Element e_td_title = new Element("td", XHTML_URI_TEXT);
+        final Element e_td_title =
+          document.createElementNS(XHTML_URI_TEXT, "td");
         e_tr.appendChild(e_td_title);
 
-        final Element e_a = new Element("a", XHTML_URI_TEXT);
-        e_a.addAttribute(new Attribute(
-          "href",
-          null,
-          p.outputPermalinkLink(this.config)));
-        e_a.appendChild(p.title());
+        final Element e_a = document.createElementNS(XHTML_URI_TEXT, "a");
+        e_a.setAttribute("href", p.outputPermalinkLink(this.config));
+        e_a.setTextContent(p.title());
 
         e_td_title.appendChild(e_a);
       }
@@ -570,7 +598,7 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
 
       LOG.debug("atom: {}", out_atom);
 
-      try (final OutputStream output = Files.newOutputStream(out_atom)) {
+      try (OutputStream output = Files.newOutputStream(out_atom)) {
         final SyndFeed feed = new SyndFeedImpl();
         feed.setFeedType("atom_0.3");
         feed.setTitle(blog.title());
@@ -601,7 +629,27 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
           final List<SyndContent> content = new ArrayList<>(1);
           final SyndContentImpl cc = new SyndContentImpl();
           cc.setType(Content.TEXT);
-          cc.setValue(ellipsize(post.body().text(), 72));
+
+          {
+            final Optional<ZBlogPostFormatType> format_opt =
+              this.resolver.resolve(post.body().format());
+            if (format_opt.isPresent()) {
+              final ZBlogPostFormatType format = format_opt.get();
+              final Validation<Seq<ZError>, String> result =
+                format.producePlain(post.path(), post.body().text());
+
+              if (result.isValid()) {
+                cc.setValue(ellipsize(result.get(), 256));
+              } else {
+                this.errors = this.errors.appendAll(result.getError());
+                throw new IOException("An error occurred in a format provider");
+              }
+            } else {
+              throw new UnsupportedOperationException(
+                "No format provider exists for the format: " + post.body().format());
+            }
+          }
+
           cc.setMode(Content.ESCAPED);
           content.add(cc);
 
@@ -643,32 +691,32 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
         sb.append(this.config.title());
         sb.append(": Page ");
         sb.append(page_human);
-        sb.append("/");
+        sb.append('/');
         sb.append(pages.size());
         LOG.debug("out: segmented {}", out_xhtml);
 
         try {
-          Files.createDirectories(out_xhtml.getParent());
-          try (final OutputStream output = Files.newOutputStream(out_xhtml)) {
+          final Path parent = out_xhtml.getParent();
+          if (parent == null) {
+            throw new IllegalStateException(
+              "Could not resolve the parent path of: " + out_xhtml);
+          }
+
+          Files.createDirectories(parent);
+          try (OutputStream output = Files.newOutputStream(out_xhtml)) {
             final Page page = this.page(out_xhtml, sb.toString());
 
             for (final ZBlogPost post : pair._2) {
-              page.content.appendChild(this.writePost(post));
+              page.content.appendChild(this.writePost(page.document, post));
             }
 
-            page.footer.insertChild(footerPageLinks(pair, pages), 0);
+            page.footer.insertBefore(
+              footerPageLinks(page.document, pair, pages),
+              page.footer.getFirstChild());
 
-            final Serializer serial = new Serializer(output, "UTF-8");
-            serial.write(page.document);
-            serial.flush();
-          } catch (final ParsingException e) {
-            this.errors = this.errors.append(ZError.of(
-              "Could not process post body: " + e.getMessage(),
-              LexicalPosition.of(
-                0,
-                0,
-                Optional.of(out_xhtml.toAbsolutePath())),
-              Optional.of(e)));
+            ZXML.xmlSerializeToStream(output, page.document);
+          } catch (final ParserConfigurationException | TransformerException e) {
+            this.failException(out_xhtml, e);
           }
         } catch (final IOException e) {
           this.failException(out_xhtml, e);
@@ -690,24 +738,20 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
         LOG.debug("out: permalink {}", out_xhtml);
 
         try {
-          Files.createDirectories(out_xhtml.getParent());
-          try (final OutputStream output = Files.newOutputStream(out_xhtml)) {
+          final Path parent = out_xhtml.getParent();
+          if (parent == null) {
+            throw new IllegalStateException(
+              "Could not resolve the parent path of: " + out_xhtml);
+          }
+
+          Files.createDirectories(parent);
+          try (OutputStream output = Files.newOutputStream(out_xhtml)) {
             final Page page = this.page(out_xhtml, sb.toString());
-            page.content.appendChild(this.writePost(post));
-
+            page.content.appendChild(this.writePost(page.document, post));
             writeFooter(page);
-
-            final Serializer serial = new Serializer(output, "UTF-8");
-            serial.write(page.document);
-            serial.flush();
-          } catch (final ParsingException e) {
-            this.errors = this.errors.append(ZError.of(
-              "Could not process post body: " + e.getMessage(),
-              LexicalPosition.of(
-                e.getLineNumber(),
-                e.getColumnNumber(),
-                Optional.of(out_xhtml.toAbsolutePath())),
-              Optional.of(e)));
+            ZXML.xmlSerializeToStream(output, page.document);
+          } catch (final ParserConfigurationException | TransformerException e) {
+            this.failException(out_xhtml, e);
           }
         } catch (final IOException e) {
           this.failException(out_xhtml, e);
@@ -735,9 +779,9 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
       try {
         LOG.debug("write {} -> {}", name, out_path);
 
-        try (final OutputStream out = Files.newOutputStream(out_path)) {
+        try (OutputStream out = Files.newOutputStream(out_path)) {
           final Class<ZBlogRendererProvider> c = ZBlogRendererProvider.class;
-          try (final InputStream in =
+          try (InputStream in =
                  c.getResourceAsStream("/com/io7m/zeptoblog/core/" + name)) {
             IOUtils.copy(in, out);
             out.flush();
@@ -759,45 +803,48 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
     }
 
     private Element writePost(
+      final Document document,
       final ZBlogPost post)
-      throws ParsingException, IOException
+      throws IOException
     {
-      final Element e = new Element("div", XHTML_URI_TEXT);
-      e.addAttribute(new Attribute("class", "zb_post"));
+      final Element e = document.createElementNS(XHTML_URI_TEXT, "div");
+      e.setAttribute("class", "zb_post");
 
-      final Element e_head = new Element("div", XHTML_URI_TEXT);
-      e_head.addAttribute(new Attribute("class", "zb_post_head"));
+      final Element e_head = document.createElementNS(XHTML_URI_TEXT, "div");
+      e_head.setAttribute("class", "zb_post_head");
 
-      final Element e_foot = new Element("div", XHTML_URI_TEXT);
-      e_foot.addAttribute(new Attribute("class", "zb_post_foot"));
+      final Element e_foot = document.createElementNS(XHTML_URI_TEXT, "div");
+      e_foot.setAttribute("class", "zb_post_foot");
 
       post.date().ifPresent(date -> {
-        final Element e_date = new Element("span", XHTML_URI_TEXT);
-        e_date.addAttribute(new Attribute("class", "zb_post_date"));
-        e_date.appendChild(date.format(this.format_date));
+        final Element e_date = document.createElementNS(XHTML_URI_TEXT, "span");
+        e_date.setAttribute("class", "zb_post_date");
+        e_date.setTextContent(date.format(this.format_date));
         e_head.appendChild(e_date);
-        e_head.appendChild(" ");
+        e_head.appendChild(document.createTextNode(" "));
       });
 
       {
-        final Element e_title = new Element("span", XHTML_URI_TEXT);
-        e_title.addAttribute(new Attribute("class", "zb_post_title"));
+        final Element e_title = document.createElementNS(
+          XHTML_URI_TEXT,
+          "span");
+        e_title.setAttribute("class", "zb_post_title");
 
-        final Element e_a = new Element("a", XHTML_URI_TEXT);
-        e_a.addAttribute(
-          new Attribute("href", null, post.outputPermalinkLink(this.config)));
-        e_a.appendChild(post.title());
+        final Element e_a = document.createElementNS(XHTML_URI_TEXT, "a");
+        e_a.setAttribute("href", post.outputPermalinkLink(this.config));
+        e_a.setTextContent(post.title());
 
         e_title.appendChild(e_a);
         e_head.appendChild(e_title);
       }
 
-      final Element e_body = new Element("div", XHTML_URI_TEXT);
-      e_body.addAttribute(new Attribute("class", "zb_post_body"));
+      final Element e_body = document.createElementNS(XHTML_URI_TEXT, "div");
+      e_body.setAttribute("class", "zb_post_body");
 
       {
         final Optional<ZBlogPostFormatType> format_opt =
           this.resolver.resolve(post.body().format());
+
         if (format_opt.isPresent()) {
           final ZBlogPostFormatType format = format_opt.get();
           final Validation<Seq<ZError>, Element> result =
@@ -805,8 +852,11 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
 
           if (result.isValid()) {
             final Element content = result.get();
-            for (int index = 0; index < content.getChildCount(); ++index) {
-              e_body.appendChild(content.getChild(index).copy());
+            final NodeList nodes = content.getChildNodes();
+            for (int index = 0; index < nodes.getLength(); ++index) {
+              final Node node = nodes.item(index);
+              final Document e_body_owner = e_body.getOwnerDocument();
+              e_body.appendChild(e_body_owner.importNode(node, true));
             }
           } else {
             this.errors = this.errors.appendAll(result.getError());
@@ -828,7 +878,6 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
     public FileVisitResult preVisitDirectory(
       final Path dir,
       final BasicFileAttributes attrs)
-      throws IOException
     {
       return FileVisitResult.CONTINUE;
     }
@@ -860,7 +909,6 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
     public FileVisitResult visitFileFailed(
       final Path file,
       final IOException exc)
-      throws IOException
     {
       this.failException(file, exc);
       return FileVisitResult.CONTINUE;
@@ -870,7 +918,6 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
     public FileVisitResult postVisitDirectory(
       final Path dir,
       final IOException exc)
-      throws IOException
     {
       return FileVisitResult.CONTINUE;
     }

@@ -16,14 +16,12 @@
 
 package com.io7m.zeptoblog.core;
 
-import com.io7m.jfunctional.Unit;
-import com.io7m.jnull.NullCheck;
 import com.io7m.jproperties.JProperties;
-import javaslang.collection.List;
-import javaslang.collection.Seq;
-import javaslang.collection.SortedMap;
-import javaslang.collection.Vector;
-import javaslang.control.Validation;
+import io.vavr.collection.List;
+import io.vavr.collection.Seq;
+import io.vavr.collection.SortedMap;
+import io.vavr.collection.Vector;
+import io.vavr.control.Validation;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -36,13 +34,13 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 
-import static com.io7m.jfunctional.Unit.unit;
-import static javaslang.control.Validation.invalid;
-import static javaslang.control.Validation.sequence;
-import static javaslang.control.Validation.valid;
+import static io.vavr.control.Validation.invalid;
+import static io.vavr.control.Validation.sequence;
+import static io.vavr.control.Validation.valid;
 
 /**
  * The default generator executor.
@@ -71,7 +69,7 @@ public final class ZBlogPostGeneratorExecutor
     this.serializer = new ZBlogPostSerializer();
   }
 
-  private static Validation<List<ZError>, Properties> loadProperties(
+  private static Validation<Seq<ZError>, Properties> loadProperties(
     final Path path)
   {
     LOG.debug("loading properties: {}", path);
@@ -83,7 +81,7 @@ public final class ZBlogPostGeneratorExecutor
     }
   }
 
-  private static Validation<List<ZError>, SortedMap<Path, ZBlogPost>> runGenerator(
+  private static Validation<Seq<ZError>, SortedMap<Path, ZBlogPost>> runGenerator(
     final ZBlogConfiguration config,
     final ZBlogPostGeneratorType generator,
     final Properties props)
@@ -92,17 +90,18 @@ public final class ZBlogPostGeneratorExecutor
     return generator.generate(config, props).mapError(List::ofAll);
   }
 
-  private static Validation<Seq<ZError>, Unit> serializeFile(
+  private static Validation<Seq<ZError>, Void> serializeFile(
     final ZBlogPost post,
     final String text)
   {
-    LOG.debug("writing {}", post.path());
+    final Path path = post.path();
+    LOG.debug("writing {}", path);
 
     try {
-      Files.write(post.path(), text.getBytes(StandardCharsets.UTF_8));
-      return valid(unit());
+      Files.write(path, text.getBytes(StandardCharsets.UTF_8));
+      return valid(null);
     } catch (final IOException e) {
-      return invalid(List.of(ZErrors.ofExceptionPath(e, post.path())));
+      return invalid(List.of(ZErrors.ofExceptionPath(e, path)));
     }
   }
 
@@ -119,7 +118,7 @@ public final class ZBlogPostGeneratorExecutor
   public void resolverRegister(
     final ZBlogPostGeneratorResolverType in_resolver)
   {
-    this.resolver = NullCheck.notNull(in_resolver, "resolver");
+    this.resolver = Objects.requireNonNull(in_resolver, "resolver");
   }
 
   /**
@@ -135,39 +134,40 @@ public final class ZBlogPostGeneratorExecutor
   public void serializerRegister(
     final ZBlogPostSerializerType in_serializer)
   {
-    this.serializer = NullCheck.notNull(in_serializer, "serializer");
+    this.serializer = Objects.requireNonNull(in_serializer, "serializer");
   }
 
-  private Validation<List<ZError>, ZBlogPostGeneratorType> lookupGenerator(
+  private Validation<Seq<ZError>, ZBlogPostGeneratorType> lookupGenerator(
     final String name)
   {
     LOG.debug("looking up generator: {}", name);
 
     final Optional<ZBlogPostGeneratorType> generator_opt =
       this.resolver.resolve(name);
-    if (generator_opt.isPresent()) {
-      return valid(generator_opt.get());
-    }
-    return invalid(List.of(ZErrors.ofMessage("No such generator: " + name)));
+    return generator_opt.<Validation<Seq<ZError>, ZBlogPostGeneratorType>>
+      map(Validation::valid)
+      .orElseGet(() -> invalid(List.of(ZErrors.ofMessage("No such generator: " + name))));
   }
 
   @Override
-  public Validation<Seq<ZError>, Unit> executeAll(
+  public Validation<Seq<ZError>, Void> executeAll(
     final ZBlogConfiguration config)
   {
-    NullCheck.notNull(config, "config");
+    Objects.requireNonNull(config, "config");
+
+    final Seq<ZBlogPostGeneratorRequest> values =
+      config.generatorRequests().values();
 
     return sequence(
-      config.generatorRequests().values().map(
-        request -> this.lookupGenerator(request.generatorName())
-          .flatMap(generator -> loadProperties(request.configFile())
-            .flatMap(props -> runGenerator(config, generator, props)
-              .flatMap(this::serialize)))))
-      .map(x -> unit())
+      values.map(request -> this.lookupGenerator(request.generatorName())
+        .flatMap(generator -> loadProperties(request.configFile())
+          .flatMap(props -> runGenerator(config, generator, props)
+            .flatMap(this::serialize)))))
+      .map(x -> (Void) null)
       .mapError(Vector::ofAll);
   }
 
-  private Validation<List<ZError>, Unit> serialize(
+  private Validation<Seq<ZError>, Void> serialize(
     final SortedMap<Path, ZBlogPost> posts)
   {
     return sequence(
@@ -175,6 +175,6 @@ public final class ZBlogPostGeneratorExecutor
         .map(post -> this.serializer.serialize(post)
           .flatMap(text -> serializeFile(post, text))
           .mapError(List::ofAll)))
-      .flatMap(x -> valid(unit()));
+      .flatMap(x -> valid(null));
   }
 }

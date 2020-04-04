@@ -17,13 +17,12 @@
 package com.io7m.zeptoblog.glossary;
 
 import com.io7m.jlexing.core.LexicalPosition;
-import com.io7m.jnull.NullCheck;
 import com.io7m.zeptoblog.core.ZBlogConfiguration;
 import com.io7m.zeptoblog.core.ZError;
-import javaslang.collection.Seq;
-import javaslang.collection.TreeMap;
-import javaslang.collection.Vector;
-import javaslang.control.Validation;
+import io.vavr.collection.Seq;
+import io.vavr.collection.TreeMap;
+import io.vavr.collection.Vector;
+import io.vavr.control.Validation;
 import org.apache.commons.io.FilenameUtils;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -46,8 +45,8 @@ import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Optional;
 
-import static javaslang.control.Validation.invalid;
-import static javaslang.control.Validation.valid;
+import static io.vavr.control.Validation.invalid;
+import static io.vavr.control.Validation.valid;
 
 /**
  * The default glossary parser provider.
@@ -87,7 +86,7 @@ public final class ZGlossaryParserProvider
   public void setGlossaryItemParserProvider(
     final ZGlossaryItemParserProviderType provider)
   {
-    this.item_provider = NullCheck.notNull(provider, "Item provider");
+    this.item_provider = Objects.requireNonNull(provider, "Item provider");
   }
 
   @Override
@@ -95,8 +94,8 @@ public final class ZGlossaryParserProvider
     final ZBlogConfiguration config,
     final Path path)
   {
-    NullCheck.notNull(config, "config");
-    NullCheck.notNull(path, "path");
+    Objects.requireNonNull(config, "config");
+    Objects.requireNonNull(path, "path");
     return new Parser(this.item_provider, config, path);
   }
 
@@ -116,11 +115,11 @@ public final class ZGlossaryParserProvider
       final Path in_path)
     {
       this.item_provider =
-        NullCheck.notNull(in_item_provider, "Post provider");
+        Objects.requireNonNull(in_item_provider, "Post provider");
       this.config =
-        NullCheck.notNull(in_config, "Config");
+        Objects.requireNonNull(in_config, "Config");
       this.path =
-        NullCheck.notNull(in_path, "Path");
+        Objects.requireNonNull(in_path, "Path");
 
       this.errors = Vector.empty();
       this.builder = ZGlossary.builder();
@@ -159,7 +158,6 @@ public final class ZGlossaryParserProvider
     public FileVisitResult preVisitDirectory(
       final Path dir,
       final BasicFileAttributes attrs)
-      throws IOException
     {
       return FileVisitResult.CONTINUE;
     }
@@ -186,7 +184,7 @@ public final class ZGlossaryParserProvider
     {
       LOG.debug("parsing item {}", file);
 
-      try (final InputStream stream = Files.newInputStream(file)) {
+      try (InputStream stream = Files.newInputStream(file)) {
         final Path absolute = file.toAbsolutePath();
         final Path relative = this.config.sourceRoot().relativize(absolute);
 
@@ -197,20 +195,21 @@ public final class ZGlossaryParserProvider
           this.errors = this.errors.appendAll(r.getError());
         } else {
           final ZGlossaryItem item = r.get();
-
-          if (this.items.containsKey(item.term())) {
+          final String item_term = item.term();
+          if (this.items.containsKey(item_term)) {
             final StringBuilder sb = new StringBuilder(128);
             sb.append("Duplicate glossary item.");
-            sb.append(System.lineSeparator());
+            final String separator = System.lineSeparator();
+            sb.append(separator);
             sb.append("  Post term: ");
-            sb.append(item.term());
-            sb.append(System.lineSeparator());
+            sb.append(item_term);
+            sb.append(separator);
             this.errors.append(ZError.of(
               sb.toString(),
               LexicalPosition.of(0, 0, Optional.of(file)),
               Optional.empty()));
           } else {
-            this.items = this.items.put(item.term(), item);
+            this.items = this.items.put(item_term, item);
           }
         }
       }
@@ -220,7 +219,6 @@ public final class ZGlossaryParserProvider
     public FileVisitResult visitFileFailed(
       final Path file,
       final IOException exc)
-      throws IOException
     {
       if (exc instanceof NoSuchFileException) {
         this.errors = this.errors.append(ZError.of(
@@ -241,7 +239,6 @@ public final class ZGlossaryParserProvider
     public FileVisitResult postVisitDirectory(
       final Path dir,
       final IOException exc)
-      throws IOException
     {
       return FileVisitResult.CONTINUE;
     }

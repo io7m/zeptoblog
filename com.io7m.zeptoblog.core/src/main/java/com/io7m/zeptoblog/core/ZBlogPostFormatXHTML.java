@@ -18,33 +18,35 @@ package com.io7m.zeptoblog.core;
 
 import com.io7m.jlexing.core.LexicalPosition;
 import com.io7m.junreachable.UnreachableCodeException;
-import javaslang.collection.Seq;
-import javaslang.collection.Vector;
-import javaslang.control.Validation;
-import nu.xom.Builder;
-import nu.xom.Document;
-import nu.xom.Element;
-import nu.xom.Elements;
-import nu.xom.ParsingException;
-import nu.xom.Serializer;
+import io.vavr.collection.Seq;
+import io.vavr.collection.Vector;
+import io.vavr.control.Validation;
 import org.osgi.service.component.annotations.Component;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.Optional;
+
+import static io.vavr.control.Validation.invalid;
+import static io.vavr.control.Validation.valid;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * A format provider for XHTML.
  */
 
 @Component
-public final class ZBlogPostFormatXHTML implements
-  ZBlogPostFormatType
+public final class ZBlogPostFormatXHTML implements ZBlogPostFormatType
 {
   /**
    * The name of the format.
@@ -78,17 +80,6 @@ public final class ZBlogPostFormatXHTML implements
 
   }
 
-  private static void setXHTMLNamespace(
-    final Element root)
-  {
-    root.setNamespaceURI(XHTML_URI_TEXT);
-    final Elements elements = root.getChildElements();
-    for (int index = 0; index < elements.size(); ++index) {
-      final Element element = elements.get(index);
-      setXHTMLNamespace(element);
-    }
-  }
-
   /**
    * Serialize the given element as a UTF-8 string.
    *
@@ -100,15 +91,40 @@ public final class ZBlogPostFormatXHTML implements
   public static String serializeXML(
     final Element e)
   {
-    try (final ByteArrayOutputStream bao = new ByteArrayOutputStream()) {
-      final Serializer serial =
-        new Serializer(bao, StandardCharsets.UTF_8.name());
-      serial.write(new Document(e));
-      serial.flush();
-      bao.flush();
-      return new String(bao.toByteArray(), StandardCharsets.UTF_8);
-    } catch (final IOException ex) {
+    try (ByteArrayOutputStream bao = new ByteArrayOutputStream()) {
+      ZXML.xmlSerializeElementToStream(bao, e);
+      return bao.toString(UTF_8.name());
+    } catch (final IOException | TransformerException | ParserConfigurationException ex) {
       throw new UnreachableCodeException(ex);
+    }
+  }
+
+  private static Validation<Seq<ZError>, String> plain(
+    final Path path,
+    final Element e)
+  {
+    try (InputStream is =
+           ZBlogPostFormatXHTML.class.getResourceAsStream("plain.xsl")) {
+      try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+
+        ZXML.xmlTransformElementStream(output, e, is);
+        final String raw_text = output.toString(UTF_8.name());
+        final String[] lines = raw_text.split("\\r?\\n");
+        final StringBuilder text = new StringBuilder(256);
+        text.setLength(0);
+        for (int index = 0; index < lines.length; ++index) {
+          text.append(lines[index].trim());
+          text.append(System.lineSeparator());
+        }
+
+        return valid(text.toString());
+      }
+    } catch (final IOException | ParserConfigurationException | TransformerException ex) {
+      return invalid(Vector.of(
+        ZError.of(
+          ex.getMessage(),
+          LexicalPosition.of(0, 0, Optional.of(path)),
+          Optional.of(ex))));
     }
   }
 
@@ -129,37 +145,47 @@ public final class ZBlogPostFormatXHTML implements
     final Path path,
     final String body)
   {
-    try (final StringWriter writer = new StringWriter(1024)) {
+    Objects.requireNonNull(path, "Path");
+    Objects.requireNonNull(body, "Body");
+
+    final String separator = System.lineSeparator();
+    try (StringWriter writer = new StringWriter(1024)) {
       writer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-      writer.append(System.lineSeparator());
+      writer.append(separator);
       writer.append("<div xmlns=\"");
       writer.append(XHTML_URI_TEXT);
-      writer.append("\"");
-      writer.append(System.lineSeparator());
+      writer.append("\">");
+      writer.append(separator);
       writer.append(body);
-      writer.append(System.lineSeparator());
+      writer.append(separator);
       writer.append("</div>");
-      writer.append(System.lineSeparator());
+      writer.append(separator);
       writer.flush();
 
-      try (final StringReader reader = new StringReader(body)) {
-        final Builder b = new Builder();
-        final Document doc = b.build(reader);
-        final Element root = doc.getRootElement();
-        setXHTMLNamespace(root);
-        return Validation.valid((Element) root.copy());
-      } catch (final ParsingException e) {
-        return Validation.invalid(Vector.of(
+      try (InputStream stream =
+             new ByteArrayInputStream(writer.toString().getBytes(UTF_8))) {
+        return valid(ZXML.xmlParseFromStream(path, stream)
+                       .getDocumentElement());
+      } catch (final SAXException | ParserConfigurationException ex) {
+        return invalid(Vector.of(
           ZError.of(
-            e.getMessage(),
-            LexicalPosition.of(
-              e.getLineNumber(),
-              e.getColumnNumber(),
-              Optional.of(path)),
-            Optional.of(e))));
+            ex.getMessage(),
+            LexicalPosition.of(0, 0, Optional.of(path)),
+            Optional.of(ex))));
       }
     } catch (final IOException e) {
       throw new UnreachableCodeException(e);
     }
+  }
+
+  @Override
+  public Validation<Seq<ZError>, String> producePlain(
+    final Path path,
+    final String text)
+  {
+    Objects.requireNonNull(path, "Path");
+    Objects.requireNonNull(text, "Text");
+
+    return this.produceXHTML(path, text).flatMap(e -> plain(path, e));
   }
 }

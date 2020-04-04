@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.io7m.zeptoblog</groupId>
     <artifactId>com.io7m.zeptoblog</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
   </parent>
 
   <artifactId>com.io7m.zeptoblog.cmdline</artifactId>
@@ -17,6 +17,11 @@
   <name>com.io7m.zeptoblog.cmdline</name>
   <description>Static blog generator (Command-line frontend)</description>
   <url>http://github.com/io7m/zeptoblog</url>
+
+  <properties>
+    <!-- Disable dependency analysis due to ServiceLoader -->
+    <mdep.analyze.skip>true</mdep.analyze.skip>
+  </properties>
 
   <dependencies>
     <dependency>
@@ -43,6 +48,24 @@
       <groupId>com.beust</groupId>
       <artifactId>jcommander</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>com.io7m.jproperties</groupId>
+      <artifactId>com.io7m.jproperties.core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.junreachable</groupId>
+      <artifactId>com.io7m.junreachable.core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.vavr</groupId>
+      <artifactId>vavr</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
@@ -65,7 +88,7 @@
             </goals>
             <configuration>
               <createDependencyReducedPom>false</createDependencyReducedPom>
-              <minimizeJar>true</minimizeJar>
+              <minimizeJar>false</minimizeJar>
               <shadedClassifierName>main</shadedClassifierName>
               <shadedArtifactAttached>true</shadedArtifactAttached>
               <transformers>
@@ -76,56 +99,6 @@
                   </manifestEntries>
                 </transformer>
               </transformers>
-              <filters>
-                <filter>
-                  <artifact>com.io7m.zeptoblog:*</artifact>
-                  <includes>
-                    <include>**</include>
-                  </includes>
-                </filter>
-                <filter>
-                  <artifact>com.io7m.jtensors:*</artifact>
-                  <includes>
-                    <include>**</include>
-                  </includes>
-                </filter>
-                <filter>
-                  <artifact>com.io7m.jlexing:*</artifact>
-                  <includes>
-                    <include>**</include>
-                  </includes>
-                </filter>
-                <filter>
-                  <artifact>io.javaslang:*</artifact>
-                  <includes>
-                    <include>**</include>
-                  </includes>
-                </filter>
-                <filter>
-                  <artifact>commons-io:*</artifact>
-                  <includes>
-                    <include>**</include>
-                  </includes>
-                </filter>
-                <filter>
-                  <artifact>xerces:*</artifact>
-                  <includes>
-                    <include>**</include>
-                  </includes>
-                </filter>
-                <filter>
-                  <artifact>com.rometools:*</artifact>
-                  <includes>
-                    <include>**</include>
-                  </includes>
-                </filter>
-                <filter>
-                  <artifact>com.atlassian.commonmark:*</artifact>
-                  <includes>
-                    <include>**</include>
-                  </includes>
-                </filter>
-              </filters>
             </configuration>
           </execution>
         </executions>

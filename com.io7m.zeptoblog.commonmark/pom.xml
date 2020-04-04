@@ -8,11 +8,11 @@
   <parent>
     <groupId>com.io7m.zeptoblog</groupId>
     <artifactId>com.io7m.zeptoblog</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
   </parent>
 
   <artifactId>com.io7m.zeptoblog.commonmark</artifactId>
-  <packaging>bundle</packaging>
+  <packaging>jar</packaging>
 
   <name>com.io7m.zeptoblog.commonmark</name>
   <description>Static blog generator (CommonMark format support)</description>
@@ -26,6 +26,14 @@
     </dependency>
 
     <dependency>
+      <groupId>com.io7m.junreachable</groupId>
+      <artifactId>com.io7m.junreachable.core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.jlexing</groupId>
+      <artifactId>com.io7m.jlexing.core</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.atlassian.commonmark</groupId>
       <artifactId>commonmark</artifactId>
     </dependency>
@@ -33,16 +41,14 @@
       <groupId>com.atlassian.commonmark</groupId>
       <artifactId>commonmark-ext-heading-anchor</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.service.component.annotations</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.annotation</artifactId>
-      <scope>provided</scope>
+      <groupId>io.vavr</groupId>
+      <artifactId>vavr</artifactId>
     </dependency>
   </dependencies>
 
@@ -54,14 +60,26 @@
         <artifactId>maven-checkstyle-plugin</artifactId>
       </plugin>
 
+      <!-- Analyze semantic versioning -->
       <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <extensions>true</extensions>
+        <groupId>biz.aQute.bnd</groupId>
+        <artifactId>bnd-baseline-maven-plugin</artifactId>
+      </plugin>
+
+      <!-- Spot bugs -->
+      <plugin>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-maven-plugin</artifactId>
+      </plugin>
+
+      <!-- Produce OSGi manifest -->
+      <plugin>
+        <groupId>biz.aQute.bnd</groupId>
+        <artifactId>bnd-maven-plugin</artifactId>
         <configuration>
-          <instructions>
-            <Export-Package>com.io7m.zeptoblog.commonmark</Export-Package>
-          </instructions>
+          <bnd><![CDATA[
+            Export-Package: com.io7m.zeptoblog.commonmark
+]]></bnd>
         </configuration>
       </plugin>
     </plugins>

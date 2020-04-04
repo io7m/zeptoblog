@@ -20,8 +20,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
-import com.io7m.jfunctional.Unit;
-import com.io7m.jnull.NullCheck;
+import java.util.Objects;
 import com.io7m.jproperties.JProperties;
 import com.io7m.zeptoblog.core.ZBlog;
 import com.io7m.zeptoblog.core.ZBlogConfiguration;
@@ -37,8 +36,8 @@ import com.io7m.zeptoblog.core.ZBlogRendererProvider;
 import com.io7m.zeptoblog.core.ZBlogRendererProviderType;
 import com.io7m.zeptoblog.core.ZBlogRendererType;
 import com.io7m.zeptoblog.core.ZError;
-import javaslang.collection.Seq;
-import javaslang.control.Validation;
+import io.vavr.collection.Seq;
+import io.vavr.control.Validation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,8 +46,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
-
-import static com.io7m.jfunctional.Unit.unit;
 
 /**
  * Command-line frontend.
@@ -70,7 +67,7 @@ public final class ZBlogMain implements Runnable
   private ZBlogMain(
     final String[] in_args)
   {
-    this.args = NullCheck.notNull(in_args);
+    this.args = Objects.requireNonNull(in_args);
 
     final CommandRoot r = new CommandRoot();
     final CommandCompile compile = new CommandCompile();
@@ -127,7 +124,7 @@ public final class ZBlogMain implements Runnable
       final String cmd = this.commander.getParsedCommand();
       if (cmd == null) {
         final StringBuilder sb = new StringBuilder(128);
-        this.commander.usage(sb);
+        this.commander.usage();
         LOG.info("Arguments required.\n{}", sb.toString());
         return;
       }
@@ -136,9 +133,8 @@ public final class ZBlogMain implements Runnable
       command.call();
 
     } catch (final ParameterException e) {
-      final StringBuilder sb = new StringBuilder(128);
-      this.commander.usage(sb);
-      LOG.error("{}\n{}", e.getMessage(), sb.toString());
+      LOG.error("error: ", e);
+      this.commander.usage();
       this.exit_code = 1;
     } catch (final Exception e) {
       LOG.error("{}", e.getMessage(), e);
@@ -146,7 +142,7 @@ public final class ZBlogMain implements Runnable
     }
   }
 
-  private interface CommandType extends Callable<Unit>
+  private interface CommandType extends Callable<Void>
   {
 
   }
@@ -165,14 +161,14 @@ public final class ZBlogMain implements Runnable
     }
 
     @Override
-    public Unit call()
+    public Void call()
       throws Exception
     {
       final ch.qos.logback.classic.Logger root =
         (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(
           Logger.ROOT_LOGGER_NAME);
       root.setLevel(this.verbose.toLevel());
-      return unit();
+      return null;
     }
   }
 
@@ -185,14 +181,14 @@ public final class ZBlogMain implements Runnable
     }
 
     @Override
-    public Unit call()
+    public Void call()
       throws Exception
     {
       super.call();
 
       new ZBlogPostFormatResolverSL().available().forEach(
         p -> System.out.printf("%-32s : %s\n", p.name(), p.description()));
-      return unit();
+      return null;
     }
   }
 
@@ -205,14 +201,14 @@ public final class ZBlogMain implements Runnable
     }
 
     @Override
-    public Unit call()
+    public Void call()
       throws Exception
     {
       super.call();
 
       new ZBlogPostGeneratorResolverSL().available().forEach(
         p -> System.out.printf("%-32s : %s\n", p.name(), p.description()));
-      return unit();
+      return null;
     }
   }
 
@@ -232,7 +228,7 @@ public final class ZBlogMain implements Runnable
 
 
     @Override
-    public Unit call()
+    public Void call()
       throws Exception
     {
       super.call();
@@ -251,11 +247,11 @@ public final class ZBlogMain implements Runnable
 
       final ZBlogConfiguration config = cr.get();
       final ZBlogPostGeneratorExecutorType exec = new ZBlogPostGeneratorExecutor();
-      final Validation<Seq<ZError>, Unit> er = exec.executeAll(config);
+      final Validation<Seq<ZError>, Void> er = exec.executeAll(config);
       if (!er.isValid()) {
         ZBlogMain.this.exit_code = 1;
         er.getError().forEach(ZBlogMain::show);
-        return unit();
+        return null;
       }
 
       final ZBlogParserProviderType blog_provider = new ZBlogParserProvider();
@@ -264,7 +260,7 @@ public final class ZBlogMain implements Runnable
       if (!br.isValid()) {
         ZBlogMain.this.exit_code = 1;
         br.getError().forEach(ZBlogMain::show);
-        return unit();
+        return null;
       }
 
       final ZBlogRendererProviderType blog_writer_provider =
@@ -273,15 +269,15 @@ public final class ZBlogMain implements Runnable
         blog_writer_provider.createRenderer(config);
 
       final ZBlog blog = br.get();
-      final Validation<Seq<ZError>, Unit> wr = blog_writer.render(blog);
+      final Validation<Seq<ZError>, Void> wr = blog_writer.render(blog);
       if (!wr.isValid()) {
         ZBlogMain.this.exit_code = 1;
         wr.getError().forEach(ZBlogMain::show);
-        return unit();
+        return null;
       }
 
       LOG.debug("done");
-      return unit();
+      return null;
     }
   }
 }
