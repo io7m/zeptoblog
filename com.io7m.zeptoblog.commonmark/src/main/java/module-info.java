@@ -14,21 +14,28 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+import com.io7m.zeptoblog.commonmark.ZBlogPostFormatCommonMark;
+
 /**
  * Static blog generator (CommonMark format support)
  */
 
 module com.io7m.zeptoblog.commonmark
 {
+  requires static org.osgi.annotation.bundle;
+  requires static org.osgi.annotation.versioning;
   requires static org.osgi.service.component.annotations;
 
-  requires com.io7m.zeptoblog.core;
+  requires com.io7m.jlexing.core;
   requires com.io7m.junreachable.core;
-  requires org.commonmark;
-  requires org.commonmark.ext.heading.anchor;
+  requires com.io7m.zeptoblog.core;
   requires io.vavr;
   requires java.xml;
-  requires com.io7m.jlexing.core;
+  requires org.commonmark.ext.heading.anchor;
+  requires org.commonmark;
+
+  provides com.io7m.zeptoblog.core.ZBlogPostFormatType
+    with ZBlogPostFormatCommonMark;
 
   exports com.io7m.zeptoblog.commonmark;
 }

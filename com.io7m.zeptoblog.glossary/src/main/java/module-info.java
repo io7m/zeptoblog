@@ -14,6 +14,12 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+import com.io7m.zeptoblog.glossary.ZGlossaryGenerator;
+import com.io7m.zeptoblog.glossary.ZGlossaryItemParserProvider;
+import com.io7m.zeptoblog.glossary.ZGlossaryItemParserProviderType;
+import com.io7m.zeptoblog.glossary.ZGlossaryParserProvider;
+import com.io7m.zeptoblog.glossary.ZGlossaryParserProviderType;
+
 /**
  * Static blog generator (Glossary generation)
  */
@@ -22,7 +28,8 @@ module com.io7m.zeptoblog.glossary
 {
   requires static org.immutables.value;
   requires static org.immutables.vavr.encodings;
-  requires static org.osgi.annotation;
+  requires static org.osgi.annotation.bundle;
+  requires static org.osgi.annotation.versioning;
   requires static org.osgi.service.component.annotations;
 
   requires com.io7m.jlexing.core;
@@ -32,6 +39,13 @@ module com.io7m.zeptoblog.glossary
   requires java.xml;
   requires org.apache.commons.io;
   requires org.slf4j;
+
+  provides com.io7m.zeptoblog.core.ZBlogPostGeneratorType
+    with ZGlossaryGenerator;
+  provides ZGlossaryItemParserProviderType
+    with ZGlossaryItemParserProvider;
+  provides ZGlossaryParserProviderType
+    with ZGlossaryParserProvider;
 
   exports com.io7m.zeptoblog.glossary;
 }

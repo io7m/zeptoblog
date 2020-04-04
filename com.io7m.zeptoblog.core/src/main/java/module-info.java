@@ -14,6 +14,9 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+import com.io7m.zeptoblog.core.ZBlogPostFormatType;
+import com.io7m.zeptoblog.core.ZBlogPostGeneratorType;
+
 /**
  * Static blog generator (Core)
  */
@@ -22,7 +25,8 @@ module com.io7m.zeptoblog.core
 {
   requires static org.immutables.value;
   requires static org.immutables.vavr.encodings;
-  requires static org.osgi.annotation;
+  requires static org.osgi.annotation.bundle;
+  requires static org.osgi.annotation.versioning;
   requires static org.osgi.service.component.annotations;
 
   requires com.io7m.jaffirm.core;
@@ -34,6 +38,9 @@ module com.io7m.zeptoblog.core
   requires java.xml;
   requires org.apache.commons.io;
   requires org.slf4j;
+
+  uses ZBlogPostFormatType;
+  uses ZBlogPostGeneratorType;
 
   exports com.io7m.zeptoblog.core;
 }
