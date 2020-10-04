@@ -10,9 +10,9 @@ zeptoblog
 
 | JVM             | Platform | Status |
 |-----------------|----------|--------|
-| OpenJDK LTS     | Linux    | [![Build (OpenJDK LTS, Linux)](https://img.shields.io/github/workflow/status/io7m/zeptoblog/main-openjdk_lts-linux?label=build-openjdk_lts-linux)](https://github.com/io7m/zeptoblog/actions?query=workflow%3Amain-openjdk_lts-linux) |
-| OpenJDK Current | Linux    | [![Build (OpenJDK Current, Linux)](https://img.shields.io/github/workflow/status/io7m/zeptoblog/main-openjdk_current-linux?label=build-openjdk_current-linux)](https://github.com/io7m/zeptoblog/actions?query=workflow%3Amain-openjdk_current-linux)
-| OpenJDK Current | Windows  | [![Build (OpenJDK Current, Windows)](https://img.shields.io/github/workflow/status/io7m/zeptoblog/main-openjdk_current-windows?label=build-openjdk_current-windows)](https://github.com/io7m/zeptoblog/actions?query=workflow%3Amain-openjdk_current-windows)
+| OpenJDK LTS     | Linux    | [![Build (OpenJDK LTS, Linux)](https://img.shields.io/github/workflow/status/io7m/zeptoblog/main-openjdk_lts-linux)](https://github.com/io7m/zeptoblog/actions?query=workflow%3Amain-openjdk_lts-linux) |
+| OpenJDK Current | Linux    | [![Build (OpenJDK Current, Linux)](https://img.shields.io/github/workflow/status/io7m/zeptoblog/main-openjdk_current-linux)](https://github.com/io7m/zeptoblog/actions?query=workflow%3Amain-openjdk_current-linux)
+| OpenJDK Current | Windows  | [![Build (OpenJDK Current, Windows)](https://img.shields.io/github/workflow/status/io7m/zeptoblog/main-openjdk_current-windows)](https://github.com/io7m/zeptoblog/actions?query=workflow%3Amain-openjdk_current-windows)
 
 ## Contents
 
