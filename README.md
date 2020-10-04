@@ -6,11 +6,13 @@ zeptoblog
 [![Codacy Badge](https://img.shields.io/codacy/grade/6589f45ce9894044b13940a85aaf555c.svg?style=flat-square)](https://www.codacy.com/app/github_79/zeptoblog?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=io7m/zeptoblog&amp;utm_campaign=Badge_Grade)
 [![Codecov](https://img.shields.io/codecov/c/github/io7m/zeptoblog.svg?style=flat-square)](https://codecov.io/gh/io7m/zeptoblog)
 
-[![Build (OpenJDK LTS, Linux)](https://img.shields.io/github/workflow/status/io7m/zeptoblog/main-openjdk_lts-linux?label=build-openjdk_lts-linux)](https://github.com/io7m/zeptoblog/actions?query=workflow%3Amain-openjdk_lts-linux)
-[![Build (OpenJDK Current, Linux)](https://img.shields.io/github/workflow/status/io7m/zeptoblog/main-openjdk_current-linux?label=build-openjdk_current-linux)](https://github.com/io7m/zeptoblog/actions?query=workflow%3Amain-openjdk_current-linux)
-[![Build (OpenJDK Current, Windows)](https://img.shields.io/github/workflow/status/io7m/zeptoblog/main-openjdk_current-windows?label=build-openjdk_current-windows)](https://github.com/io7m/zeptoblog/actions?query=workflow%3Amain-openjdk_current-windows)
-
 ![zeptoblog](./src/site/resources/zeptoblog.jpg?raw=true)
+
+| JVM             | Platform | Status |
+|-----------------|----------|--------|
+| OpenJDK LTS     | Linux    | [![Build (OpenJDK LTS, Linux)](https://img.shields.io/github/workflow/status/io7m/zeptoblog/main-openjdk_lts-linux?label=build-openjdk_lts-linux)](https://github.com/io7m/zeptoblog/actions?query=workflow%3Amain-openjdk_lts-linux) |
+| OpenJDK Current | Linux    | [![Build (OpenJDK Current, Linux)](https://img.shields.io/github/workflow/status/io7m/zeptoblog/main-openjdk_current-linux?label=build-openjdk_current-linux)](https://github.com/io7m/zeptoblog/actions?query=workflow%3Amain-openjdk_current-linux)
+| OpenJDK Current | Windows  | [![Build (OpenJDK Current, Windows)](https://img.shields.io/github/workflow/status/io7m/zeptoblog/main-openjdk_current-windows?label=build-openjdk_current-windows)](https://github.com/io7m/zeptoblog/actions?query=workflow%3Amain-openjdk_current-windows)
 
 ## Contents
 
