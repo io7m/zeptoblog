@@ -8,10 +8,6 @@
          <img src="https://img.shields.io/maven-central/v/com.io7m.zeptoblog/com.io7m.zeptoblog.png?style=flat-square"
               alt="Maven Central"/>
       </a>
-      <a href="https://www.codacy.com/app/github_79/zeptoblog">
-         <img src="https://img.shields.io/codacy/grade/6589f45ce9894044b13940a85aaf555c.png?style=flat-square"
-              alt="Codacy"/>
-      </a>
       <a href="https://codecov.io/gh/io7m/zeptoblog">
          <img src="https://img.shields.io/codecov/c/github/io7m/zeptoblog.png?style=flat-square"
               alt="Codecov"/>
