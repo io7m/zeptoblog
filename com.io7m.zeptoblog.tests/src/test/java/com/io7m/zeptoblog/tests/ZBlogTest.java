@@ -81,7 +81,7 @@ public final class ZBlogTest
         ZBlogPost.of(
           title,
           Optional.of(date),
-          Paths.get("/", Integer.toString(index)),
+          Paths.get(Integer.toString(index)).toAbsolutePath(),
           ZBlogPostBody.of("unknown", body));
       posts = posts.put(post.path(), post);
     }

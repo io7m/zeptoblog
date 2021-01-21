@@ -95,8 +95,8 @@ public final class ZBlogConfigurationsTest
 
     final ZBlogConfiguration c = r.get();
     Assert.assertEquals("title", c.title());
-    Assert.assertEquals(Paths.get("/source"), c.sourceRoot());
-    Assert.assertEquals(Paths.get("/output"), c.outputRoot());
+    Assert.assertEquals(Paths.get("/source").toAbsolutePath(), c.sourceRoot());
+    Assert.assertEquals(Paths.get("/output").toAbsolutePath(), c.outputRoot());
     Assert.assertEquals(URI.create("http://example.com"), c.siteURI());
     Assert.assertEquals("author", c.author());
     Assert.assertEquals(23L, (long) c.postsPerPage());
