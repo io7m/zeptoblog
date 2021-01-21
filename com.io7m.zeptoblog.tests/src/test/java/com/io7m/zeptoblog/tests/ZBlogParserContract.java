@@ -25,8 +25,8 @@ import com.io7m.zeptoblog.core.ZBlogPost;
 import com.io7m.zeptoblog.core.ZError;
 import io.vavr.collection.Seq;
 import io.vavr.control.Validation;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,8 +83,8 @@ public abstract class ZBlogParserContract
       final ZBlogParserType parser = prov.createParser(config);
       final Validation<Seq<ZError>, ZBlog> result = parser.parse();
       dumpResult(result);
-      Assert.assertTrue(result.isInvalid());
-      Assert.assertTrue(result.getError().get(0).error().get() instanceof NoSuchFileException);
+      Assertions.assertTrue(result.isInvalid());
+      Assertions.assertTrue(result.getError().get(0).error().get() instanceof NoSuchFileException);
     }
   }
 
@@ -101,11 +101,11 @@ public abstract class ZBlogParserContract
       final ZBlogParserType parser = prov.createParser(config);
       final Validation<Seq<ZError>, ZBlog> result = parser.parse();
       dumpResult(result);
-      Assert.assertTrue(result.isValid());
+      Assertions.assertTrue(result.isValid());
       final ZBlog blog = result.get();
-      Assert.assertTrue(blog.posts().isEmpty());
-      Assert.assertTrue(blog.postsByDate().isEmpty());
-      Assert.assertEquals("title", blog.title());
+      Assertions.assertTrue(blog.posts().isEmpty());
+      Assertions.assertTrue(blog.postsByDate().isEmpty());
+      Assertions.assertEquals("title", blog.title());
     }
   }
 
@@ -137,16 +137,16 @@ public abstract class ZBlogParserContract
       final ZBlogParserType parser = prov.createParser(config);
       final Validation<Seq<ZError>, ZBlog> result = parser.parse();
       dumpResult(result);
-      Assert.assertTrue(result.isValid());
+      Assertions.assertTrue(result.isValid());
       final ZBlog blog = result.get();
-      Assert.assertEquals(1L, (long) blog.posts().size());
-      Assert.assertEquals(1L, (long) blog.postsByDate().size());
-      Assert.assertEquals("title", blog.title());
+      Assertions.assertEquals(1L, blog.posts().size());
+      Assertions.assertEquals(1L, blog.postsByDate().size());
+      Assertions.assertEquals("title", blog.title());
 
       {
         final ZBlogPost p = blog.posts().last()._2;
-        Assert.assertEquals("Title", p.title());
-        Assert.assertEquals(2020L, (long) p.date().get().getYear());
+        Assertions.assertEquals("Title", p.title());
+        Assertions.assertEquals(2020L, p.date().get().getYear());
       }
     }
   }
@@ -174,7 +174,7 @@ public abstract class ZBlogParserContract
       final ZBlogParserType parser = prov.createParser(config);
       final Validation<Seq<ZError>, ZBlog> result = parser.parse();
       dumpResult(result);
-      Assert.assertTrue(result.isInvalid());
+      Assertions.assertTrue(result.isInvalid());
     }
   }
 }

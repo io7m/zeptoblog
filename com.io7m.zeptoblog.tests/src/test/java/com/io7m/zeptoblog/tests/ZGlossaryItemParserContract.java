@@ -26,9 +26,8 @@ import com.io7m.zeptoblog.glossary.ZGlossaryItemParserType;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.Seq;
 import io.vavr.control.Validation;
-import org.hamcrest.core.StringContains;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,8 +95,8 @@ public abstract class ZGlossaryItemParserContract
 
         final Validation<Seq<ZError>, ZGlossaryItem> r = p.parse();
         dumpResult(r);
-        Assert.assertTrue(r.isInvalid());
-        Assert.assertTrue(r.getError().get(0).message().contains(
+        Assertions.assertTrue(r.isInvalid());
+        Assertions.assertTrue(r.getError().get(0).message().contains(
           "Unexpected EOF"));
       }
     }
@@ -124,8 +123,8 @@ public abstract class ZGlossaryItemParserContract
 
         final Validation<Seq<ZError>, ZGlossaryItem> r = p.parse();
         dumpResult(r);
-        Assert.assertTrue(r.isInvalid());
-        Assert.assertTrue(r.getError().get(0).message().contains("Syntax error"));
+        Assertions.assertTrue(r.isInvalid());
+        Assertions.assertTrue(r.getError().get(0).message().contains("Syntax error"));
       }
     }
   }
@@ -151,8 +150,8 @@ public abstract class ZGlossaryItemParserContract
 
         final Validation<Seq<ZError>, ZGlossaryItem> r = p.parse();
         dumpResult(r);
-        Assert.assertTrue(r.isInvalid());
-        Assert.assertTrue(r.getError().get(0).message().contains("Syntax error"));
+        Assertions.assertTrue(r.isInvalid());
+        Assertions.assertTrue(r.getError().get(0).message().contains("Syntax error"));
       }
     }
   }
@@ -178,8 +177,8 @@ public abstract class ZGlossaryItemParserContract
 
         final Validation<Seq<ZError>, ZGlossaryItem> r = p.parse();
         dumpResult(r);
-        Assert.assertTrue(r.isInvalid());
-        Assert.assertTrue(r.getError().get(0).message().contains("Syntax error"));
+        Assertions.assertTrue(r.isInvalid());
+        Assertions.assertTrue(r.getError().get(0).message().contains("Syntax error"));
       }
     }
   }
@@ -205,8 +204,8 @@ public abstract class ZGlossaryItemParserContract
 
         final Validation<Seq<ZError>, ZGlossaryItem> r = p.parse();
         dumpResult(r);
-        Assert.assertTrue(r.isInvalid());
-        Assert.assertTrue(r.getError().get(0).message().contains("Unrecognized"));
+        Assertions.assertTrue(r.isInvalid());
+        Assertions.assertTrue(r.getError().get(0).message().contains("Unrecognized"));
       }
     }
   }
@@ -239,15 +238,13 @@ public abstract class ZGlossaryItemParserContract
 
         final Validation<Seq<ZError>, ZGlossaryItem> r = p.parse();
         dumpResult(r);
-        Assert.assertTrue(r.isValid());
+        Assertions.assertTrue(r.isValid());
 
         final ZGlossaryItem i = r.get();
-        Assert.assertEquals("A", i.term());
-        Assert.assertEquals(HashSet.of("X", "Y", "Z"), i.seeAlso());
-        Assert.assertEquals("F", i.body().format());
-        Assert.assertThat(
-          i.body().text(),
-          StringContains.containsString("Hello."));
+        Assertions.assertEquals("A", i.term());
+        Assertions.assertEquals(HashSet.of("X", "Y", "Z"), i.seeAlso());
+        Assertions.assertEquals("F", i.body().format());
+        Assertions.assertTrue(i.body().text().contains("Hello."));
       }
     }
   }
@@ -278,15 +275,13 @@ public abstract class ZGlossaryItemParserContract
 
         final Validation<Seq<ZError>, ZGlossaryItem> r = p.parse();
         dumpResult(r);
-        Assert.assertTrue(r.isValid());
+        Assertions.assertTrue(r.isValid());
 
         final ZGlossaryItem i = r.get();
-        Assert.assertEquals("A", i.term());
-        Assert.assertEquals(HashSet.of("X", "Y", "Z"), i.seeAlso());
-        Assert.assertEquals(ZBlogPostFormatCommonMark.NAME, i.body().format());
-        Assert.assertThat(
-          i.body().text(),
-          StringContains.containsString("Hello."));
+        Assertions.assertEquals("A", i.term());
+        Assertions.assertEquals(HashSet.of("X", "Y", "Z"), i.seeAlso());
+        Assertions.assertEquals(ZBlogPostFormatCommonMark.NAME, i.body().format());
+        Assertions.assertTrue(i.body().text().contains("Hello."));
       }
     }
   }

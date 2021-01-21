@@ -24,8 +24,8 @@ import io.vavr.collection.Seq;
 import io.vavr.collection.TreeMap;
 import io.vavr.collection.Vector;
 import org.apache.commons.codec.binary.Hex;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,10 +48,10 @@ public final class ZBlogTest
   public void testEmpty()
   {
     final ZBlog blog = ZBlog.of("title", TreeMap.empty());
-    Assert.assertEquals("title", blog.title());
-    Assert.assertTrue(blog.posts().isEmpty());
-    Assert.assertTrue(blog.postsByDate().isEmpty());
-    Assert.assertTrue(blog.postsGroupedByPage(10).isEmpty());
+    Assertions.assertEquals("title", blog.title());
+    Assertions.assertTrue(blog.posts().isEmpty());
+    Assertions.assertTrue(blog.postsByDate().isEmpty());
+    Assertions.assertTrue(blog.postsGroupedByPage(10).isEmpty());
   }
 
   @Test
@@ -87,12 +87,12 @@ public final class ZBlogTest
     }
 
     final ZBlog blog = ZBlog.of("title", posts);
-    Assert.assertEquals("title", blog.title());
-    Assert.assertEquals(posts, blog.posts());
-    Assert.assertEquals(100L, (long) blog.posts().size());
+    Assertions.assertEquals("title", blog.title());
+    Assertions.assertEquals(posts, blog.posts());
+    Assertions.assertEquals(100L, blog.posts().size());
 
     for (final Tuple2<Path, ZBlogPost> pair : blog.posts()) {
-      Assert.assertEquals(
+      Assertions.assertEquals(
         pair._2,
         blog.postsByDate().get(pair._2.date().get()).get());
     }
@@ -102,12 +102,12 @@ public final class ZBlogTest
       final Seq<ZBlogPost> page = pair._2;
       LOG.debug("page[{}] {}", pair._1, Integer.valueOf(page.size()));
 
-      Assert.assertEquals(10L, (long) page.size());
+      Assertions.assertEquals(10L, page.size());
       all = all.appendAll(page);
     }
 
     for (final Tuple2<Path, ZBlogPost> pair : blog.posts()) {
-      Assert.assertTrue(all.contains(pair._2));
+      Assertions.assertTrue(all.contains(pair._2));
     }
   }
 }

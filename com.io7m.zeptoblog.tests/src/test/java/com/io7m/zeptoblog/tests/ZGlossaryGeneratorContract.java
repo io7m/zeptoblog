@@ -24,9 +24,8 @@ import com.io7m.zeptoblog.core.ZError;
 import io.vavr.collection.Seq;
 import io.vavr.collection.SortedMap;
 import io.vavr.control.Validation;
-import org.hamcrest.core.StringContains;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,10 +78,9 @@ public abstract class ZGlossaryGeneratorContract
         gen.generate(config, props);
 
       dumpResult(r);
-      Assert.assertTrue(r.isInvalid());
-      Assert.assertThat(
-        r.getError().get(0).message(),
-        StringContains.containsString("source_dir"));
+      Assertions.assertTrue(r.isInvalid());
+      Assertions.assertTrue(
+        r.getError().get(0).message().contains("source_dir"));
     }
   }
 
@@ -99,10 +97,9 @@ public abstract class ZGlossaryGeneratorContract
         gen.generate(config, props);
 
       dumpResult(r);
-      Assert.assertTrue(r.isInvalid());
-      Assert.assertThat(
-        r.getError().get(0).message(),
-        StringContains.containsString("output_file"));
+      Assertions.assertTrue(r.isInvalid());
+      Assertions.assertTrue(
+        r.getError().get(0).message().contains("output_file"));
     }
   }
 
@@ -124,10 +121,10 @@ public abstract class ZGlossaryGeneratorContract
         gen.generate(config, props);
 
       dumpResult(r);
-      Assert.assertTrue(r.isValid());
+      Assertions.assertTrue(r.isValid());
 
       final SortedMap<Path, ZBlogPost> glossary = r.get();
-      Assert.assertEquals(1L, (long) glossary.size());
+      Assertions.assertEquals(1L, (long) glossary.size());
     }
   }
 }

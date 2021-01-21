@@ -24,9 +24,8 @@ import com.io7m.zeptoblog.core.ZBlogPostGeneratorRequest;
 import com.io7m.zeptoblog.core.ZError;
 import io.vavr.collection.Seq;
 import io.vavr.control.Validation;
-import org.hamcrest.core.StringContains;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -54,7 +53,7 @@ public final class ZBlogConfigurationsTest
     final Properties p = new Properties();
     final Validation<Seq<ZError>, ZBlogConfiguration> r =
       ZBlogConfigurations.fromProperties(Paths.get("/x/y/z"), p);
-    Assert.assertTrue(r.isInvalid());
+    Assertions.assertTrue(r.isInvalid());
   }
 
   @Test
@@ -65,8 +64,8 @@ public final class ZBlogConfigurationsTest
 
     final Validation<Seq<ZError>, ZBlogConfiguration> r =
       ZBlogConfigurations.fromProperties(Paths.get("/x/y/z"), p);
-    Assert.assertTrue(r.isInvalid());
-    Assert.assertTrue(r.getError().get(0).error().get() instanceof URISyntaxException);
+    Assertions.assertTrue(r.isInvalid());
+    Assertions.assertTrue(r.getError().get(0).error().get() instanceof URISyntaxException);
   }
 
   @Test
@@ -77,8 +76,8 @@ public final class ZBlogConfigurationsTest
 
     final Validation<Seq<ZError>, ZBlogConfiguration> r =
       ZBlogConfigurations.fromProperties(Paths.get("/x/y/z"), p);
-    Assert.assertTrue(r.isInvalid());
-    Assert.assertTrue(r.getError().get(0).error().get() instanceof JPropertyIncorrectType);
+    Assertions.assertTrue(r.isInvalid());
+    Assertions.assertTrue(r.getError().get(0).error().get() instanceof JPropertyIncorrectType);
   }
 
   @Test
@@ -91,20 +90,24 @@ public final class ZBlogConfigurationsTest
 
     final Validation<Seq<ZError>, ZBlogConfiguration> r =
       ZBlogConfigurations.fromProperties(Paths.get("/x/y/z"), p);
-    Assert.assertTrue(r.isValid());
+    Assertions.assertTrue(r.isValid());
 
     final ZBlogConfiguration c = r.get();
-    Assert.assertEquals("title", c.title());
-    Assert.assertEquals(Paths.get("/source").toAbsolutePath(), c.sourceRoot());
-    Assert.assertEquals(Paths.get("/output").toAbsolutePath(), c.outputRoot());
-    Assert.assertEquals(URI.create("http://example.com"), c.siteURI());
-    Assert.assertEquals("author", c.author());
-    Assert.assertEquals(23L, (long) c.postsPerPage());
+    Assertions.assertEquals("title", c.title());
+    Assertions.assertEquals(
+      Paths.get("/source").toAbsolutePath(),
+      c.sourceRoot());
+    Assertions.assertEquals(
+      Paths.get("/output").toAbsolutePath(),
+      c.outputRoot());
+    Assertions.assertEquals(URI.create("http://example.com"), c.siteURI());
+    Assertions.assertEquals("author", c.author());
+    Assertions.assertEquals(23L, c.postsPerPage());
 
     final ZBlogPostGeneratorRequest g = c.generatorRequests().get("x").get();
-    Assert.assertEquals(g.name(), "x");
-    Assert.assertEquals(g.generatorName(), "y");
-    Assert.assertEquals(g.configFile().toString(), "z");
+    Assertions.assertEquals(g.name(), "x");
+    Assertions.assertEquals(g.generatorName(), "y");
+    Assertions.assertEquals(g.configFile().toString(), "z");
   }
 
   @Test
@@ -115,10 +118,8 @@ public final class ZBlogConfigurationsTest
 
     final Validation<Seq<ZError>, ZBlogConfiguration> r =
       ZBlogConfigurations.fromProperties(Paths.get("/x/y/z"), p);
-    Assert.assertTrue(r.isInvalid());
-    Assert.assertThat(
-      r.getError().get(0).message(),
-      StringContains.containsString("x"));
+    Assertions.assertTrue(r.isInvalid());
+    Assertions.assertTrue(r.getError().get(0).message().contains("x"));
   }
 
   @Test
@@ -130,10 +131,8 @@ public final class ZBlogConfigurationsTest
 
     final Validation<Seq<ZError>, ZBlogConfiguration> r =
       ZBlogConfigurations.fromProperties(Paths.get("/x/y/z"), p);
-    Assert.assertTrue(r.isInvalid());
-    Assert.assertThat(
-      r.getError().get(0).message(),
-      StringContains.containsString("file"));
+    Assertions.assertTrue(r.isInvalid());
+    Assertions.assertTrue(r.getError().get(0).message().contains("file"));
   }
 
   @Test
@@ -145,9 +144,7 @@ public final class ZBlogConfigurationsTest
 
     final Validation<Seq<ZError>, ZBlogConfiguration> r =
       ZBlogConfigurations.fromProperties(Paths.get("/x/y/z"), p);
-    Assert.assertTrue(r.isInvalid());
-    Assert.assertThat(
-      r.getError().get(0).message(),
-      StringContains.containsString("type"));
+    Assertions.assertTrue(r.isInvalid());
+    Assertions.assertTrue(r.getError().get(0).message().contains("type"));
   }
 }

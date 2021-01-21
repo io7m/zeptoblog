@@ -21,8 +21,8 @@ import com.io7m.zeptoblog.core.ZError;
 import io.vavr.collection.Seq;
 import io.vavr.control.Validation;
 import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +61,7 @@ public final class ZBlogPostFormatCommonMarkTest
         format.producePlain(Paths.get("/simple.cmark"), text);
 
       dumpError(result);
-      Assert.assertTrue(result.isValid());
+      Assertions.assertTrue(result.isValid());
 
       System.out.println(result.get());
     }

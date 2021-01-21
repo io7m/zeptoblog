@@ -26,8 +26,8 @@ import com.io7m.zeptoblog.core.ZBlogRendererType;
 import com.io7m.zeptoblog.core.ZError;
 import io.vavr.collection.Seq;
 import io.vavr.control.Validation;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +67,32 @@ public abstract class ZBlogRendererContract
     }
   }
 
+  private static void runOne(
+    final ZBlogParserProviderType p_prov,
+    final ZBlogRendererProviderType w_prov,
+    final ZBlogConfiguration config)
+  {
+    final ZBlogParserType parser = p_prov.createParser(config);
+    final Validation<Seq<ZError>, ZBlog> result = parser.parse();
+    dumpResult(result);
+    Assertions.assertTrue(result.isValid());
+    final ZBlog blog = result.get();
+
+    final ZBlogRendererType writer = w_prov.createRenderer(config);
+    final Validation<Seq<ZError>, Void> w_result = writer.render(blog);
+    dumpResult(w_result);
+    Assertions.assertTrue(w_result.isValid());
+
+    Assertions.assertTrue(
+      Files.isRegularFile(config.outputRoot().resolve("one.xhtml")));
+    Assertions.assertTrue(
+      Files.isRegularFile(config.outputRoot().resolve("1.xhtml")));
+    Assertions.assertTrue(
+      Files.isRegularFile(config.outputRoot().resolve("yearly.xhtml")));
+    Assertions.assertTrue(
+      Files.isRegularFile(config.outputRoot().resolve("blog.atom")));
+  }
+
   protected abstract FileSystem createFilesystem();
 
   protected abstract ZBlogParserProviderType createParserProvider();
@@ -88,13 +114,13 @@ public abstract class ZBlogRendererContract
       final ZBlogParserType parser = p_prov.createParser(config);
       final Validation<Seq<ZError>, ZBlog> p_result = parser.parse();
       dumpResult(p_result);
-      Assert.assertTrue(p_result.isValid());
+      Assertions.assertTrue(p_result.isValid());
       final ZBlog blog = p_result.get();
 
       final ZBlogRendererType writer = w_prov.createRenderer(config);
       final Validation<Seq<ZError>, Void> w_result = writer.render(blog);
       dumpResult(w_result);
-      Assert.assertTrue(w_result.isValid());
+      Assertions.assertTrue(w_result.isValid());
     }
   }
 
@@ -128,32 +154,6 @@ public abstract class ZBlogRendererContract
     }
   }
 
-  private static void runOne(
-    final ZBlogParserProviderType p_prov,
-    final ZBlogRendererProviderType w_prov,
-    final ZBlogConfiguration config)
-  {
-    final ZBlogParserType parser = p_prov.createParser(config);
-    final Validation<Seq<ZError>, ZBlog> result = parser.parse();
-    dumpResult(result);
-    Assert.assertTrue(result.isValid());
-    final ZBlog blog = result.get();
-
-    final ZBlogRendererType writer = w_prov.createRenderer(config);
-    final Validation<Seq<ZError>, Void> w_result = writer.render(blog);
-    dumpResult(w_result);
-    Assert.assertTrue(w_result.isValid());
-
-    Assert.assertTrue(
-      Files.isRegularFile(config.outputRoot().resolve("one.xhtml")));
-    Assert.assertTrue(
-      Files.isRegularFile(config.outputRoot().resolve("1.xhtml")));
-    Assert.assertTrue(
-      Files.isRegularFile(config.outputRoot().resolve("yearly.xhtml")));
-    Assert.assertTrue(
-      Files.isRegularFile(config.outputRoot().resolve("blog.atom")));
-  }
-
   @Test
   public final void testFooterPre()
     throws Exception
@@ -163,9 +163,10 @@ public abstract class ZBlogRendererContract
 
     try (FileSystem fs = this.createFilesystem()) {
       final Path mod_path = fs.getPath("insert.xml");
-      Files.copy(ZBlogRendererContract.class.getResourceAsStream(
-        "/com/io7m/zeptoblog/tests/insertable.xml"),
-                 mod_path);
+      Files.copy(
+        ZBlogRendererContract.class.getResourceAsStream(
+          "/com/io7m/zeptoblog/tests/insertable.xml"),
+        mod_path);
 
       final ZBlogConfiguration config =
         ZBlogConfiguration.builder()
@@ -203,9 +204,10 @@ public abstract class ZBlogRendererContract
 
     try (FileSystem fs = this.createFilesystem()) {
       final Path mod_path = fs.getPath("insert.xml");
-      Files.copy(ZBlogRendererContract.class.getResourceAsStream(
-        "/com/io7m/zeptoblog/tests/insertable.xml"),
-                 mod_path);
+      Files.copy(
+        ZBlogRendererContract.class.getResourceAsStream(
+          "/com/io7m/zeptoblog/tests/insertable.xml"),
+        mod_path);
 
       final ZBlogConfiguration config =
         ZBlogConfiguration.builder()
@@ -243,9 +245,10 @@ public abstract class ZBlogRendererContract
 
     try (FileSystem fs = this.createFilesystem()) {
       final Path mod_path = fs.getPath("insert.xml");
-      Files.copy(ZBlogRendererContract.class.getResourceAsStream(
-        "/com/io7m/zeptoblog/tests/insertable.xml"),
-                 mod_path);
+      Files.copy(
+        ZBlogRendererContract.class.getResourceAsStream(
+          "/com/io7m/zeptoblog/tests/insertable.xml"),
+        mod_path);
 
       final ZBlogConfiguration config =
         ZBlogConfiguration.builder()
@@ -283,9 +286,10 @@ public abstract class ZBlogRendererContract
 
     try (FileSystem fs = this.createFilesystem()) {
       final Path mod_path = fs.getPath("insert.xml");
-      Files.copy(ZBlogRendererContract.class.getResourceAsStream(
-        "/com/io7m/zeptoblog/tests/insertable.xml"),
-                 mod_path);
+      Files.copy(
+        ZBlogRendererContract.class.getResourceAsStream(
+          "/com/io7m/zeptoblog/tests/insertable.xml"),
+        mod_path);
 
       final ZBlogConfiguration config =
         ZBlogConfiguration.builder()
@@ -323,9 +327,10 @@ public abstract class ZBlogRendererContract
 
     try (FileSystem fs = this.createFilesystem()) {
       final Path mod_path = fs.getPath("insert.xml");
-      Files.copy(ZBlogRendererContract.class.getResourceAsStream(
-        "/com/io7m/zeptoblog/tests/insertable.xml"),
-                 mod_path);
+      Files.copy(
+        ZBlogRendererContract.class.getResourceAsStream(
+          "/com/io7m/zeptoblog/tests/insertable.xml"),
+        mod_path);
 
       final ZBlogConfiguration config =
         ZBlogConfiguration.builder()

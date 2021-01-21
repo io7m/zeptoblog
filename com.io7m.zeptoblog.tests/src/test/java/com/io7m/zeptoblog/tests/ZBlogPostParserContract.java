@@ -25,9 +25,8 @@ import com.io7m.zeptoblog.core.ZBlogPostParserType;
 import com.io7m.zeptoblog.core.ZError;
 import io.vavr.collection.Seq;
 import io.vavr.control.Validation;
-import org.hamcrest.core.StringContains;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,8 +88,8 @@ public abstract class ZBlogPostParserContract
 
         final Validation<Seq<ZError>, ZBlogPost> r = p.parse();
         dumpResult(r);
-        Assert.assertTrue(r.isInvalid());
-        Assert.assertTrue(r.getError().get(0).message().contains(
+        Assertions.assertTrue(r.isInvalid());
+        Assertions.assertTrue(r.getError().get(0).message().contains(
           "Unexpected EOF"));
       }
     }
@@ -123,8 +122,9 @@ public abstract class ZBlogPostParserContract
 
         final Validation<Seq<ZError>, ZBlogPost> r = p.parse();
         dumpResult(r);
-        Assert.assertTrue(r.isInvalid());
-        Assert.assertTrue(r.getError().get(0).message().contains("Syntax error"));
+        Assertions.assertTrue(r.isInvalid());
+        Assertions.assertTrue(r.getError().get(0).message().contains(
+          "Syntax error"));
       }
     }
   }
@@ -150,8 +150,8 @@ public abstract class ZBlogPostParserContract
 
         final Validation<Seq<ZError>, ZBlogPost> r = p.parse();
         dumpResult(r);
-        Assert.assertTrue(r.isInvalid());
-        Assert.assertTrue(r.getError().get(0).message().contains("2010"));
+        Assertions.assertTrue(r.isInvalid());
+        Assertions.assertTrue(r.getError().get(0).message().contains("2010"));
       }
     }
   }
@@ -177,8 +177,9 @@ public abstract class ZBlogPostParserContract
 
         final Validation<Seq<ZError>, ZBlogPost> r = p.parse();
         dumpResult(r);
-        Assert.assertTrue(r.isInvalid());
-        Assert.assertTrue(r.getError().get(0).message().contains("Syntax error"));
+        Assertions.assertTrue(r.isInvalid());
+        Assertions.assertTrue(r.getError().get(0).message().contains(
+          "Syntax error"));
       }
     }
   }
@@ -204,8 +205,9 @@ public abstract class ZBlogPostParserContract
 
         final Validation<Seq<ZError>, ZBlogPost> r = p.parse();
         dumpResult(r);
-        Assert.assertTrue(r.isInvalid());
-        Assert.assertTrue(r.getError().get(0).message().contains("Syntax error"));
+        Assertions.assertTrue(r.isInvalid());
+        Assertions.assertTrue(r.getError().get(0).message().contains(
+          "Syntax error"));
       }
     }
   }
@@ -231,8 +233,8 @@ public abstract class ZBlogPostParserContract
 
         final Validation<Seq<ZError>, ZBlogPost> r = p.parse();
         dumpResult(r);
-        Assert.assertTrue(r.isInvalid());
-        Assert.assertTrue(r.getError().get(0).message().contains(
+        Assertions.assertTrue(r.isInvalid());
+        Assertions.assertTrue(r.getError().get(0).message().contains(
           "Title not specified"));
       }
     }
@@ -266,14 +268,12 @@ public abstract class ZBlogPostParserContract
 
         final Validation<Seq<ZError>, ZBlogPost> r = p.parse();
         dumpResult(r);
-        Assert.assertTrue(r.isValid());
+        Assertions.assertTrue(r.isValid());
 
         final ZBlogPost i = r.get();
-        Assert.assertEquals("A", i.title());
-        Assert.assertEquals("F", i.body().format());
-        Assert.assertThat(
-          i.body().text(),
-          StringContains.containsString("Hello."));
+        Assertions.assertEquals("A", i.title());
+        Assertions.assertEquals("F", i.body().format());
+        Assertions.assertTrue(i.body().text().contains("Hello."));
       }
     }
   }
@@ -304,14 +304,14 @@ public abstract class ZBlogPostParserContract
 
         final Validation<Seq<ZError>, ZBlogPost> r = p.parse();
         dumpResult(r);
-        Assert.assertTrue(r.isValid());
+        Assertions.assertTrue(r.isValid());
 
         final ZBlogPost i = r.get();
-        Assert.assertEquals("A", i.title());
-        Assert.assertEquals(ZBlogPostFormatCommonMark.NAME, i.body().format());
-        Assert.assertThat(
-          i.body().text(),
-          StringContains.containsString("Hello."));
+        Assertions.assertEquals("A", i.title());
+        Assertions.assertEquals(
+          ZBlogPostFormatCommonMark.NAME,
+          i.body().format());
+        Assertions.assertTrue(i.body().text().contains("Hello."));
       }
     }
   }

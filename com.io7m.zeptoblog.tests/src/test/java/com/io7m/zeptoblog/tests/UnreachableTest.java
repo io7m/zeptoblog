@@ -18,18 +18,14 @@ package com.io7m.zeptoblog.tests;
 
 import com.io7m.junreachable.UnreachableCodeException;
 import com.io7m.zeptoblog.core.ZBlogConfigurations;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 public final class UnreachableTest
 {
-  @Rule public final ExpectedException expected = ExpectedException.none();
-
   private static void callPrivate(
     final Class<?> c)
     throws Throwable
@@ -47,15 +43,15 @@ public final class UnreachableTest
   public void testZBlogConfigurations()
     throws Throwable
   {
-    this.checkUnreachable(ZBlogConfigurations.class);
-    Assert.fail();
+    checkUnreachable(ZBlogConfigurations.class);
   }
 
-  private void checkUnreachable(
+  private static void checkUnreachable(
     final Class<?> c)
     throws Throwable
   {
-    this.expected.expect(UnreachableCodeException.class);
-    callPrivate(c);
+    Assertions.assertThrows(UnreachableCodeException.class, () -> {
+      callPrivate(c);
+    });
   }
 }

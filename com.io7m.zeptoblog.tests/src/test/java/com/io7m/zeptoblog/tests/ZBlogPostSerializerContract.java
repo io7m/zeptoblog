@@ -26,8 +26,8 @@ import com.io7m.zeptoblog.core.ZBlogPostSerializerType;
 import com.io7m.zeptoblog.core.ZError;
 import io.vavr.collection.Seq;
 import io.vavr.control.Validation;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,10 +123,10 @@ public abstract class ZBlogPostSerializerContract
         dumpResult(result);
 
         final ZBlogPost parsed = result.get();
-        Assert.assertEquals(post.title(), parsed.title());
-        Assert.assertEquals(post.body(), parsed.body());
-        Assert.assertEquals(post.date(), parsed.date());
-        Assert.assertEquals(post.path(), parsed.path());
+        Assertions.assertEquals(post.title(), parsed.title());
+        Assertions.assertEquals(post.body(), parsed.body());
+        Assertions.assertEquals(post.date(), parsed.date());
+        Assertions.assertEquals(post.path(), parsed.path());
       }
     }
   }
