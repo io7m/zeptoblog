@@ -126,7 +126,7 @@ public final class ZBlogConfigurations
 
     try {
       builder.setPostsPerPage(
-        JProperties.getBigIntegerOptional(
+        JProperties.getBigIntegerWithDefault(
           p,
           "com.io7m.zeptoblog.posts_per_page",
           BigInteger.TEN).intValueExact());
@@ -203,14 +203,10 @@ public final class ZBlogConfigurations
     Vector<ZError> errors = errors_initial;
 
     try {
-      String generators = "";
-      try {
-        generators =
-          JProperties.getStringOptional(
-            p, "com.io7m.zeptoblog.generators", "").trim();
-      } catch (final JPropertyNonexistent ex) {
-        // Ignore
-      }
+      final String generators =
+        JProperties.getStringWithDefault(
+          p, "com.io7m.zeptoblog.generators", "")
+          .trim();
 
       if (!generators.isEmpty()) {
         final String[] names = generators.split("\\s+");

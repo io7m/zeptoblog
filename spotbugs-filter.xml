@@ -17,6 +17,7 @@
       <Bug pattern="ITC_INHERITANCE_TYPE_CHECKING"/>
       <Bug pattern="PRMC_POSSIBLY_REDUNDANT_METHOD_CALLS"/>
       <Bug pattern="FII_USE_FUNCTION_IDENTITY"/>
+      <Bug pattern="EI_EXPOSE_REP2"/>
     </Or>
   </Match>
 
