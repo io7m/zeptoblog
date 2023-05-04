@@ -31,14 +31,14 @@
 
   <properties>
     <io7m.api.previousVersion>0.4.0</io7m.api.previousVersion>
-    <io7m.org.immutables.version>2.9.0</io7m.org.immutables.version>
-    <commonmark.version>0.18.2</commonmark.version>
-    <junit.version>5.8.2</junit.version>
+    <io7m.org.immutables.version>2.9.3</io7m.org.immutables.version>
+    <commonmark.version>0.21.0</commonmark.version>
+    <junit.version>5.9.3</junit.version>
   </properties>
 
   <licenses>
     <license>
-      <name>ISC License</name>
+      <name>ISC</name>
       <url>https://www.io7m.com/license/isc.txt</url>
     </license>
   </licenses>
@@ -103,7 +103,7 @@
       <dependency>
         <groupId>com.io7m.jlexing</groupId>
         <artifactId>com.io7m.jlexing.core</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.0</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.jaffirm</groupId>
@@ -124,7 +124,7 @@
       <dependency>
         <groupId>org.osgi</groupId>
         <artifactId>org.osgi.service.component.annotations</artifactId>
-        <version>1.5.0</version>
+        <version>1.5.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -157,12 +157,12 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>2.0.1</version>
+        <version>2.0.7</version>
       </dependency>
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.4.1</version>
+        <version>1.4.7</version>
       </dependency>
       <dependency>
         <groupId>com.beust</groupId>
@@ -182,7 +182,7 @@
       <dependency>
         <groupId>com.rometools</groupId>
         <artifactId>rome</artifactId>
-        <version>1.18.0</version>
+        <version>2.1.0</version>
       </dependency>
 
       <dependency>
@@ -198,7 +198,7 @@
       <dependency>
         <groupId>com.github.marschall</groupId>
         <artifactId>memoryfilesystem</artifactId>
-        <version>2.3.0</version>
+        <version>2.5.1</version>
       </dependency>
       <dependency>
         <groupId>org.jmockit</groupId>
