@@ -31,9 +31,9 @@
 
   <properties>
     <io7m.api.previousVersion>0.4.0</io7m.api.previousVersion>
-    <io7m.org.immutables.version>2.9.3</io7m.org.immutables.version>
+    <io7m.org.immutables.version>2.10.0</io7m.org.immutables.version>
     <commonmark.version>0.21.0</commonmark.version>
-    <junit.version>5.9.3</junit.version>
+    <junit.version>5.10.1</junit.version>
   </properties>
 
   <licenses>
@@ -157,12 +157,12 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>2.0.7</version>
+        <version>2.0.10</version>
       </dependency>
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.4.7</version>
+        <version>1.4.14</version>
       </dependency>
       <dependency>
         <groupId>com.beust</groupId>
@@ -172,12 +172,12 @@
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
-        <version>2.13.0</version>
+        <version>2.15.1</version>
       </dependency>
       <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
-        <version>1.15</version>
+        <version>1.16.0</version>
       </dependency>
       <dependency>
         <groupId>com.rometools</groupId>
@@ -198,7 +198,7 @@
       <dependency>
         <groupId>com.github.marschall</groupId>
         <artifactId>memoryfilesystem</artifactId>
-        <version>2.6.1</version>
+        <version>2.7.0</version>
       </dependency>
       <dependency>
         <groupId>org.jmockit</groupId>
